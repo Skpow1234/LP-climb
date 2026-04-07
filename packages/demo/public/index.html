@@ -103,7 +103,8 @@
       .preview {
         min-height: 320px;
         display: grid;
-        place-items: center;
+        grid-template-rows: 1fr auto;
+        gap: 10px;
       }
       .preview img {
         width: 100%;
@@ -112,6 +113,16 @@
         border: 1px solid var(--border);
         border-radius: 14px;
         background: rgba(0, 0, 0, 0.25);
+      }
+      .status {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 10px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.25);
+        white-space: pre-wrap;
+        word-break: break-word;
       }
       pre {
         margin: 0;
@@ -176,6 +187,7 @@
       <div class="card">
         <div class="preview">
           <img id="preview" alt="LP climb ladder preview" />
+          <div id="status" class="status"></div>
         </div>
       </div>
     </div>
