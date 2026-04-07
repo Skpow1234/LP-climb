@@ -1,0 +1,268 @@
+import type { ContributionCell } from "../github/contributions.js";
+import type { ContributionStats } from "../stats.js";
+import type { Theme } from "../themes.js";
+
+export type RenderParams = {
+  user: string;
+  cells: ContributionCell[];
+  stats: ContributionStats;
+  theme: Theme;
+  width?: number;
+  height?: number;
+  vs?: {
+    user: string;
+    cells: ContributionCell[];
+    stats: ContributionStats;
+  };
+};
+
+type TierId =
+  | "iron"
+  | "bronze"
+  | "silver"
+  | "gold"
+  | "plat"
+  | "emerald"
+  | "diamond"
+  | "master"
+  | "grandmaster"
+  | "challenger";
+
+const TIERS: { id: TierId; label: string; lpMin: number; lpMax: number }[] = [
+  { id: "iron", label: "IRON", lpMin: 0, lpMax: 399 },
+  { id: "bronze", label: "BRONZE", lpMin: 400, lpMax: 799 },
+  { id: "silver", label: "SILVER", lpMin: 800, lpMax: 1199 },
+  { id: "gold", label: "GOLD", lpMin: 1200, lpMax: 1599 },
+  { id: "plat", label: "PLAT", lpMin: 1600, lpMax: 1999 },
+  { id: "emerald", label: "EMERALD", lpMin: 2000, lpMax: 2399 },
+  { id: "diamond", label: "DIAMOND", lpMin: 2400, lpMax: 2799 },
+  { id: "master", label: "MASTER", lpMin: 2800, lpMax: 3199 },
+  { id: "grandmaster", label: "GRANDMASTER", lpMin: 3200, lpMax: 3599 },
+  { id: "challenger", label: "CHALLENGER", lpMin: 3600, lpMax: 3999 }
+];
+
+function clamp(n: number, a: number, b: number) {
+  return Math.max(a, Math.min(b, n));
+}
+
+function esc(s: string) {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+function computeLpTimeline(cells: ContributionCell[]) {
+  const sorted = [...cells].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  const out: { date: string; lp: number; delta: number }[] = [];
+
+  // Map counts to an LP delta. This is intentionally "gamey": small day -> small LP,
+  // huge day -> big LP, while preserving monotonicity on average.
+  const deltaFromCount = (count: number) => {
+    if (count <= 0) return -4;
+    if (count <= 2) return 6;
+    if (count <= 5) return 10;
+    if (count <= 10) return 16;
+    if (count <= 20) return 22;
+    if (count <= 35) return 30;
+    if (count <= 55) return 38;
+    return 50;
+  };
+
+  let lp = 800; // start at Silver-ish so most users see movement both ways
+  for (const c of sorted) {
+    const delta = deltaFromCount(c.count);
+    lp = clamp(lp + delta, TIERS[0]!.lpMin, TIERS.at(-1)!.lpMax);
+    out.push({ date: c.date, lp, delta });
+  }
+  return out;
+}
+
+function lpToY(lp: number, top: number, bottom: number) {
+  const min = TIERS[0]!.lpMin;
+  const max = TIERS.at(-1)!.lpMax;
+  const t = (lp - min) / (max - min);
+  return bottom - t * (bottom - top);
+}
+
+function formatWeekday(weekday: number) {
+  // GitHub weekday is 0..6 (Sunday..Saturday)
+  return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][weekday] ?? String(weekday);
+}
+
+export function renderRankedClimbSvg(p: RenderParams): string {
+  const W = p.width ?? 900;
+  const H = p.height ?? 260;
+
+  const padding = 18;
+  const headerH = 58;
+  const footerH = 46;
+
+  const ladderX0 = padding + 210;
+  const ladderX1 = W - padding - 18;
+  const ladderTop = padding + headerH;
+  const ladderBottom = H - padding - footerH;
+
+  const t0 = computeLpTimeline(p.cells);
+  const t1 = p.vs ? computeLpTimeline(p.vs.cells) : null;
+
+  const head = t0.at(-1);
+  const head2 = t1?.at(-1);
+
+  const y0 = head ? lpToY(head.lp, ladderTop, ladderBottom) : ladderBottom;
+  const y1 = head2 ? lpToY(head2.lp, ladderTop, ladderBottom) : y0;
+
+  const markerX = ladderX1 - 10;
+  const markerX2 = ladderX1 - 28;
+
+  // Animated marker (CSS keyframes) based on last 365-ish points
+  const keyframes = (() => {
+    if (t0.length === 0) return "";
+    const n = t0.length;
+    const pts = t0.map((d, i) => {
+      const k = Math.round((i / Math.max(1, n - 1)) * 1000) / 10;
+      const y = lpToY(d.lp, ladderTop, ladderBottom);
+      return `${k}% { transform: translate(0px, ${y - ladderTop}px); }`;
+    });
+    return pts.join("\n");
+  })();
+
+  const keyframes2 = (() => {
+    if (!t1 || t1.length === 0) return "";
+    const n = t1.length;
+    const pts = t1.map((d, i) => {
+      const k = Math.round((i / Math.max(1, n - 1)) * 1000) / 10;
+      const y = lpToY(d.lp, ladderTop, ladderBottom);
+      return `${k}% { transform: translate(0px, ${y - ladderTop}px); }`;
+    });
+    return pts.join("\n");
+  })();
+
+  const tierTicks = TIERS.map((tier) => {
+    const y = lpToY(tier.lpMin, ladderTop, ladderBottom);
+    const color = (p.theme.tier as any)[tier.id] as string;
+    return `
+      <g class="tier">
+        <line x1="${ladderX0}" y1="${y}" x2="${ladderX1}" y2="${y}" stroke="${color}" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="${ladderX0 - 12}" y="${y + 5}" text-anchor="end" class="tierLabel">${esc(tier.label)}</text>
+      </g>
+    `;
+  }).join("");
+
+  const title = p.vs ? `${p.user} vs ${p.vs.user}` : p.user;
+
+  const statsLine = (() => {
+    const a = p.stats;
+    const max = a.maxDay ? `${a.maxDay.count} on ${a.maxDay.date}` : "n/a";
+    const busiest = a.busiestWeekday ? `${formatWeekday(a.busiestWeekday.weekday)}` : "n/a";
+    return `Streak: ${a.currentStreakDays}d (best ${a.bestStreakDays}d) • 30d: ${a.last30DaysTotal} • Best day: ${max} • Busiest: ${busiest}`;
+  })();
+
+  const statsLine2 = (() => {
+    if (!p.vs) return "";
+    const a = p.vs.stats;
+    const max = a.maxDay ? `${a.maxDay.count} on ${a.maxDay.date}` : "n/a";
+    const busiest = a.busiestWeekday ? `${formatWeekday(a.busiestWeekday.weekday)}` : "n/a";
+    return `VS Streak: ${a.currentStreakDays}d (best ${a.bestStreakDays}d) • 30d: ${a.last30DaysTotal} • Best day: ${max} • Busiest: ${busiest}`;
+  })();
+
+  const style = `
+    :root{
+      --bg:${p.theme.bg};
+      --frame:${p.theme.frame};
+      --text:${p.theme.text};
+      --accent:${p.theme.accent};
+      --glow:${p.theme.glow};
+    }
+    .frame{ fill: var(--bg); stroke: var(--frame); stroke-width: 2; }
+    .title{ fill: var(--text); font: 700 16px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.4px; }
+    .sub{ fill: rgba(255,255,255,0.72); font: 500 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .tierLabel{ fill: rgba(255,255,255,0.55); font: 700 10px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.8px; }
+    .lpBox{ fill: rgba(255,255,255,0.04); stroke: rgba(255,255,255,0.10); stroke-width: 1; }
+    .lpText{ fill: var(--text); font: 800 14px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .lpSmall{ fill: rgba(255,255,255,0.65); font: 600 11px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .ladderRail{ stroke: rgba(255,255,255,0.08); stroke-width: 10; stroke-linecap: round; }
+    .ladderInner{ stroke: rgba(255,255,255,0.10); stroke-width: 2; stroke-linecap: round; }
+    .marker{ filter: drop-shadow(0 0 10px var(--glow)); }
+    .markerCore{ fill: var(--accent); }
+    .markerRing{ fill: none; stroke: rgba(255,255,255,0.55); stroke-width: 1.5; }
+    .marker2 .markerCore{ fill: rgba(255,255,255,0.88); }
+    .marker2{ filter: drop-shadow(0 0 10px rgba(255,255,255,0.22)); }
+
+    @keyframes climb {
+      ${keyframes}
+    }
+    @keyframes climb2 {
+      ${keyframes2}
+    }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    @media (prefers-reduced-motion: reduce) {
+      .anim, .anim2 { animation: none; }
+    }
+  `;
+
+  const lpLabel = head ? `${head.lp} LP` : "—";
+  const lpLabel2 = head2 ? `${head2.lp} LP` : "";
+
+  const footer = `
+    <g transform="translate(${padding}, ${H - padding - 10})">
+      <text class="sub">lp-climb • data: GitHub contributions • theme: ${esc(p.theme.name)}</text>
+    </g>
+  `;
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Ranked climb ladder for ${esc(title)}">
+  <style><![CDATA[${style}]]></style>
+
+  <rect x="${padding}" y="${padding}" width="${W - padding * 2}" height="${H - padding * 2}" rx="16" class="frame"/>
+
+  <g transform="translate(${padding + 16}, ${padding + 20})">
+    <text class="title">${esc(title)} • Ranked Climb</text>
+    <text class="sub" y="22">${esc(statsLine)}</text>
+    ${p.vs ? `<text class="sub" y="40">${esc(statsLine2)}</text>` : ""}
+  </g>
+
+  <g>
+    <line x1="${ladderX0}" y1="${ladderTop}" x2="${ladderX0}" y2="${ladderBottom}" class="ladderRail"/>
+    <line x1="${ladderX0}" y1="${ladderTop}" x2="${ladderX0}" y2="${ladderBottom}" class="ladderInner"/>
+
+    ${tierTicks}
+  </g>
+
+  <g transform="translate(${padding + 16}, ${padding + headerH})">
+    <rect width="170" height="44" rx="10" class="lpBox"/>
+    <text x="14" y="27" class="lpText">${esc(lpLabel)}</text>
+    <text x="14" y="40" class="lpSmall">${esc(p.user)}</text>
+  </g>
+
+  ${
+    p.vs
+      ? `<g transform="translate(${padding + 16}, ${padding + headerH + 52})">
+    <rect width="170" height="44" rx="10" class="lpBox"/>
+    <text x="14" y="27" class="lpText">${esc(lpLabel2)}</text>
+    <text x="14" y="40" class="lpSmall">${esc(p.vs.user)}</text>
+  </g>`
+      : ""
+  }
+
+  <g transform="translate(${markerX}, ${ladderTop})" class="marker anim">
+    <circle cx="0" cy="0" r="7.5" class="markerCore"/>
+    <circle cx="0" cy="0" r="11" class="markerRing"/>
+  </g>
+
+  ${
+    p.vs
+      ? `<g transform="translate(${markerX2}, ${ladderTop})" class="marker marker2 anim2">
+    <circle cx="0" cy="0" r="6.5" class="markerCore"/>
+    <circle cx="0" cy="0" r="10" class="markerRing"/>
+  </g>`
+      : ""
+  }
+
+  ${footer}
+</svg>`;
+}
+
