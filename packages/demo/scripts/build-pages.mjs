@@ -21,14 +21,23 @@ async function copyDir(src, dst) {
   }
 }
 
-const apiBase = (process.env.LP_CLIMB_API_BASE || "http://localhost:3000").replace(/\/+$/, "");
+const raw = (process.env.LP_CLIMB_API_BASE || "").trim();
+
+// On GitHub Pages deploy, we never want to silently ship "localhost".
+if (process.env.GITHUB_ACTIONS && !raw) {
+  throw new Error(
+    "LP_CLIMB_API_BASE is required in CI. Set repo variable LP_CLIMB_API_BASE to your hosted API base URL (e.g. https://lp-climb.onrender.com).",
+  );
+}
+
+const apiBase = (raw || "http://localhost:3000").replace(/\/+$/, "");
 
 await rm(outDir);
 await copyDir(publicDir, outDir);
 
 await fs.writeFile(
   path.join(outDir, "config.js"),
-  `window.LP_CLIMB_DEMO = ${JSON.stringify({ apiBase })};\n`,
+  `window.LP_CLIMB_DEMO = ${JSON.stringify({ apiBase, builtAt: new Date().toISOString() })};\n`,
   "utf8",
 );
 

@@ -31,6 +31,13 @@ jobs:
       - name: Install (workspaces)
         run: npm install --workspaces --include-workspace-root
 
+      - name: Debug LP_CLIMB_API_BASE
+        run: |
+          set -euo pipefail
+          echo "LP_CLIMB_API_BASE=${LP_CLIMB_API_BASE:-<empty>}"
+        env:
+          LP_CLIMB_API_BASE: ${{ vars.LP_CLIMB_API_BASE }}
+
       - name: Build demo (static)
         run: npm --workspace packages/demo run build:pages
         env:
