@@ -14,6 +14,10 @@ League-inspired **Ranked Climb Ladder** animation powered by **GitHub contributi
   <img alt="lp-climb preview" src="docs/theme-previews/rift.svg" />
 </picture>
 
+## Live demo
+
+- **GitHub Pages**: `https://skpow1234.github.io/LP-climb/`
+
 ## Ways to use LP Climb
 
 - **GitHub Action**: generate `dist/*.svg` in a workflow (recommended for profile READMEs).
@@ -116,6 +120,10 @@ Embed example (dark/light):
 ## GitHub Pages demo (static UI)
 
 This repo includes a static demo site that can be deployed to **GitHub Pages**. The demo site **does not** call GitHub directly; it calls your hosted LP Climb API.
+
+Live demo (GitHub Pages):
+
+- `https://skpow1234.github.io/LP-climb/`
 
 ### Deploy
 
