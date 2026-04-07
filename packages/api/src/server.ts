@@ -26,6 +26,7 @@ await app.register(rateLimit, {
 });
 
 app.get("/healthz", async () => ({ ok: true }));
+app.get("/v1/healthz", async () => ({ ok: true, version: "v1" }));
 
 const RenderQuerySchema = z.object({
   user: z.string().min(1).max(39),
@@ -35,13 +36,17 @@ const RenderQuerySchema = z.object({
   vs: z.string().min(1).max(39).optional()
 });
 
-app.get("/render.svg", async (req, reply) => {
+const handleRenderSvg = async (
+  req: any,
+  reply: any,
+  opts?: { deprecated?: boolean }
+) => {
   const q = RenderQuerySchema.parse(req.query);
   const theme = getTheme(q.theme ?? null);
 
   const cacheKey = JSON.stringify({
     v: 1,
-    route: "render.svg",
+    route: "v1/render.svg",
     user: q.user,
     vs: q.vs ?? null,
     theme: theme.id,
@@ -53,6 +58,11 @@ app.get("/render.svg", async (req, reply) => {
   if (cached) {
     reply.header("Content-Type", "image/svg+xml; charset=utf-8");
     reply.header("Cache-Control", `public, max-age=${env.CACHE_TTL_SECONDS}`);
+    if (opts?.deprecated) {
+      reply.header("Deprecation", "true");
+      reply.header("Sunset", "2026-12-31");
+      reply.header("Link", '</v1/render.svg>; rel="successor-version"');
+    }
     return cached;
   }
 
@@ -80,16 +90,30 @@ app.get("/render.svg", async (req, reply) => {
 
   reply.header("Content-Type", "image/svg+xml; charset=utf-8");
   reply.header("Cache-Control", `public, max-age=${env.CACHE_TTL_SECONDS}`);
+  if (opts?.deprecated) {
+    reply.header("Deprecation", "true");
+    reply.header("Sunset", "2026-12-31");
+    reply.header("Link", '</v1/render.svg>; rel="successor-version"');
+  }
   return svg;
-});
+};
 
-app.get("/meta.json", async (req, reply) => {
+const handleMetaJson = async (
+  req: any,
+  reply: any,
+  opts?: { deprecated?: boolean }
+) => {
   const q = RenderQuerySchema.pick({ user: true, vs: true }).parse(req.query);
-  const cacheKey = JSON.stringify({ v: 1, route: "meta.json", user: q.user, vs: q.vs ?? null });
+  const cacheKey = JSON.stringify({ v: 1, route: "v1/meta.json", user: q.user, vs: q.vs ?? null });
   const cached = cache.get(cacheKey);
   if (cached) {
     reply.header("Content-Type", "application/json; charset=utf-8");
     reply.header("Cache-Control", `public, max-age=${env.CACHE_TTL_SECONDS}`);
+    if (opts?.deprecated) {
+      reply.header("Deprecation", "true");
+      reply.header("Sunset", "2026-12-31");
+      reply.header("Link", '</v1/meta.json>; rel="successor-version"');
+    }
     return cached;
   }
 
@@ -109,8 +133,21 @@ app.get("/meta.json", async (req, reply) => {
   cache.set(cacheKey, body, env.CACHE_TTL_SECONDS);
   reply.header("Content-Type", "application/json; charset=utf-8");
   reply.header("Cache-Control", `public, max-age=${env.CACHE_TTL_SECONDS}`);
+  if (opts?.deprecated) {
+    reply.header("Deprecation", "true");
+    reply.header("Sunset", "2026-12-31");
+    reply.header("Link", '</v1/meta.json>; rel="successor-version"');
+  }
   return body;
-});
+};
+
+// v1 endpoints
+app.get("/v1/render.svg", (req, reply) => handleRenderSvg(req, reply));
+app.get("/v1/meta.json", (req, reply) => handleMetaJson(req, reply));
+
+// legacy (unversioned) endpoints, kept for compatibility
+app.get("/render.svg", (req, reply) => handleRenderSvg(req, reply, { deprecated: true }));
+app.get("/meta.json", (req, reply) => handleMetaJson(req, reply, { deprecated: true }));
 
 app.setErrorHandler((err, _req, reply) => {
   app.log.error(err);

@@ -4,12 +4,15 @@ Dockerized service that renders a League-inspired **ranked climb ladder** animat
 
 ## Endpoints
 
-- `GET /render.svg?user=USER&theme=rift`
+- `GET /v1/render.svg?user=USER&theme=rift` (recommended)
+  - Legacy alias: `GET /render.svg?...` (deprecated)
   - Optional: `&vs=OTHER_USER` for 1v1 comparison
   - Optional: `&width=900&height=260`
-- `GET /meta.json?user=USER`
+- `GET /v1/meta.json?user=USER` (recommended)
+  - Legacy alias: `GET /meta.json?...` (deprecated)
   - Optional: `&vs=OTHER_USER`
-- `GET /healthz`
+- `GET /v1/healthz` (recommended)
+  - Legacy alias: `GET /healthz`
 
 ## Local dev
 
