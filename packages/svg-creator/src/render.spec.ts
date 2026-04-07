@@ -36,7 +36,10 @@ describe("renderRankedClimbSvg determinism", () => {
     const cells = makeSyntheticCells();
     const stats = computeStats(cells);
 
-    const out = Object.entries(THEMES).map(([id, theme]) => {
+    const out = Object.keys(THEMES)
+      .sort()
+      .map((id) => {
+        const theme = (THEMES as any)[id];
       const svg = renderRankedClimbSvg({
         user: "snapshot-user",
         cells,
@@ -49,7 +52,11 @@ describe("renderRankedClimbSvg determinism", () => {
     });
 
     // Normalize line endings so snapshots match on Windows + Linux runners.
-    const normalized = out.join("\n").replace(/\r\n/g, "\n");
+    const normalized = out
+      .join("\n")
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n")
+      .replace(/[ \t]+$/gm, "");
     expect(normalized).toMatchSnapshot();
   });
 
