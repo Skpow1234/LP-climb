@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@fastify/etag": "^5.0.2",
+    "@fastify/helmet": "^13.0.2",
     "@fastify/rate-limit": "^10.2.0",
     "@fastify/sensible": "^6.0.2",
     "@lp-climb/core": "file:../core",

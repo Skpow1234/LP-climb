@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import sensible from "@fastify/sensible";
 import etag from "@fastify/etag";
 import rateLimit from "@fastify/rate-limit";
+import helmet from "@fastify/helmet";
 import { z } from "zod";
 import { loadEnv } from "./env.js";
 import { createMemoryCache } from "./cache.js";
@@ -15,11 +16,17 @@ const cache = createMemoryCache({ maxEntries: env.CACHE_MAX_ENTRIES });
 
 const app = Fastify({
   logger: true,
-  trustProxy: true
+  trustProxy: true,
+  bodyLimit: 1024
 });
 
 await app.register(sensible);
 await app.register(etag);
+await app.register(helmet, {
+  // We embed SVGs in iframes and GitHub READMEs; avoid overly strict defaults that could break embedding.
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false
+});
 await app.register(rateLimit, {
   max: env.RATE_LIMIT_MAX,
   timeWindow: env.RATE_LIMIT_TIME_WINDOW_SECONDS * 1000
@@ -30,12 +37,18 @@ app.get("/v1/healthz", async () => ({ ok: true, version: "v1" }));
 
 const cacheControl = `public, max-age=${env.CACHE_TTL_SECONDS}, stale-while-revalidate=${env.CACHE_STALE_SECONDS}`;
 
+const GithubLoginSchema = z
+  .string()
+  .min(1)
+  .max(39)
+  .regex(/^(?!-)(?!.*--)[a-zA-Z0-9-]{1,39}(?<!-)$/, "invalid github username");
+
 const RenderQuerySchema = z.object({
-  user: z.string().min(1).max(39),
+  user: GithubLoginSchema,
   theme: z.string().optional(),
   width: z.coerce.number().int().min(500).max(2000).optional(),
   height: z.coerce.number().int().min(180).max(900).optional(),
-  vs: z.string().min(1).max(39).optional()
+  vs: GithubLoginSchema.optional()
 });
 
 async function getContribCellsSWR(user: string) {
