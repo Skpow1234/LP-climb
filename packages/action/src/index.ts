@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 import { fetchGithubContributionCells } from "@lp-climb/github-contrib";
+import { isGithubContribError } from "@lp-climb/github-contrib";
 import { computeStats } from "@lp-climb/core";
 import { renderRankedClimbSvg } from "@lp-climb/svg-creator";
 
@@ -56,6 +57,10 @@ import { parseOutputsOption } from "./outputsOptions.js";
       fs.writeFileSync(out.filename, svg);
     }
   } catch (e: any) {
+    if (isGithubContribError(e)) {
+      githubAction.setFailed(`Action failed (${e.code}): ${e.message}`);
+      return;
+    }
     githubAction.setFailed(`Action failed: ${e?.message ?? String(e)}`);
   }
 })();

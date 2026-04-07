@@ -5,7 +5,7 @@ import rateLimit from "@fastify/rate-limit";
 import { z } from "zod";
 import { loadEnv } from "./env.js";
 import { createMemoryCache } from "./cache.js";
-import { fetchGithubContributionCells } from "@lp-climb/github-contrib";
+import { fetchGithubContributionCells, isGithubContribError } from "@lp-climb/github-contrib";
 import { computeStats } from "@lp-climb/core";
 import { getTheme } from "@lp-climb/themes";
 import { renderRankedClimbSvg } from "@lp-climb/svg-creator";
@@ -114,6 +114,14 @@ app.get("/meta.json", async (req, reply) => {
 
 app.setErrorHandler((err, _req, reply) => {
   app.log.error(err);
+  if (isGithubContribError(err)) {
+    reply.status(err.statusCode).send({
+      error: err.code,
+      message: err.message
+    });
+    return;
+  }
+
   const status =
     (err as any).statusCode && Number.isInteger((err as any).statusCode) ? (err as any).statusCode : 500;
   reply.status(status).send({
