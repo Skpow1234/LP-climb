@@ -3,6 +3,7 @@ WORKDIR /app
 
 # Install only what's needed to build TS packages
 COPY package.json package-lock.json* ./
+COPY tsconfig.base.json ./
 COPY packages ./packages
 
 # Use npm workspaces. This avoids requiring Bun on GitHub runners.
