@@ -22,6 +22,41 @@ League-inspired **Ranked Climb Ladder** animation powered by **GitHub contributi
 - **GitHub Pages demo**: a static UI where users type a username/theme and preview the ladder (calls your hosted API).
 - **Docker**: run the API locally, or run the action image as a container.
 
+## Recipes (copy/paste)
+
+### 1) Profile README (recommended)
+
+Use the action to generate to `dist/`, then push `dist/` to `output` (via `nightly.yml`).
+
+**Outputs**:
+
+```text
+dist/lp.svg?theme=rift
+dist/lp-dark.svg?theme=assassin
+```
+
+**Embed**:
+
+```html
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/<OWNER>/<REPO>/output/lp-dark.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/<OWNER>/<REPO>/output/lp.svg" />
+  <img alt="LP Climb" src="https://raw.githubusercontent.com/<OWNER>/<REPO>/output/lp.svg" />
+</picture>
+```
+
+### 2) On-demand (apps / dashboards)
+
+```text
+https://<API_HOST>/v1/render.svg?user=octocat&theme=rift&width=900&height=260
+```
+
+### 3) 1v1 ladder (VS)
+
+```text
+https://<API_HOST>/v1/render.svg?user=octocat&vs=torvalds&theme=rift
+```
+
 ## API endpoints (hosted render service)
 
 - `GET /v1/render.svg?user=USER&theme=rift` (**recommended**)
@@ -185,6 +220,17 @@ List all themes + their colors:
 
 - `GET /v1/themes.json`
 
+### Recommended dark/light pairs
+
+Pick any combination, but these pairs read well on GitHub:
+
+| Light | Dark |
+| --- | --- |
+| `rift` | `assassin` |
+| `support` | `mage` |
+| `marksman` | `tank` |
+| `mono` | `mono` |
+
 ### Custom theme params (optional)
 
 You can override colors directly in the render URL (useful for personalization / “champion select”):
@@ -217,6 +263,7 @@ Generate 2 outputs and embed with `<picture>`:
 
 - **Demo/preview shows nothing**: open the generated SVG URL in a new tab. If you see JSON like `{ "error": "...", "message": "..." }`, the API is returning an error (rate limit / bad token / invalid username).
 - **Render root shows 404**: use `/v1/healthz` (the API does not serve `/`).
+- **SVG looks “transparent” on some backgrounds**: use a theme with an explicit `bg` (all built-in themes include `bg`) or pass `&bg=%23000000`.
 
 ### Theme previews
 

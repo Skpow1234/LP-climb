@@ -2,6 +2,34 @@ function qs(id) {
   return document.getElementById(id);
 }
 
+function toast(type, title, body, opts) {
+  const wrap = qs("toasts");
+  if (!wrap) return;
+
+  const o = opts || {};
+  const ms = typeof o.ms === "number" ? o.ms : type === "error" ? 8000 : 3200;
+
+  const el = document.createElement("div");
+  el.className = `toast ${type || "info"}`;
+  el.innerHTML = `
+    <div class="toastRow">
+      <div class="toastTitle"></div>
+      <button class="toastClose" aria-label="Dismiss">×</button>
+    </div>
+    <div class="toastBody"></div>
+  `;
+  el.querySelector(".toastTitle").textContent = String(title || "");
+  el.querySelector(".toastBody").textContent = String(body || "");
+
+  const close = () => {
+    el.remove();
+  };
+  el.querySelector(".toastClose").addEventListener("click", close);
+
+  wrap.appendChild(el);
+  if (ms > 0) setTimeout(close, ms);
+}
+
 function getApiBase() {
   const cfg = (window.LP_CLIMB_DEMO && window.LP_CLIMB_DEMO.apiBase) || "";
   return String(cfg || "http://localhost:3000").replace(/\/+$/, "");
@@ -54,14 +82,19 @@ function update() {
   const img = qs("preview");
   img.alt = `LP climb ladder for ${sp.get("user")}${sp.get("vs") ? ` vs ${sp.get("vs")}` : ""}`;
   setStatus(`Loading SVG…\n${svgUrl}`);
+  toast("info", "Rendering", `${sp.get("user")}${sp.get("vs") ? ` vs ${sp.get("vs")}` : ""} • ${sp.get("theme") || "rift"}`, {
+    ms: 1400
+  });
 
   img.onload = () => {
     setStatus(`Loaded.\n${svgUrl}`);
+    toast("success", "Rendered", "SVG loaded successfully.");
   };
   img.onerror = () => {
     setStatus(
       `Failed to load SVG.\n\nTry "Open SVG" to see the error response.\n\n${svgUrl}`,
     );
+    toast("error", "Render failed", 'Click "Open SVG" to see the API error response.', { ms: 9000 });
   };
 
   img.src = svgUrl;

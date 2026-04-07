@@ -135,6 +135,65 @@
         font-size: 12px;
         line-height: 1.4;
       }
+
+      /* Toasts */
+      .toasts {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        display: grid;
+        gap: 10px;
+        z-index: 9999;
+        max-width: min(520px, calc(100vw - 32px));
+      }
+      .toast {
+        border: 1px solid var(--border);
+        background: rgba(18, 19, 26, 0.92);
+        backdrop-filter: blur(10px);
+        border-radius: 14px;
+        padding: 10px 12px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+      }
+      .toastRow {
+        display: flex;
+        gap: 10px;
+        align-items: baseline;
+        justify-content: space-between;
+      }
+      .toastTitle {
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: 0.2px;
+      }
+      .toastBody {
+        margin-top: 6px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 12px;
+        line-height: 1.35;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .toastClose {
+        border: 0;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        font-weight: 800;
+        font-size: 14px;
+        padding: 0 6px;
+      }
+      .toastClose:hover {
+        color: rgba(255, 255, 255, 0.9);
+      }
+      .toast.info {
+        border-color: rgba(108, 225, 255, 0.28);
+      }
+      .toast.success {
+        border-color: rgba(42, 233, 140, 0.35);
+      }
+      .toast.error {
+        border-color: rgba(255, 89, 112, 0.45);
+      }
     </style>
   </head>
   <body>
@@ -191,6 +250,8 @@
         </div>
       </div>
     </div>
+
+    <div id="toasts" class="toasts" aria-live="polite" aria-relevant="additions removals"></div>
 
     <script src="./config.js"></script>
     <script src="./app.js"></script>
