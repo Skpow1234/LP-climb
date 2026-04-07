@@ -8,7 +8,7 @@ import { loadEnv } from "./env.js";
 import { createMemoryCache } from "./cache.js";
 import { fetchGithubContributionCells, isGithubContribError } from "@lp-climb/github-contrib";
 import { computeStats } from "@lp-climb/core";
-import { getTheme } from "@lp-climb/themes";
+import { getTheme, listThemes } from "@lp-climb/themes";
 import { renderRankedClimbSvg } from "@lp-climb/svg-creator";
 
 const env = loadEnv();
@@ -37,6 +37,14 @@ app.get("/v1/healthz", async () => ({ ok: true, version: "v1" }));
 
 const cacheControl = `public, max-age=${env.CACHE_TTL_SECONDS}, stale-while-revalidate=${env.CACHE_STALE_SECONDS}`;
 
+const ColorSchema = z
+  .string()
+  .min(1)
+  .max(64)
+  .refine((s) => /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(s) || /^rgba?\([^)]+\)$/.test(s), {
+    message: "invalid color (expected hex like #RRGGBB or rgb()/rgba())"
+  });
+
 const GithubLoginSchema = z
   .string()
   .min(1)
@@ -48,8 +56,54 @@ const RenderQuerySchema = z.object({
   theme: z.string().optional(),
   width: z.coerce.number().int().min(500).max(2000).optional(),
   height: z.coerce.number().int().min(180).max(900).optional(),
-  vs: GithubLoginSchema.optional()
+  vs: GithubLoginSchema.optional(),
+
+  // Optional theme overrides (for “champion select” personalization).
+  // Example: &accent=%23ff00aa&tier_challenger=%23ffd36b
+  bg: ColorSchema.optional(),
+  frame: ColorSchema.optional(),
+  text: ColorSchema.optional(),
+  accent: ColorSchema.optional(),
+  glow: ColorSchema.optional(),
+  tier_iron: ColorSchema.optional(),
+  tier_bronze: ColorSchema.optional(),
+  tier_silver: ColorSchema.optional(),
+  tier_gold: ColorSchema.optional(),
+  tier_plat: ColorSchema.optional(),
+  tier_emerald: ColorSchema.optional(),
+  tier_diamond: ColorSchema.optional(),
+  tier_master: ColorSchema.optional(),
+  tier_grandmaster: ColorSchema.optional(),
+  tier_challenger: ColorSchema.optional()
 });
+
+function applyThemeOverrides(base: any, q: any) {
+  const out = structuredClone(base) as any;
+  if (q.bg) out.bg = q.bg;
+  if (q.frame) out.frame = q.frame;
+  if (q.text) out.text = q.text;
+  if (q.accent) out.accent = q.accent;
+  if (q.glow) out.glow = q.glow;
+
+  const tierMap: Record<string, string> = {
+    iron: q.tier_iron,
+    bronze: q.tier_bronze,
+    silver: q.tier_silver,
+    gold: q.tier_gold,
+    plat: q.tier_plat,
+    emerald: q.tier_emerald,
+    diamond: q.tier_diamond,
+    master: q.tier_master,
+    grandmaster: q.tier_grandmaster,
+    challenger: q.tier_challenger
+  };
+  for (const k of Object.keys(tierMap)) {
+    const v = tierMap[k];
+    if (v) out.tier[k] = v;
+  }
+
+  return out;
+}
 
 async function getContribCellsSWR(user: string) {
   const key = JSON.stringify({ v: 1, kind: "contrib", user });
@@ -93,7 +147,7 @@ const handleRenderSvg = async (
   opts?: { deprecated?: boolean }
 ) => {
   const q = RenderQuerySchema.parse(req.query);
-  const theme = getTheme(q.theme ?? null);
+  const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
 
   const [a, b] = await Promise.all([
     getContribCellsSWR(q.user),
@@ -206,6 +260,11 @@ const handleMetaJson = async (
 // v1 endpoints
 app.get("/v1/render.svg", (req, reply) => handleRenderSvg(req, reply));
 app.get("/v1/meta.json", (req, reply) => handleMetaJson(req, reply));
+app.get("/v1/themes.json", async (_req, reply) => {
+  reply.header("Content-Type", "application/json; charset=utf-8");
+  reply.header("Cache-Control", "public, max-age=3600");
+  return JSON.stringify({ themes: listThemes() });
+});
 
 // legacy (unversioned) endpoints, kept for compatibility
 app.get("/render.svg", (req, reply) => handleRenderSvg(req, reply, { deprecated: true }));

@@ -155,3 +155,9 @@ export function getTheme(theme?: string | null): Theme {
   return THEMES[id] ?? THEMES.rift;
 }
 
+export function listThemes(): Theme[] {
+  return Object.keys(THEMES)
+    .sort()
+    .map((id) => (THEMES as any)[id] as Theme);
+}
+

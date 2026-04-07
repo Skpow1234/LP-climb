@@ -31,6 +31,7 @@ League-inspired **Ranked Climb Ladder** animation powered by **GitHub contributi
 - `GET /v1/meta.json?user=USER` (**recommended**)
   - Legacy alias: `GET /meta.json?...` (deprecated)
   - Optional: `&vs=OTHER_USER`
+- `GET /v1/themes.json` (theme catalog)
 - `GET /v1/healthz` (**recommended**)
   - Legacy alias: `GET /healthz`
 
@@ -177,6 +178,45 @@ Then deploy the API image anywhere that can run a container (VM, Fly.io, Render,
 - `rift` (default)
 - `assassin`, `mage`, `tank`, `support`, `marksman`
 - `mono`
+
+### Theme catalog
+
+List all themes + their colors:
+
+- `GET /v1/themes.json`
+
+### Custom theme params (optional)
+
+You can override colors directly in the render URL (useful for personalization / “champion select”):
+
+- **base colors**: `bg`, `frame`, `text`, `accent`, `glow`
+- **tier colors**: `tier_iron`, `tier_bronze`, `tier_silver`, `tier_gold`, `tier_plat`, `tier_emerald`, `tier_diamond`, `tier_master`, `tier_grandmaster`, `tier_challenger`
+
+Example:
+
+```text
+/v1/render.svg?user=octocat&theme=rift&accent=%23ff00aa&bg=%23000000&tier_challenger=%23ffd36b
+```
+
+### Dark / light pairing (recommended)
+
+Generate 2 outputs and embed with `<picture>`:
+
+- `dist/lp.svg?theme=rift`
+- `dist/lp-dark.svg?theme=assassin`
+
+```html
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/<OWNER>/<REPO>/output/lp-dark.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/<OWNER>/<REPO>/output/lp.svg" />
+  <img alt="LP Climb" src="https://raw.githubusercontent.com/<OWNER>/<REPO>/output/lp.svg" />
+</picture>
+```
+
+## Troubleshooting
+
+- **Demo/preview shows nothing**: open the generated SVG URL in a new tab. If you see JSON like `{ "error": "...", "message": "..." }`, the API is returning an error (rate limit / bad token / invalid username).
+- **Render root shows 404**: use `/v1/healthz` (the API does not serve `/`).
 
 ### Theme previews
 
