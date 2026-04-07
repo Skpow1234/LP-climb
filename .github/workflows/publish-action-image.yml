@@ -9,7 +9,7 @@ on:
         default: "dev"
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
@@ -41,4 +41,14 @@ jobs:
         run: |
           echo "Pinned reference:"
           echo "docker://ghcr.io/${{ github.repository }}-action@${{ steps.build.outputs.digest }}"
+
+      - name: Pin digest into action.yml (commit to main)
+        run: |
+          set -euo pipefail
+          node scripts/pin-action-image.mjs "${{ steps.build.outputs.digest }}" "${{ github.repository }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add action.yml
+          git commit -m "chore(action): pin docker digest" || true
+          git push origin HEAD:${{ github.ref_name }}
 
