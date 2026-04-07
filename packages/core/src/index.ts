@@ -1,7 +1,9 @@
 import type { ContributionCell, ContributionStats } from "@lp-climb/types";
 
 function isoToTime(date: string): number {
-  const t = Date.parse(date);
+  // Ensure consistent parsing across runtimes/timezones.
+  // YYYY-MM-DD is not always parsed consistently as UTC vs local.
+  const t = Date.parse(`${date}T00:00:00Z`);
   if (!Number.isFinite(t)) throw new Error(`Invalid date: ${date}`);
   return t;
 }
