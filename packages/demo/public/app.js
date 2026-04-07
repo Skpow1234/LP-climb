@@ -40,7 +40,7 @@ function update() {
   const svgUrl = svg.toString();
   const metaUrl = meta.toString();
 
-  qs("frame").src = svgUrl;
+  qs("preview").src = svgUrl;
   qs("openSvg").href = svgUrl;
   qs("openMeta").href = metaUrl;
   qs("embed").textContent = svgUrl;
