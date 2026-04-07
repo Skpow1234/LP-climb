@@ -14,9 +14,10 @@ Dockerized service that renders a League-inspired **ranked climb ladder** animat
 ## Local dev
 
 ```bash
-npm install
+## Requires Bun installed (see https://bun.sh)
+bun install
 cp .env.example .env
-npm run dev
+bun run dev
 ```
 
 Then open:

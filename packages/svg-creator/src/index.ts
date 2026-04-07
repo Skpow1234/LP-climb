@@ -1,6 +1,5 @@
-import type { ContributionCell } from "../github/contributions.js";
-import type { ContributionStats } from "../stats.js";
-import type { Theme } from "../themes.js";
+import type { ContributionCell, ContributionStats, Theme } from "@lp-climb/types";
+import { computeLpTimeline, TIERS } from "@lp-climb/core";
 
 export type RenderParams = {
   user: string;
@@ -16,31 +15,6 @@ export type RenderParams = {
   };
 };
 
-type TierId =
-  | "iron"
-  | "bronze"
-  | "silver"
-  | "gold"
-  | "plat"
-  | "emerald"
-  | "diamond"
-  | "master"
-  | "grandmaster"
-  | "challenger";
-
-const TIERS: { id: TierId; label: string; lpMin: number; lpMax: number }[] = [
-  { id: "iron", label: "IRON", lpMin: 0, lpMax: 399 },
-  { id: "bronze", label: "BRONZE", lpMin: 400, lpMax: 799 },
-  { id: "silver", label: "SILVER", lpMin: 800, lpMax: 1199 },
-  { id: "gold", label: "GOLD", lpMin: 1200, lpMax: 1599 },
-  { id: "plat", label: "PLAT", lpMin: 1600, lpMax: 1999 },
-  { id: "emerald", label: "EMERALD", lpMin: 2000, lpMax: 2399 },
-  { id: "diamond", label: "DIAMOND", lpMin: 2400, lpMax: 2799 },
-  { id: "master", label: "MASTER", lpMin: 2800, lpMax: 3199 },
-  { id: "grandmaster", label: "GRANDMASTER", lpMin: 3200, lpMax: 3599 },
-  { id: "challenger", label: "CHALLENGER", lpMin: 3600, lpMax: 3999 }
-];
-
 function clamp(n: number, a: number, b: number) {
   return Math.max(a, Math.min(b, n));
 }
@@ -54,32 +28,6 @@ function esc(s: string) {
     .replace(/'/g, "&apos;");
 }
 
-function computeLpTimeline(cells: ContributionCell[]) {
-  const sorted = [...cells].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
-  const out: { date: string; lp: number; delta: number }[] = [];
-
-  // Map counts to an LP delta. This is intentionally "gamey": small day -> small LP,
-  // huge day -> big LP, while preserving monotonicity on average.
-  const deltaFromCount = (count: number) => {
-    if (count <= 0) return -4;
-    if (count <= 2) return 6;
-    if (count <= 5) return 10;
-    if (count <= 10) return 16;
-    if (count <= 20) return 22;
-    if (count <= 35) return 30;
-    if (count <= 55) return 38;
-    return 50;
-  };
-
-  let lp = 800; // start at Silver-ish so most users see movement both ways
-  for (const c of sorted) {
-    const delta = deltaFromCount(c.count);
-    lp = clamp(lp + delta, TIERS[0]!.lpMin, TIERS.at(-1)!.lpMax);
-    out.push({ date: c.date, lp, delta });
-  }
-  return out;
-}
-
 function lpToY(lp: number, top: number, bottom: number) {
   const min = TIERS[0]!.lpMin;
   const max = TIERS.at(-1)!.lpMax;
@@ -88,7 +36,6 @@ function lpToY(lp: number, top: number, bottom: number) {
 }
 
 function formatWeekday(weekday: number) {
-  // GitHub weekday is 0..6 (Sunday..Saturday)
   return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][weekday] ?? String(weekday);
 }
 
@@ -111,13 +58,6 @@ export function renderRankedClimbSvg(p: RenderParams): string {
   const head = t0.at(-1);
   const head2 = t1?.at(-1);
 
-  const y0 = head ? lpToY(head.lp, ladderTop, ladderBottom) : ladderBottom;
-  const y1 = head2 ? lpToY(head2.lp, ladderTop, ladderBottom) : y0;
-
-  const markerX = ladderX1 - 10;
-  const markerX2 = ladderX1 - 28;
-
-  // Animated marker (CSS keyframes) based on last 365-ish points
   const keyframes = (() => {
     if (t0.length === 0) return "";
     const n = t0.length;
@@ -142,7 +82,7 @@ export function renderRankedClimbSvg(p: RenderParams): string {
 
   const tierTicks = TIERS.map((tier) => {
     const y = lpToY(tier.lpMin, ladderTop, ladderBottom);
-    const color = (p.theme.tier as any)[tier.id] as string;
+    const color = p.theme.tier[tier.id];
     return `
       <g class="tier">
         <line x1="${ladderX0}" y1="${y}" x2="${ladderX1}" y2="${y}" stroke="${color}" stroke-opacity="0.35" stroke-width="2"/>
@@ -191,21 +131,18 @@ export function renderRankedClimbSvg(p: RenderParams): string {
     .marker2 .markerCore{ fill: rgba(255,255,255,0.88); }
     .marker2{ filter: drop-shadow(0 0 10px rgba(255,255,255,0.22)); }
 
-    @keyframes climb {
-      ${keyframes}
-    }
-    @keyframes climb2 {
-      ${keyframes2}
-    }
+    @keyframes climb { ${keyframes} }
+    @keyframes climb2 { ${keyframes2} }
     .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
     .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
-    @media (prefers-reduced-motion: reduce) {
-      .anim, .anim2 { animation: none; }
-    }
+    @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
   `;
 
   const lpLabel = head ? `${head.lp} LP` : "—";
   const lpLabel2 = head2 ? `${head2.lp} LP` : "";
+
+  const markerX = ladderX1 - 10;
+  const markerX2 = ladderX1 - 28;
 
   const footer = `
     <g transform="translate(${padding}, ${H - padding - 10})">
@@ -228,7 +165,6 @@ export function renderRankedClimbSvg(p: RenderParams): string {
   <g>
     <line x1="${ladderX0}" y1="${ladderTop}" x2="${ladderX0}" y2="${ladderBottom}" class="ladderRail"/>
     <line x1="${ladderX0}" y1="${ladderTop}" x2="${ladderX0}" y2="${ladderBottom}" class="ladderInner"/>
-
     ${tierTicks}
   </g>
 

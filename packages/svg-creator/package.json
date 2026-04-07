@@ -1,0 +1,19 @@
+{
+  "name": "@lp-climb/svg-creator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@lp-climb/core": "file:../core",
+    "@lp-climb/types": "file:../types"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  }
+}
+

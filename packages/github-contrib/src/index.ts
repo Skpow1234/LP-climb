@@ -1,29 +1,21 @@
-export type ContributionDay = {
-  date: string; // YYYY-MM-DD
-  weekday: number; // 0..6 (Sunday..Saturday) from GitHub
-  contributionCount: number;
-  contributionLevel:
-    | "FOURTH_QUARTILE"
-    | "THIRD_QUARTILE"
-    | "SECOND_QUARTILE"
-    | "FIRST_QUARTILE"
-    | "NONE";
-};
-
-export type ContributionCell = {
-  x: number; // week index
-  y: number; // weekday
-  date: string;
-  count: number;
-  level: 0 | 1 | 2 | 3 | 4;
-};
+import type { ContributionCell } from "@lp-climb/types";
 
 type GraphQLRes = {
   user: {
     contributionsCollection: {
       contributionCalendar: {
         weeks: {
-          contributionDays: ContributionDay[];
+          contributionDays: {
+            contributionCount: number;
+            contributionLevel:
+              | "FOURTH_QUARTILE"
+              | "THIRD_QUARTILE"
+              | "SECOND_QUARTILE"
+              | "FIRST_QUARTILE"
+              | "NONE";
+            date: string;
+            weekday: number;
+          }[];
         }[];
       };
     };

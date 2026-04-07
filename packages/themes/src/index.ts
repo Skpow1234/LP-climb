@@ -1,33 +1,4 @@
-export type ThemeId =
-  | "assassin"
-  | "mage"
-  | "tank"
-  | "support"
-  | "marksman"
-  | "rift"
-  | "mono";
-
-export type Theme = {
-  id: ThemeId;
-  name: string;
-  bg: string;
-  frame: string;
-  text: string;
-  accent: string;
-  glow: string;
-  tier: {
-    iron: string;
-    bronze: string;
-    silver: string;
-    gold: string;
-    plat: string;
-    emerald: string;
-    diamond: string;
-    master: string;
-    grandmaster: string;
-    challenger: string;
-  };
-};
+import type { Theme, ThemeId } from "@lp-climb/types";
 
 export const THEMES: Record<ThemeId, Theme> = {
   assassin: {

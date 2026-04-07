@@ -1,0 +1,36 @@
+{
+  "name": "@lp-climb/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "lint": "eslint .",
+    "format": "prettier -w ."
+  },
+  "dependencies": {
+    "@fastify/etag": "^5.0.2",
+    "@fastify/rate-limit": "^10.2.0",
+    "@fastify/sensible": "^6.0.2",
+    "@lp-climb/core": "file:../core",
+    "@lp-climb/github-contrib": "file:../github-contrib",
+    "@lp-climb/svg-creator": "file:../svg-creator",
+    "@lp-climb/themes": "file:../themes",
+    "fastify": "^5.4.0",
+    "lru-cache": "^11.1.0",
+    "zod": "^4.1.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.34.0",
+    "@types/node": "^22.18.0",
+    "eslint": "^9.34.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.41.0"
+  }
+}
+

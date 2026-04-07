@@ -5,10 +5,10 @@ import rateLimit from "@fastify/rate-limit";
 import { z } from "zod";
 import { loadEnv } from "./env.js";
 import { createMemoryCache } from "./cache.js";
-import { fetchGithubContributionCells } from "./github/contributions.js";
-import { computeStats } from "./stats.js";
-import { getTheme } from "./themes.js";
-import { renderRankedClimbSvg } from "./render/ladder.js";
+import { fetchGithubContributionCells } from "@lp-climb/github-contrib";
+import { computeStats } from "@lp-climb/core";
+import { getTheme } from "@lp-climb/themes";
+import { renderRankedClimbSvg } from "@lp-climb/svg-creator";
 
 const env = loadEnv();
 const cache = createMemoryCache({ maxEntries: env.CACHE_MAX_ENTRIES });
@@ -39,7 +39,6 @@ app.get("/render.svg", async (req, reply) => {
   const q = RenderQuerySchema.parse(req.query);
   const theme = getTheme(q.theme ?? null);
 
-  // Feature: public render API for arbitrary usernames (q.user + optional q.vs)
   const cacheKey = JSON.stringify({
     v: 1,
     route: "render.svg",
@@ -57,7 +56,6 @@ app.get("/render.svg", async (req, reply) => {
     return cached;
   }
 
-  // Fetch contributions (GraphQL)
   const [cellsA, cellsB] = await Promise.all([
     fetchGithubContributionCells({ user: q.user, githubToken: env.GITHUB_TOKEN }),
     q.vs
@@ -65,7 +63,6 @@ app.get("/render.svg", async (req, reply) => {
       : Promise.resolve(null)
   ]);
 
-  // Feature: insights overlay
   const statsA = computeStats(cellsA);
   const statsB = cellsB ? computeStats(cellsB) : null;
 
@@ -76,12 +73,9 @@ app.get("/render.svg", async (req, reply) => {
     theme,
     ...(q.width !== undefined ? { width: q.width } : {}),
     ...(q.height !== undefined ? { height: q.height } : {}),
-    ...(q.vs && cellsB && statsB
-      ? { vs: { user: q.vs, cells: cellsB, stats: statsB } }
-      : {})
+    ...(q.vs && cellsB && statsB ? { vs: { user: q.vs, cells: cellsB, stats: statsB } } : {})
   });
 
-  // Feature: caching + stable headers
   cache.set(cacheKey, svg, env.CACHE_TTL_SECONDS);
 
   reply.header("Content-Type", "image/svg+xml; charset=utf-8");
@@ -89,7 +83,6 @@ app.get("/render.svg", async (req, reply) => {
   return svg;
 });
 
-// Feature: metadata endpoint (stats)
 app.get("/meta.json", async (req, reply) => {
   const q = RenderQuerySchema.pick({ user: true, vs: true }).parse(req.query);
   const cacheKey = JSON.stringify({ v: 1, route: "meta.json", user: q.user, vs: q.vs ?? null });
@@ -121,7 +114,8 @@ app.get("/meta.json", async (req, reply) => {
 
 app.setErrorHandler((err, _req, reply) => {
   app.log.error(err);
-  const status = (err as any).statusCode && Number.isInteger((err as any).statusCode) ? (err as any).statusCode : 500;
+  const status =
+    (err as any).statusCode && Number.isInteger((err as any).statusCode) ? (err as any).statusCode : 500;
   reply.status(status).send({
     error: status === 500 ? "internal_error" : "bad_request",
     message: status === 500 ? "Unexpected error" : (err as any).message

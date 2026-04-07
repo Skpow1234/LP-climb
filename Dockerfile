@@ -1,21 +1,25 @@
-FROM node:22-bookworm-slim AS deps
+FROM oven/bun:1 AS deps
 WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm install
+COPY package.json bun.lockb* ./
+COPY packages ./packages
+RUN bun install --frozen-lockfile || bun install
 
-FROM node:22-bookworm-slim AS build
+FROM oven/bun:1 AS build
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY tsconfig.json package.json ./
-COPY src ./src
-RUN npm run build
+COPY --from=deps /app /app
+RUN bun --cwd packages/types run build
+RUN bun --cwd packages/core run build
+RUN bun --cwd packages/themes run build
+RUN bun --cwd packages/github-contrib run build
+RUN bun --cwd packages/svg-creator run build
+RUN bun --cwd packages/api run build
 
-FROM node:22-bookworm-slim AS run
+FROM oven/bun:1 AS run
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/package.json ./package.json
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/packages /app/packages
+COPY --from=deps /app/node_modules /app/node_modules
+COPY package.json /app/package.json
 EXPOSE 3000
-CMD ["node", "dist/server.js"]
+CMD ["bun", "--cwd", "packages/api", "run", "start"]
 
