@@ -2,6 +2,11 @@ function qs(id) {
   return document.getElementById(id);
 }
 
+function getApiBase() {
+  const cfg = (window.LP_CLIMB_DEMO && window.LP_CLIMB_DEMO.apiBase) || "";
+  return String(cfg || "http://localhost:3000").replace(/\/+$/, "");
+}
+
 function buildQuery() {
   const user = qs("user").value.trim();
   const vs = qs("vs").value.trim();
@@ -20,9 +25,20 @@ function buildQuery() {
 }
 
 function update() {
+  const apiBase = getApiBase();
+  qs("apiBaseLabel").textContent = apiBase;
+
   const sp = buildQuery();
-  const svgUrl = `/api/render.svg?${sp.toString()}`;
-  const metaUrl = `/api/meta.json?${new URLSearchParams({ user: sp.get("user"), ...(sp.get("vs") ? { vs: sp.get("vs") } : {}) }).toString()}`;
+  const svg = new URL("/v1/render.svg", apiBase);
+  svg.search = sp.toString();
+
+  const meta = new URL("/v1/meta.json", apiBase);
+  const metaParams = new URLSearchParams({ user: sp.get("user") });
+  if (sp.get("vs")) metaParams.set("vs", sp.get("vs"));
+  meta.search = metaParams.toString();
+
+  const svgUrl = svg.toString();
+  const metaUrl = meta.toString();
 
   qs("frame").src = svgUrl;
   qs("openSvg").href = svgUrl;

@@ -129,7 +129,9 @@
     <div class="wrap">
       <div class="card">
         <h1>LP Climb — Demo</h1>
-        <div class="muted">This UI proxies to your local API at <code>http://localhost:3000</code> by default.</div>
+        <div class="muted">
+          This is a static demo. It calls the LP Climb API at <code id="apiBaseLabel"></code>.
+        </div>
 
         <label for="user">User</label>
         <input id="user" value="octocat" />
@@ -177,7 +179,8 @@
       </div>
     </div>
 
-    <script src="/app.js"></script>
+    <script src="./config.js"></script>
+    <script src="./app.js"></script>
   </body>
 </html>
 

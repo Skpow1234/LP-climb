@@ -1,0 +1,49 @@
+name: pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install (workspaces)
+        run: npm install --workspaces --include-workspace-root
+
+      - name: Build demo (static)
+        run: npm --workspace packages/demo run build:pages
+        env:
+          # Set this in repo settings -> Variables -> Actions (recommended).
+          # Example: https://lp-climb-api.yourdomain.com
+          LP_CLIMB_API_BASE: ${{ vars.LP_CLIMB_API_BASE }}
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: packages/demo/dist
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
