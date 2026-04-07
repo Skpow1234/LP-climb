@@ -28,6 +28,8 @@ await app.register(rateLimit, {
 app.get("/healthz", async () => ({ ok: true }));
 app.get("/v1/healthz", async () => ({ ok: true, version: "v1" }));
 
+const cacheControl = `public, max-age=${env.CACHE_TTL_SECONDS}, stale-while-revalidate=${env.CACHE_STALE_SECONDS}`;
+
 const RenderQuerySchema = z.object({
   user: z.string().min(1).max(39),
   theme: z.string().optional(),
@@ -35,6 +37,42 @@ const RenderQuerySchema = z.object({
   height: z.coerce.number().int().min(180).max(900).optional(),
   vs: z.string().min(1).max(39).optional()
 });
+
+async function getContribCellsSWR(user: string) {
+  const key = JSON.stringify({ v: 1, kind: "contrib", user });
+  const hit = cache.get(key);
+
+  if (hit.hit && !hit.stale) {
+    return {
+      cells: JSON.parse(hit.value) as unknown[],
+      stamp: hit.storedAtMs,
+      stale: false
+    };
+  }
+
+  if (hit.hit && hit.stale) {
+    // Serve stale immediately, refresh in background.
+    void (async () => {
+      try {
+        const fresh = await fetchGithubContributionCells({ user, githubToken: env.GITHUB_TOKEN });
+        cache.set(key, JSON.stringify(fresh), env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+      } catch (e) {
+        // Keep stale.
+        app.log.warn({ err: e }, "contrib refresh failed (serving stale)");
+      }
+    })();
+
+    return {
+      cells: JSON.parse(hit.value) as unknown[],
+      stamp: hit.storedAtMs,
+      stale: true
+    };
+  }
+
+  const fresh = await fetchGithubContributionCells({ user, githubToken: env.GITHUB_TOKEN });
+  cache.set(key, JSON.stringify(fresh), env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+  return { cells: fresh as unknown[], stamp: Date.now(), stale: false };
+}
 
 const handleRenderSvg = async (
   req: any,
@@ -44,52 +82,56 @@ const handleRenderSvg = async (
   const q = RenderQuerySchema.parse(req.query);
   const theme = getTheme(q.theme ?? null);
 
+  const [a, b] = await Promise.all([
+    getContribCellsSWR(q.user),
+    q.vs ? getContribCellsSWR(q.vs) : Promise.resolve(null)
+  ]);
+
   const cacheKey = JSON.stringify({
     v: 1,
     route: "v1/render.svg",
     user: q.user,
     vs: q.vs ?? null,
+    stampA: a.stamp,
+    stampB: b?.stamp ?? null,
     theme: theme.id,
     width: q.width ?? null,
     height: q.height ?? null
   });
 
   const cached = cache.get(cacheKey);
-  if (cached) {
+  if (cached.hit) {
     reply.header("Content-Type", "image/svg+xml; charset=utf-8");
-    reply.header("Cache-Control", `public, max-age=${env.CACHE_TTL_SECONDS}`);
+    reply.header("Cache-Control", cacheControl);
+    reply.header("X-Cache", cached.stale ? "stale" : "hit");
     if (opts?.deprecated) {
       reply.header("Deprecation", "true");
       reply.header("Sunset", "2026-12-31");
       reply.header("Link", '</v1/render.svg>; rel="successor-version"');
     }
-    return cached;
+    return cached.value;
   }
 
-  const [cellsA, cellsB] = await Promise.all([
-    fetchGithubContributionCells({ user: q.user, githubToken: env.GITHUB_TOKEN }),
-    q.vs
-      ? fetchGithubContributionCells({ user: q.vs, githubToken: env.GITHUB_TOKEN })
-      : Promise.resolve(null)
-  ]);
-
-  const statsA = computeStats(cellsA);
-  const statsB = cellsB ? computeStats(cellsB) : null;
+  const cellsA = a.cells as any[];
+  const cellsB = b?.cells ?? null;
+  const statsA = computeStats(cellsA as any);
+  const statsB = cellsB ? computeStats(cellsB as any) : null;
 
   const svg = renderRankedClimbSvg({
     user: q.user,
-    cells: cellsA,
+    cells: cellsA as any,
     stats: statsA,
     theme,
     ...(q.width !== undefined ? { width: q.width } : {}),
     ...(q.height !== undefined ? { height: q.height } : {}),
-    ...(q.vs && cellsB && statsB ? { vs: { user: q.vs, cells: cellsB, stats: statsB } } : {})
+    ...(q.vs && cellsB && statsB ? { vs: { user: q.vs, cells: cellsB as any, stats: statsB } } : {})
   });
 
-  cache.set(cacheKey, svg, env.CACHE_TTL_SECONDS);
+  cache.set(cacheKey, svg, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
 
   reply.header("Content-Type", "image/svg+xml; charset=utf-8");
-  reply.header("Cache-Control", `public, max-age=${env.CACHE_TTL_SECONDS}`);
+  reply.header("Cache-Control", cacheControl);
+  reply.header("X-Cache", "miss");
   if (opts?.deprecated) {
     reply.header("Deprecation", "true");
     reply.header("Sunset", "2026-12-31");
@@ -104,35 +146,42 @@ const handleMetaJson = async (
   opts?: { deprecated?: boolean }
 ) => {
   const q = RenderQuerySchema.pick({ user: true, vs: true }).parse(req.query);
-  const cacheKey = JSON.stringify({ v: 1, route: "v1/meta.json", user: q.user, vs: q.vs ?? null });
+  const [a, b] = await Promise.all([
+    getContribCellsSWR(q.user),
+    q.vs ? getContribCellsSWR(q.vs) : Promise.resolve(null)
+  ]);
+
+  const cacheKey = JSON.stringify({
+    v: 1,
+    route: "v1/meta.json",
+    user: q.user,
+    vs: q.vs ?? null,
+    stampA: a.stamp,
+    stampB: b?.stamp ?? null
+  });
   const cached = cache.get(cacheKey);
-  if (cached) {
+  if (cached.hit) {
     reply.header("Content-Type", "application/json; charset=utf-8");
-    reply.header("Cache-Control", `public, max-age=${env.CACHE_TTL_SECONDS}`);
+    reply.header("Cache-Control", cacheControl);
+    reply.header("X-Cache", cached.stale ? "stale" : "hit");
     if (opts?.deprecated) {
       reply.header("Deprecation", "true");
       reply.header("Sunset", "2026-12-31");
       reply.header("Link", '</v1/meta.json>; rel="successor-version"');
     }
-    return cached;
+    return cached.value;
   }
-
-  const [cellsA, cellsB] = await Promise.all([
-    fetchGithubContributionCells({ user: q.user, githubToken: env.GITHUB_TOKEN }),
-    q.vs
-      ? fetchGithubContributionCells({ user: q.vs, githubToken: env.GITHUB_TOKEN })
-      : Promise.resolve(null)
-  ]);
 
   const body = JSON.stringify({
     user: q.user,
-    stats: computeStats(cellsA),
-    vs: q.vs && cellsB ? { user: q.vs, stats: computeStats(cellsB) } : null
+    stats: computeStats(a.cells as any),
+    vs: q.vs && b?.cells ? { user: q.vs, stats: computeStats(b.cells as any) } : null
   });
 
-  cache.set(cacheKey, body, env.CACHE_TTL_SECONDS);
+  cache.set(cacheKey, body, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
   reply.header("Content-Type", "application/json; charset=utf-8");
-  reply.header("Cache-Control", `public, max-age=${env.CACHE_TTL_SECONDS}`);
+  reply.header("Cache-Control", cacheControl);
+  reply.header("X-Cache", "miss");
   if (opts?.deprecated) {
     reply.header("Deprecation", "true");
     reply.header("Sunset", "2026-12-31");
