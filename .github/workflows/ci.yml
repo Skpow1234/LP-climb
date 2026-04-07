@@ -31,3 +31,6 @@ jobs:
           npm --workspace packages/action run build
           npm --workspace packages/demo run build
 
+      - name: Snapshot tests (determinism)
+        run: npm --workspace packages/svg-creator run test
+

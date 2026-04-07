@@ -23,7 +23,11 @@
     "lint:npm": "npm --workspace packages/api run lint",
     "format:npm": "npm --workspace packages/api run format"
     ,
-    "theme-previews": "node scripts/generate-theme-previews.mjs"
+    "theme-previews": "node scripts/generate-theme-previews.mjs",
+    "test": "npm --workspace packages/svg-creator run test"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "vitest": "^3.2.4"
+  }
 }
