@@ -14,9 +14,15 @@ League-inspired **Ranked Climb Ladder** animation powered by **GitHub contributi
   <img alt="lp-climb preview" src="docs/theme-previews/rift.svg" />
 </picture>
 
-## Endpoints
+## Ways to use LP Climb
 
-### API (hosted render service)
+- **GitHub Action**: generate `dist/*.svg` in a workflow (recommended for profile READMEs).
+- **Nightly “output branch” publishing**: auto-push generated SVGs to an `output` branch (for `raw.githubusercontent.com/...` embeds).
+- **Hosted API**: request `/v1/render.svg` on-demand (great for apps + dashboards).
+- **GitHub Pages demo**: a static UI where users type a username/theme and preview the ladder (calls your hosted API).
+- **Docker**: run the API locally, or run the action image as a container.
+
+## API endpoints (hosted render service)
 
 - `GET /v1/render.svg?user=USER&theme=rift` (**recommended**)
   - Legacy alias: `GET /render.svg?...` (deprecated)
@@ -28,7 +34,75 @@ League-inspired **Ranked Climb Ladder** animation powered by **GitHub contributi
 - `GET /v1/healthz` (**recommended**)
   - Legacy alias: `GET /healthz`
 
-## Local dev
+## GitHub Action (generate SVGs in workflows)
+
+### Use the action
+
+In this repo (local workflow testing):
+
+- `uses: ./`
+
+Published usage (after you release tags):
+
+- `uses: Skpow1234/LP-climb@vX.Y.Z`
+
+Example:
+
+```yaml
+- uses: Skpow1234/LP-climb@v0.1.0
+  with:
+    github_user_name: ${{ github.repository_owner }}
+    outputs: |
+      dist/lp.svg?theme=rift
+      dist/lp-dark.svg?theme=assassin
+      dist/lp-vs.svg?theme=rift&vs=torvalds
+```
+
+### Publish to an `output` branch (snk-style)
+
+This is the simplest way to embed SVGs into a profile README: generate to `dist/`, then push `dist/` to an `output` branch.
+
+- Use `.github/workflows/nightly.yml` (already included in this repo).
+- Result files end up at:
+  - `https://raw.githubusercontent.com/<OWNER>/<REPO>/output/lp.svg`
+  - `https://raw.githubusercontent.com/<OWNER>/<REPO>/output/lp-dark.svg`
+
+Embed example (dark/light):
+
+```html
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/<OWNER>/<REPO>/output/lp-dark.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/<OWNER>/<REPO>/output/lp.svg" />
+  <img alt="LP Climb" src="https://raw.githubusercontent.com/<OWNER>/<REPO>/output/lp.svg" />
+</picture>
+```
+
+## GitHub Pages demo (static UI)
+
+This repo includes a static demo site that can be deployed to **GitHub Pages**. The demo site **does not** call GitHub directly; it calls your hosted LP Climb API.
+
+### Deploy
+
+1) Enable Pages: **Repo Settings → Pages → Source: GitHub Actions**
+2) Set an Actions variable:
+   - **Name**: `LP_CLIMB_API_BASE`
+   - **Value**: your hosted API base URL (example: `https://lp-climb-api.example.com`)
+3) Push to `main` (or run workflow `pages` manually)
+
+The workflow is: `.github/workflows/pages.yml`.
+
+### Local build (static)
+
+```bash
+npm install --workspaces --include-workspace-root
+npm --workspace packages/demo run build:pages
+```
+
+Outputs: `packages/demo/dist/`
+
+## Hosted API
+
+### Local (dev)
 
 ```bash
 ## Requires Bun installed (see https://bun.sh)
@@ -50,9 +124,19 @@ Then open:
 - `http://localhost:3000/render.svg?user=octocat&theme=rift`
 - `http://localhost:3000/render.svg?user=octocat&vs=torvalds&theme=assassin`
 
-## Demo playground
+### Call the hosted API directly
 
-Start the API first, then the demo:
+Example URLs:
+
+- `/v1/render.svg?user=octocat&theme=rift`
+- `/v1/render.svg?user=octocat&theme=rift&vs=torvalds`
+- `/v1/meta.json?user=octocat`
+
+Tip: SVG is easiest to use via `<img src="...">` (no CORS needed). If you `fetch()` JSON (`meta.json`) from a browser demo, you may want to enable CORS on the API.
+
+## Demo playground (local dev server)
+
+Start the API first, then the demo dev server:
 
 ```bash
 # terminal 1
@@ -73,26 +157,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-## Usage
-
-### GitHub Action
-
-This repo includes a Docker-based action. Locally in this repository, workflows can use:
-
-- `uses: ./`
-
-#### Example workflow snippet
-
-```yaml
-- uses: ./
-  with:
-    github_user_name: ${{ github.repository_owner }}
-    outputs: |
-      dist/lp.svg?theme=rift
-      dist/lp-vs.svg?theme=rift&vs=torvalds
-```
-
-#### Publishing (prod)
+### Publishing (prod)
 
 To make pipelines “real” (pinned, reproducible), publish images to GHCR:
 
