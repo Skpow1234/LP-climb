@@ -33,6 +33,22 @@ Then open:
 - `http://localhost:3000/render.svg?user=octocat&theme=rift`
 - `http://localhost:3000/render.svg?user=octocat&vs=torvalds&theme=assassin`
 
+## Demo playground
+
+Start the API first, then the demo:
+
+```bash
+# terminal 1
+bun run dev
+
+# terminal 2
+bun run demo
+```
+
+Demo UI:
+
+- `http://localhost:5173`
+
 ## Docker
 
 ```bash

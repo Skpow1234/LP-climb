@@ -29,4 +29,5 @@ jobs:
           npm --workspace packages/svg-creator run build
           npm --workspace packages/api run build
           npm --workspace packages/action run build
+          npm --workspace packages/demo run build
 

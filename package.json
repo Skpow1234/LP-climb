@@ -16,6 +16,7 @@
     "start": "bun --cwd packages/api run start",
     "lint": "bun --cwd packages/api run lint",
     "format": "bun --cwd packages/api run format",
+    "demo": "bun --cwd packages/demo run dev",
 
     "dev:npm": "npm --workspace packages/api run dev",
     "build:npm": "npm --workspace packages/types run build && npm --workspace packages/core run build && npm --workspace packages/themes run build && npm --workspace packages/github-contrib run build && npm --workspace packages/svg-creator run build && npm --workspace packages/api run build && npm --workspace packages/action run build",

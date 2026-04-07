@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LP Climb — Demo</title>
+    <style>
+      :root {
+        --bg: #0b0b0d;
+        --panel: #12131a;
+        --text: #f0f0f4;
+        --muted: rgba(255, 255, 255, 0.68);
+        --border: rgba(255, 255, 255, 0.12);
+        --accent: #2ae98c;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+        background: radial-gradient(1200px 600px at 20% 10%, rgba(42, 233, 140, 0.08), transparent 60%),
+          radial-gradient(900px 500px at 80% 30%, rgba(142, 59, 255, 0.08), transparent 55%),
+          var(--bg);
+        color: var(--text);
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 28px auto;
+        padding: 0 16px;
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 16px;
+      }
+      .card {
+        background: rgba(18, 19, 26, 0.75);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 14px;
+        backdrop-filter: blur(10px);
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0 0 10px;
+        letter-spacing: 0.4px;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin: 10px 0 6px;
+      }
+      input,
+      select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 10px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.25);
+        color: var(--text);
+        outline: none;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      button {
+        width: 100%;
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(42, 233, 140, 0.35);
+        background: rgba(42, 233, 140, 0.18);
+        color: var(--text);
+        font-weight: 700;
+        cursor: pointer;
+      }
+      button:hover {
+        background: rgba(42, 233, 140, 0.24);
+      }
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .actions a {
+        display: inline-block;
+        text-align: center;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        color: var(--text);
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .actions a:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .preview {
+        min-height: 320px;
+        display: grid;
+        place-items: center;
+      }
+      .preview iframe {
+        width: 100%;
+        height: 360px;
+        border: 0;
+        border-radius: 14px;
+        background: rgba(0, 0, 0, 0.25);
+      }
+      pre {
+        margin: 0;
+        padding: 10px;
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid var(--border);
+        overflow: auto;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <h1>LP Climb — Demo</h1>
+        <div class="muted">This UI proxies to your local API at <code>http://localhost:3000</code> by default.</div>
+
+        <label for="user">User</label>
+        <input id="user" value="octocat" />
+
+        <label for="vs">VS (optional)</label>
+        <input id="vs" placeholder="torvalds" />
+
+        <label for="theme">Theme</label>
+        <select id="theme">
+          <option value="rift" selected>rift</option>
+          <option value="assassin">assassin</option>
+          <option value="mage">mage</option>
+          <option value="tank">tank</option>
+          <option value="support">support</option>
+          <option value="marksman">marksman</option>
+          <option value="mono">mono</option>
+        </select>
+
+        <div class="row">
+          <div>
+            <label for="width">Width</label>
+            <input id="width" type="number" value="900" min="500" max="2000" />
+          </div>
+          <div>
+            <label for="height">Height</label>
+            <input id="height" type="number" value="260" min="180" max="900" />
+          </div>
+        </div>
+
+        <button id="renderBtn">Render</button>
+
+        <div class="actions">
+          <a id="openSvg" href="#" target="_blank" rel="noreferrer">Open SVG</a>
+          <a id="openMeta" href="#" target="_blank" rel="noreferrer">Open meta.json</a>
+        </div>
+
+        <label>Embed URL</label>
+        <pre id="embed"></pre>
+      </div>
+
+      <div class="card">
+        <div class="preview">
+          <iframe id="frame" title="preview"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
+
