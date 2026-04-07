@@ -26,5 +26,7 @@ COPY --from=build /app/packages /app/packages
 COPY --from=deps /app/node_modules /app/node_modules
 COPY --from=build /app/package.json /app/package.json
 
-ENTRYPOINT ["node", "packages/action/dist/index.js"]
+# GitHub Actions runs Docker actions with `--workdir /github/workspace`, so the
+# entrypoint must not rely on the current working directory.
+ENTRYPOINT ["node", "/app/packages/action/dist/index.js"]
 
