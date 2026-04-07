@@ -55,6 +55,12 @@ dist/lp-dark.svg?theme=assassin
 https://<API_HOST>/v1/render.svg?user=octocat&theme=rift&width=900&height=260
 ```
 
+PNG:
+
+```text
+https://<API_HOST>/v1/render.png?user=octocat&theme=rift&width=900&height=260
+```
+
 ### 3) 1v1 ladder (VS)
 
 ```text
@@ -67,6 +73,8 @@ https://<API_HOST>/v1/render.svg?user=octocat&vs=torvalds&theme=rift
   - Legacy alias: `GET /render.svg?...` (deprecated)
   - Optional: `&vs=OTHER_USER` for 1v1 comparison
   - Optional: `&width=900&height=260`
+- `GET /v1/render.png?user=USER&theme=rift`
+  - Legacy alias: `GET /render.png?...`
 - `GET /v1/meta.json?user=USER` (**recommended**)
   - Legacy alias: `GET /meta.json?...` (deprecated)
   - Optional: `&vs=OTHER_USER`

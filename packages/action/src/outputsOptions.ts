@@ -11,12 +11,12 @@ export type OutputEntry = {
 export const parseOutputsOption = (lines: string[]) => lines.map(parseEntry).filter(Boolean) as OutputEntry[];
 
 export const parseEntry = (entry: string): OutputEntry | null => {
-  const m = entry.trim().match(/^(.+\.svg)(\?(.*)|\s*({.*}))?$/);
+  const m = entry.trim().match(/^(.+\.(svg|png))(\?(.*)|\s*({.*}))?$/);
   if (!m) return null;
 
   const filename = m[1]!;
-  const q1 = m[3];
-  const q2 = m[4];
+  const q1 = m[4];
+  const q2 = m[5];
   const query = q1 ?? q2 ?? "";
 
   let sp = new URLSearchParams(query);

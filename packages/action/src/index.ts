@@ -4,7 +4,7 @@ import * as path from "node:path";
 import { fetchGithubContributionCells } from "@lp-climb/github-contrib";
 import { isGithubContribError } from "@lp-climb/github-contrib";
 import { computeStats } from "@lp-climb/core";
-import { renderRankedClimbSvg } from "@lp-climb/svg-creator";
+import { renderRankedClimbPng, renderRankedClimbSvg } from "@lp-climb/svg-creator";
 
 import * as githubAction from "./github-action.js";
 import { parseOutputsOption } from "./outputsOptions.js";
@@ -54,7 +54,20 @@ import { parseOutputsOption } from "./outputsOptions.js";
       });
 
       fs.mkdirSync(path.dirname(out.filename), { recursive: true });
-      fs.writeFileSync(out.filename, svg);
+      if (out.filename.endsWith(".png")) {
+        const png = renderRankedClimbPng({
+          user: userName,
+          cells: baseCells,
+          stats: baseStats,
+          theme: out.theme,
+          ...(out.width !== undefined ? { width: out.width } : {}),
+          ...(out.height !== undefined ? { height: out.height } : {}),
+          ...(vsData ? { vs: vsData } : {})
+        });
+        fs.writeFileSync(out.filename, png);
+      } else {
+        fs.writeFileSync(out.filename, svg);
+      }
     }
   } catch (e: any) {
     if (isGithubContribError(e)) {

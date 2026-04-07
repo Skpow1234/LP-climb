@@ -1,5 +1,6 @@
 import type { ContributionCell, ContributionStats, Theme } from "@lp-climb/types";
 import { computeLpTimeline, TIERS } from "@lp-climb/core";
+import { Resvg } from "@resvg/resvg-js";
 
 export type RenderParams = {
   user: string;
@@ -206,5 +207,14 @@ export function renderRankedClimbSvg(p: RenderParams): string {
 
   ${footer}
 </svg>`;
+}
+
+export function renderRankedClimbPng(p: RenderParams): Buffer {
+  const svg = renderRankedClimbSvg(p);
+  const resvg = new Resvg(svg, {
+    // Use the SVG's width/height; no external assets.
+    background: p.theme.bg
+  });
+  return resvg.render().asPng();
 }
 

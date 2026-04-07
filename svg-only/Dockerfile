@@ -1,0 +1,32 @@
+FROM node:22-bookworm-slim AS deps
+WORKDIR /app
+
+# Install only what's needed to build TS packages
+COPY package.json package-lock.json* ./
+COPY tsconfig.base.json ./
+COPY packages ./packages
+
+# Use npm workspaces. This avoids requiring Bun on GitHub runners.
+RUN npm install --workspaces --include-workspace-root
+
+FROM node:22-bookworm-slim AS build
+WORKDIR /app
+COPY --from=deps /app /app
+RUN npm --workspace packages/types run build
+RUN npm --workspace packages/core run build
+RUN npm --workspace packages/themes run build
+RUN npm --workspace packages/github-contrib run build
+RUN npm --workspace packages/svg-creator run build
+RUN npm --workspace packages/action run build
+
+FROM node:22-bookworm-slim AS run
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build /app/packages /app/packages
+COPY --from=deps /app/node_modules /app/node_modules
+COPY --from=build /app/package.json /app/package.json
+
+# GitHub Actions runs Docker actions with `--workdir /github/workspace`, so the
+# entrypoint must not rely on the current working directory.
+ENTRYPOINT ["node", "/app/packages/action/dist/index.js"]
+

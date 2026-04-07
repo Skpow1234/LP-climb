@@ -1,5 +1,5 @@
-name: "lp-climb"
-description: "Generate a Ranked Climb Ladder SVG from GitHub contributions"
+name: "lp-climb (svg-only)"
+description: "Generate a Ranked Climb Ladder SVG from GitHub contributions (svg-only variant)"
 author: "lp-climb"
 branding:
   icon: "activity"
@@ -7,7 +7,7 @@ branding:
 
 runs:
   using: docker
-  image: Dockerfile.action
+  image: Dockerfile
 
 inputs:
   github_user_name:
