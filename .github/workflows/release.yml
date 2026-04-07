@@ -80,4 +80,7 @@ jobs:
             - **API**: `ghcr.io/${{ github.repository }}@${{ steps.api.outputs.digest }}`
             - **Action (pinned)**: `docker://ghcr.io/${{ github.repository }}-action@${{ steps.action.outputs.digest }}`
 
+            ## Deploy (API)
+            - Example: `docker run -p 3000:3000 -e GITHUB_TOKEN=... ghcr.io/${{ github.repository }}@${{ steps.api.outputs.digest }}`
+
 
