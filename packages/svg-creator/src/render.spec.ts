@@ -48,7 +48,9 @@ describe("renderRankedClimbSvg determinism", () => {
       return `--- theme:${id} ---\n${svg}\n`;
     });
 
-    expect(out.join("\n")).toMatchSnapshot();
+    // Normalize line endings so snapshots match on Windows + Linux runners.
+    const normalized = out.join("\n").replace(/\r\n/g, "\n");
+    expect(normalized).toMatchSnapshot();
   });
 
   it("is identical across repeated calls", () => {
