@@ -35,6 +35,12 @@ function lpToY(lp: number, top: number, bottom: number) {
   return bottom - t * (bottom - top);
 }
 
+function roundPx(n: number) {
+  // Snapshot tests compare raw SVG text. Rounding avoids tiny float drift
+  // across V8 patch versions / platforms while remaining visually identical.
+  return Math.round(n * 1000) / 1000;
+}
+
 function formatWeekday(weekday: number) {
   return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][weekday] ?? String(weekday);
 }
@@ -64,7 +70,7 @@ export function renderRankedClimbSvg(p: RenderParams): string {
     const pts = t0.map((d, i) => {
       const k = Math.round((i / Math.max(1, n - 1)) * 1000) / 10;
       const y = lpToY(d.lp, ladderTop, ladderBottom);
-      return `${k}% { transform: translate(0px, ${y - ladderTop}px); }`;
+      return `${k}% { transform: translate(0px, ${roundPx(y - ladderTop)}px); }`;
     });
     return pts.join("\n");
   })();
@@ -75,13 +81,13 @@ export function renderRankedClimbSvg(p: RenderParams): string {
     const pts = t1.map((d, i) => {
       const k = Math.round((i / Math.max(1, n - 1)) * 1000) / 10;
       const y = lpToY(d.lp, ladderTop, ladderBottom);
-      return `${k}% { transform: translate(0px, ${y - ladderTop}px); }`;
+      return `${k}% { transform: translate(0px, ${roundPx(y - ladderTop)}px); }`;
     });
     return pts.join("\n");
   })();
 
   const tierTicks = TIERS.map((tier) => {
-    const y = lpToY(tier.lpMin, ladderTop, ladderBottom);
+    const y = roundPx(lpToY(tier.lpMin, ladderTop, ladderBottom));
     const color = p.theme.tier[tier.id];
     return `
       <g class="tier">
