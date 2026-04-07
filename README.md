@@ -38,4 +38,3 @@ docker compose up --build
 - `rift` (default)
 - `assassin`, `mage`, `tank`, `support`, `marksman`
 - `mono`
-
