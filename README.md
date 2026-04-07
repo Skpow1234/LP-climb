@@ -92,3 +92,13 @@ Then deploy the API image anywhere that can run a container (VM, Fly.io, Render,
 - `rift` (default)
 - `assassin`, `mage`, `tank`, `support`, `marksman`
 - `mono`
+
+### Theme previews
+
+Run:
+
+```bash
+npm run theme-previews
+```
+
+Outputs are written to `docs/theme-previews/*.svg`.
