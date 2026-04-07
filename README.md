@@ -85,6 +85,7 @@ To make pipelines “real” (pinned, reproducible), publish images to GHCR:
     - `docker://ghcr.io/OWNER/REPO-action@sha256:...`
   - It also **commits the pin** back into `action.yml`.
 - Run workflow `publish-api-image` to push the API service image.
+- Or: push a git tag like `v0.1.0` to trigger the `release` workflow, which builds/pushes both images and creates a GitHub Release.
 
 Then deploy the API image anywhere that can run a container (VM, Fly.io, Render, Railway, Kubernetes).
 
