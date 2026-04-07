@@ -20,6 +20,14 @@ cp .env.example .env
 bun run dev
 ```
 
+### npm fallback (if you don't want Bun)
+
+```bash
+npm install --workspaces --include-workspace-root
+cp .env.example .env
+npm run dev:npm
+```
+
 Then open:
 
 - `http://localhost:3000/render.svg?user=octocat&theme=rift`
