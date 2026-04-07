@@ -1,0 +1,31 @@
+name: manual-run
+
+on:
+  workflow_dispatch:
+    inputs:
+      github_user_name:
+        description: "GitHub username"
+        required: true
+        default: "Skpow1234"
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate ladder SVGs
+        uses: ./
+        with:
+          github_user_name: ${{ inputs.github_user_name }}
+          outputs: |
+            dist/lp.svg?theme=rift
+            dist/lp-assassin.svg?theme=assassin
+            dist/lp-vs.svg?theme=rift&vs=torvalds
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: lp-climb-dist
+          path: dist/
+

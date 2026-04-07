@@ -3,6 +3,7 @@ dist/
 .turbo/
 .bun/
 bun.lockb
+.github/workflows/*.log
 .env
 .env.*
 

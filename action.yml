@@ -1,0 +1,34 @@
+name: "lp-climb"
+description: "Generate a Ranked Climb Ladder SVG from GitHub contributions"
+author: "lp-climb"
+
+runs:
+  using: docker
+  image: Dockerfile.action
+
+inputs:
+  github_user_name:
+    description: "GitHub user name to render"
+    required: true
+  github_token:
+    description: "GitHub token used to fetch contributions (defaults to action token)."
+    required: false
+    default: ${{ github.token }}
+  outputs:
+    required: false
+    description: |
+      list of files to generate.
+      one file per line. each output can be customized with options as query string.
+
+      supported query string options:
+      - theme:   one of [rift, assassin, mage, tank, support, marksman, mono]
+      - width:   number (500..2000)
+      - height:  number (180..900)
+      - vs:      another github username for comparison
+
+      example:
+        outputs: |
+          dist/lp.svg?theme=rift
+          dist/lp-assassin.svg?theme=assassin&width=1000
+          dist/lp-vs.svg?theme=rift&vs=torvalds
+

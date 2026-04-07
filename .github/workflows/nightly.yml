@@ -1,0 +1,36 @@
+name: nightly
+
+on:
+  schedule:
+    - cron: "0 3 * * *" # daily at 03:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  generate-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate ladder SVGs
+        uses: ./
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            dist/lp.svg?theme=rift
+            dist/lp-dark.svg?theme=assassin
+
+      - name: Push to output branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B output
+          mkdir -p dist
+          git add dist
+          git commit -m "chore: update lp-climb svg" || true
+          git push -f origin output
+
