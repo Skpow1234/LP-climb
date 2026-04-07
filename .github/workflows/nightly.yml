@@ -11,6 +11,7 @@ permissions:
 jobs:
   generate-and-push:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -22,15 +23,18 @@ jobs:
             dist/lp.svg?theme=rift
             dist/lp-dark.svg?theme=assassin
 
-      - name: Push to output branch
+      - name: Ensure output exists
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          ls -la dist
+          test -f dist/lp.svg
+          test -f dist/lp-dark.svg
 
-          git checkout -B output
-          mkdir -p dist
-          git add dist
-          git commit -m "chore: update lp-climb svg" || true
-          git push -f origin output
+      - name: Push dist/ to output branch
+        uses: crazy-max/ghaction-github-pages@df5cc2bfa78282ded844b354faee141f06b41865 # v4.2.0
+        with:
+          target_branch: output
+          build_dir: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

@@ -8,9 +8,13 @@ on:
         required: true
         default: "Skpow1234"
 
+permissions:
+  contents: read
+
 jobs:
   generate:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -22,6 +26,14 @@ jobs:
             dist/lp.svg?theme=rift
             dist/lp-assassin.svg?theme=assassin
             dist/lp-vs.svg?theme=rift&vs=torvalds
+
+      - name: Ensure output exists
+        run: |
+          set -euo pipefail
+          ls -la dist
+          test -f dist/lp.svg
+          test -f dist/lp-assassin.svg
+          test -f dist/lp-vs.svg
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

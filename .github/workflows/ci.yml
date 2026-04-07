@@ -5,9 +5,13 @@ on:
     branches: ["main"]
   pull_request: {}
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -33,4 +37,34 @@ jobs:
 
       - name: Snapshot tests (determinism)
         run: npm --workspace packages/svg-creator run test
+
+  test-action:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use local Dockerfile.action for action
+        run: |
+          set -euo pipefail
+          sed -i "s|image: .*|image: Dockerfile.action|g" action.yml
+
+      - name: Run local action
+        uses: ./
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            dist/lp.svg?theme=rift
+            dist/lp-dark.svg?theme=assassin
+            dist/lp-vs.svg?theme=rift&vs=torvalds
+
+      - name: Ensure expected files exist
+        run: |
+          set -euo pipefail
+          ls -la dist
+          test -f dist/lp.svg
+          test -f dist/lp-dark.svg
+          test -f dist/lp-vs.svg
 
