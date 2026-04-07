@@ -1,0 +1,3427 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderRankedClimbSvg determinism > renders stable output for each theme (snapshot) 1`] = `
+"--- theme:assassin ---
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260" role="img" aria-label="Ranked climb ladder for snapshot-user">
+  <style><![CDATA[
+    :root{
+      --bg:#070A12;
+      --frame:#1C2242;
+      --text:#D7DCF5;
+      --accent:#8E3BFF;
+      --glow:rgba(142, 59, 255, 0.55);
+    }
+    .frame{ fill: var(--bg); stroke: var(--frame); stroke-width: 2; }
+    .title{ fill: var(--text); font: 700 16px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.4px; }
+    .sub{ fill: rgba(255,255,255,0.72); font: 500 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .tierLabel{ fill: rgba(255,255,255,0.55); font: 700 10px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.8px; }
+    .lpBox{ fill: rgba(255,255,255,0.04); stroke: rgba(255,255,255,0.10); stroke-width: 1; }
+    .lpText{ fill: var(--text); font: 800 14px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .lpSmall{ fill: rgba(255,255,255,0.65); font: 600 11px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .ladderRail{ stroke: rgba(255,255,255,0.08); stroke-width: 10; stroke-linecap: round; }
+    .ladderInner{ stroke: rgba(255,255,255,0.10); stroke-width: 2; stroke-linecap: round; }
+    .marker{ filter: drop-shadow(0 0 10px var(--glow)); }
+    .markerCore{ fill: var(--accent); }
+    .markerRing{ fill: none; stroke: rgba(255,255,255,0.55); stroke-width: 1.5; }
+    .marker2 .markerCore{ fill: rgba(255,255,255,0.88); }
+    .marker2{ filter: drop-shadow(0 0 10px rgba(255,255,255,0.22)); }
+
+    @keyframes climb { 0% { transform: translate(0px, 96.114px); }
+0.3% { transform: translate(0px, 95.934px); }
+0.5% { transform: translate(0px, 94.794px); }
+0.8% { transform: translate(0px, 94.914px); }
+1.1% { transform: translate(0px, 94.614px); }
+1.4% { transform: translate(0px, 93.473px); }
+1.6% { transform: translate(0px, 93.593px); }
+1.9% { transform: translate(0px, 93.113px); }
+2.2% { transform: translate(0px, 92.633px); }
+2.4% { transform: translate(0px, 92.153px); }
+2.7% { transform: translate(0px, 91.673px); }
+3% { transform: translate(0px, 91.013px); }
+3.2% { transform: translate(0px, 90.353px); }
+3.5% { transform: translate(0px, 89.692px); }
+3.8% { transform: translate(0px, 89.032px); }
+4.1% { transform: translate(0px, 88.372px); }
+4.3% { transform: translate(0px, 87.712px); }
+4.6% { transform: translate(0px, 87.832px); }
+4.9% { transform: translate(0px, 87.652px); }
+5.1% { transform: translate(0px, 87.472px); }
+5.4% { transform: translate(0px, 87.172px); }
+5.7% { transform: translate(0px, 86.872px); }
+5.9% { transform: translate(0px, 86.572px); }
+6.2% { transform: translate(0px, 86.092px); }
+6.5% { transform: translate(0px, 85.611px); }
+6.8% { transform: translate(0px, 85.131px); }
+7% { transform: translate(0px, 84.651px); }
+7.3% { transform: translate(0px, 84.171px); }
+7.6% { transform: translate(0px, 83.511px); }
+7.8% { transform: translate(0px, 82.851px); }
+8.1% { transform: translate(0px, 82.191px); }
+8.4% { transform: translate(0px, 81.53px); }
+8.6% { transform: translate(0px, 80.87px); }
+8.9% { transform: translate(0px, 80.21px); }
+9.2% { transform: translate(0px, 80.33px); }
+9.5% { transform: translate(0px, 80.15px); }
+9.7% { transform: translate(0px, 79.97px); }
+10% { transform: translate(0px, 79.67px); }
+10.3% { transform: translate(0px, 79.37px); }
+10.5% { transform: translate(0px, 79.07px); }
+10.8% { transform: translate(0px, 78.59px); }
+11.1% { transform: translate(0px, 78.11px); }
+11.4% { transform: translate(0px, 77.629px); }
+11.6% { transform: translate(0px, 77.149px); }
+11.9% { transform: translate(0px, 76.669px); }
+12.2% { transform: translate(0px, 76.009px); }
+12.4% { transform: translate(0px, 75.349px); }
+12.7% { transform: translate(0px, 74.689px); }
+13% { transform: translate(0px, 74.029px); }
+13.2% { transform: translate(0px, 73.368px); }
+13.5% { transform: translate(0px, 72.708px); }
+13.8% { transform: translate(0px, 72.828px); }
+14.1% { transform: translate(0px, 72.648px); }
+14.3% { transform: translate(0px, 72.468px); }
+14.6% { transform: translate(0px, 72.168px); }
+14.9% { transform: translate(0px, 71.868px); }
+15.1% { transform: translate(0px, 71.988px); }
+15.4% { transform: translate(0px, 71.508px); }
+15.7% { transform: translate(0px, 71.028px); }
+15.9% { transform: translate(0px, 71.148px); }
+16.2% { transform: translate(0px, 70.668px); }
+16.5% { transform: translate(0px, 70.188px); }
+16.8% { transform: translate(0px, 70.308px); }
+17% { transform: translate(0px, 69.647px); }
+17.3% { transform: translate(0px, 68.987px); }
+17.6% { transform: translate(0px, 67.847px); }
+17.8% { transform: translate(0px, 67.187px); }
+18.1% { transform: translate(0px, 66.527px); }
+18.4% { transform: translate(0px, 66.647px); }
+18.6% { transform: translate(0px, 66.467px); }
+18.9% { transform: translate(0px, 66.287px); }
+19.2% { transform: translate(0px, 65.986px); }
+19.5% { transform: translate(0px, 65.686px); }
+19.7% { transform: translate(0px, 65.386px); }
+20% { transform: translate(0px, 64.906px); }
+20.3% { transform: translate(0px, 64.426px); }
+20.5% { transform: translate(0px, 63.946px); }
+20.8% { transform: translate(0px, 64.066px); }
+21.1% { transform: translate(0px, 63.586px); }
+21.4% { transform: translate(0px, 62.926px); }
+21.6% { transform: translate(0px, 62.266px); }
+21.9% { transform: translate(0px, 61.605px); }
+22.2% { transform: translate(0px, 60.945px); }
+22.4% { transform: translate(0px, 60.285px); }
+22.7% { transform: translate(0px, 59.625px); }
+23% { transform: translate(0px, 59.745px); }
+23.2% { transform: translate(0px, 59.565px); }
+23.5% { transform: translate(0px, 59.385px); }
+23.8% { transform: translate(0px, 59.085px); }
+24.1% { transform: translate(0px, 58.785px); }
+24.3% { transform: translate(0px, 58.485px); }
+24.6% { transform: translate(0px, 58.005px); }
+24.9% { transform: translate(0px, 57.524px); }
+25.1% { transform: translate(0px, 57.044px); }
+25.4% { transform: translate(0px, 56.564px); }
+25.7% { transform: translate(0px, 56.084px); }
+25.9% { transform: translate(0px, 54.944px); }
+26.2% { transform: translate(0px, 54.284px); }
+26.5% { transform: translate(0px, 53.623px); }
+26.8% { transform: translate(0px, 52.963px); }
+27% { transform: translate(0px, 52.303px); }
+27.3% { transform: translate(0px, 51.643px); }
+27.6% { transform: translate(0px, 51.763px); }
+27.8% { transform: translate(0px, 51.583px); }
+28.1% { transform: translate(0px, 51.403px); }
+28.4% { transform: translate(0px, 51.103px); }
+28.6% { transform: translate(0px, 50.803px); }
+28.9% { transform: translate(0px, 50.503px); }
+29.2% { transform: translate(0px, 50.023px); }
+29.5% { transform: translate(0px, 49.542px); }
+29.7% { transform: translate(0px, 49.062px); }
+30% { transform: translate(0px, 48.582px); }
+30.3% { transform: translate(0px, 48.702px); }
+30.5% { transform: translate(0px, 48.042px); }
+30.8% { transform: translate(0px, 47.382px); }
+31.1% { transform: translate(0px, 47.502px); }
+31.4% { transform: translate(0px, 46.842px); }
+31.6% { transform: translate(0px, 46.182px); }
+31.9% { transform: translate(0px, 46.302px); }
+32.2% { transform: translate(0px, 46.422px); }
+32.4% { transform: translate(0px, 46.242px); }
+32.7% { transform: translate(0px, 46.062px); }
+33% { transform: translate(0px, 45.761px); }
+33.2% { transform: translate(0px, 45.461px); }
+33.5% { transform: translate(0px, 45.161px); }
+33.8% { transform: translate(0px, 44.681px); }
+34.1% { transform: translate(0px, 44.201px); }
+34.3% { transform: translate(0px, 43.721px); }
+34.6% { transform: translate(0px, 42.581px); }
+34.9% { transform: translate(0px, 42.101px); }
+35.1% { transform: translate(0px, 41.44px); }
+35.4% { transform: translate(0px, 40.78px); }
+35.7% { transform: translate(0px, 40.12px); }
+35.9% { transform: translate(0px, 39.46px); }
+36.2% { transform: translate(0px, 38.8px); }
+36.5% { transform: translate(0px, 38.14px); }
+36.8% { transform: translate(0px, 38.26px); }
+37% { transform: translate(0px, 38.08px); }
+37.3% { transform: translate(0px, 37.899px); }
+37.6% { transform: translate(0px, 37.599px); }
+37.8% { transform: translate(0px, 37.299px); }
+38.1% { transform: translate(0px, 36.999px); }
+38.4% { transform: translate(0px, 36.519px); }
+38.6% { transform: translate(0px, 36.039px); }
+38.9% { transform: translate(0px, 35.559px); }
+39.2% { transform: translate(0px, 35.079px); }
+39.5% { transform: translate(0px, 34.599px); }
+39.7% { transform: translate(0px, 33.938px); }
+40% { transform: translate(0px, 33.278px); }
+40.3% { transform: translate(0px, 32.618px); }
+40.5% { transform: translate(0px, 31.958px); }
+40.8% { transform: translate(0px, 31.298px); }
+41.1% { transform: translate(0px, 30.638px); }
+41.4% { transform: translate(0px, 30.758px); }
+41.6% { transform: translate(0px, 30.878px); }
+41.9% { transform: translate(0px, 30.698px); }
+42.2% { transform: translate(0px, 30.398px); }
+42.4% { transform: translate(0px, 30.098px); }
+42.7% { transform: translate(0px, 29.797px); }
+43% { transform: translate(0px, 29.317px); }
+43.2% { transform: translate(0px, 28.837px); }
+43.5% { transform: translate(0px, 28.357px); }
+43.8% { transform: translate(0px, 27.877px); }
+44.1% { transform: translate(0px, 27.397px); }
+44.3% { transform: translate(0px, 26.737px); }
+44.6% { transform: translate(0px, 26.077px); }
+44.9% { transform: translate(0px, 25.416px); }
+45.1% { transform: translate(0px, 24.756px); }
+45.4% { transform: translate(0px, 24.876px); }
+45.7% { transform: translate(0px, 24.216px); }
+45.9% { transform: translate(0px, 24.336px); }
+46.2% { transform: translate(0px, 24.456px); }
+46.5% { transform: translate(0px, 24.276px); }
+46.8% { transform: translate(0px, 23.976px); }
+47% { transform: translate(0px, 24.096px); }
+47.3% { transform: translate(0px, 23.796px); }
+47.6% { transform: translate(0px, 23.316px); }
+47.8% { transform: translate(0px, 22.836px); }
+48.1% { transform: translate(0px, 22.356px); }
+48.4% { transform: translate(0px, 21.875px); }
+48.6% { transform: translate(0px, 21.395px); }
+48.9% { transform: translate(0px, 20.735px); }
+49.2% { transform: translate(0px, 20.075px); }
+49.5% { transform: translate(0px, 19.415px); }
+49.7% { transform: translate(0px, 18.755px); }
+50% { transform: translate(0px, 18.095px); }
+50.3% { transform: translate(0px, 17.434px); }
+50.5% { transform: translate(0px, 16.294px); }
+50.8% { transform: translate(0px, 16.114px); }
+51.1% { transform: translate(0px, 15.934px); }
+51.4% { transform: translate(0px, 15.634px); }
+51.6% { transform: translate(0px, 14.494px); }
+51.9% { transform: translate(0px, 14.194px); }
+52.2% { transform: translate(0px, 13.713px); }
+52.4% { transform: translate(0px, 13.233px); }
+52.7% { transform: translate(0px, 12.753px); }
+53% { transform: translate(0px, 12.273px); }
+53.2% { transform: translate(0px, 11.793px); }
+53.5% { transform: translate(0px, 11.133px); }
+53.8% { transform: translate(0px, 10.473px); }
+54.1% { transform: translate(0px, 9.812px); }
+54.3% { transform: translate(0px, 9.152px); }
+54.6% { transform: translate(0px, 8.492px); }
+54.9% { transform: translate(0px, 7.832px); }
+55.1% { transform: translate(0px, 7.952px); }
+55.4% { transform: translate(0px, 7.772px); }
+55.7% { transform: translate(0px, 7.592px); }
+55.9% { transform: translate(0px, 7.292px); }
+56.2% { transform: translate(0px, 6.992px); }
+56.5% { transform: translate(0px, 6.692px); }
+56.8% { transform: translate(0px, 6.212px); }
+57% { transform: translate(0px, 5.731px); }
+57.3% { transform: translate(0px, 5.251px); }
+57.6% { transform: translate(0px, 4.771px); }
+57.8% { transform: translate(0px, 4.291px); }
+58.1% { transform: translate(0px, 3.631px); }
+58.4% { transform: translate(0px, 2.971px); }
+58.6% { transform: translate(0px, 2.311px); }
+58.9% { transform: translate(0px, 1.65px); }
+59.2% { transform: translate(0px, 0.99px); }
+59.5% { transform: translate(0px, 0.33px); }
+59.7% { transform: translate(0px, 0.45px); }
+60% { transform: translate(0px, 0.27px); }
+60.3% { transform: translate(0px, 0.09px); }
+60.5% { transform: translate(0px, 0.21px); }
+60.8% { transform: translate(0px, 0px); }
+61.1% { transform: translate(0px, 0px); }
+61.4% { transform: translate(0px, 0.12px); }
+61.6% { transform: translate(0px, 0px); }
+61.9% { transform: translate(0px, 0px); }
+62.2% { transform: translate(0px, 0.12px); }
+62.4% { transform: translate(0px, 0.24px); }
+62.7% { transform: translate(0px, 0px); }
+63% { transform: translate(0px, 0px); }
+63.2% { transform: translate(0px, 0px); }
+63.5% { transform: translate(0px, 0px); }
+63.8% { transform: translate(0px, 0px); }
+64.1% { transform: translate(0px, 0px); }
+64.3% { transform: translate(0px, 0.12px); }
+64.6% { transform: translate(0px, 0px); }
+64.9% { transform: translate(0px, 0px); }
+65.1% { transform: translate(0px, 0px); }
+65.4% { transform: translate(0px, 0px); }
+65.7% { transform: translate(0px, 0px); }
+65.9% { transform: translate(0px, 0px); }
+66.2% { transform: translate(0px, 0px); }
+66.5% { transform: translate(0px, 0px); }
+66.8% { transform: translate(0px, 0px); }
+67% { transform: translate(0px, 0px); }
+67.3% { transform: translate(0px, 0px); }
+67.6% { transform: translate(0px, 0px); }
+67.8% { transform: translate(0px, 0px); }
+68.1% { transform: translate(0px, 0px); }
+68.4% { transform: translate(0px, 0px); }
+68.6% { transform: translate(0px, 0px); }
+68.9% { transform: translate(0px, 0.12px); }
+69.2% { transform: translate(0px, 0px); }
+69.5% { transform: translate(0px, 0px); }
+69.7% { transform: translate(0px, 0px); }
+70% { transform: translate(0px, 0px); }
+70.3% { transform: translate(0px, 0px); }
+70.5% { transform: translate(0px, 0px); }
+70.8% { transform: translate(0px, 0px); }
+71.1% { transform: translate(0px, 0px); }
+71.4% { transform: translate(0px, 0px); }
+71.6% { transform: translate(0px, 0px); }
+71.9% { transform: translate(0px, 0px); }
+72.2% { transform: translate(0px, 0px); }
+72.4% { transform: translate(0px, 0px); }
+72.7% { transform: translate(0px, 0px); }
+73% { transform: translate(0px, 0px); }
+73.2% { transform: translate(0px, 0px); }
+73.5% { transform: translate(0px, 0.12px); }
+73.8% { transform: translate(0px, 0px); }
+74.1% { transform: translate(0px, 0px); }
+74.3% { transform: translate(0px, 0px); }
+74.6% { transform: translate(0px, 0px); }
+74.9% { transform: translate(0px, 0px); }
+75.1% { transform: translate(0px, 0px); }
+75.4% { transform: translate(0px, 0px); }
+75.7% { transform: translate(0px, 0.12px); }
+75.9% { transform: translate(0px, 0px); }
+76.2% { transform: translate(0px, 0px); }
+76.5% { transform: translate(0px, 0.12px); }
+76.8% { transform: translate(0px, 0px); }
+77% { transform: translate(0px, 0px); }
+77.3% { transform: translate(0px, 0.12px); }
+77.6% { transform: translate(0px, 0px); }
+77.8% { transform: translate(0px, 0px); }
+78.1% { transform: translate(0px, 0.12px); }
+78.4% { transform: translate(0px, 0px); }
+78.6% { transform: translate(0px, 0px); }
+78.9% { transform: translate(0px, 0px); }
+79.2% { transform: translate(0px, 0px); }
+79.5% { transform: translate(0px, 0px); }
+79.7% { transform: translate(0px, 0px); }
+80% { transform: translate(0px, 0px); }
+80.3% { transform: translate(0px, 0px); }
+80.5% { transform: translate(0px, 0px); }
+80.8% { transform: translate(0px, 0px); }
+81.1% { transform: translate(0px, 0px); }
+81.4% { transform: translate(0px, 0px); }
+81.6% { transform: translate(0px, 0px); }
+81.9% { transform: translate(0px, 0px); }
+82.2% { transform: translate(0px, 0px); }
+82.4% { transform: translate(0px, 0px); }
+82.7% { transform: translate(0px, 0.12px); }
+83% { transform: translate(0px, 0px); }
+83.2% { transform: translate(0px, 0.12px); }
+83.5% { transform: translate(0px, 0px); }
+83.8% { transform: translate(0px, 0px); }
+84.1% { transform: translate(0px, 0px); }
+84.3% { transform: translate(0px, 0px); }
+84.6% { transform: translate(0px, 0px); }
+84.9% { transform: translate(0px, 0px); }
+85.1% { transform: translate(0px, 0px); }
+85.4% { transform: translate(0px, 0px); }
+85.7% { transform: translate(0px, 0px); }
+85.9% { transform: translate(0px, 0px); }
+86.2% { transform: translate(0px, 0px); }
+86.5% { transform: translate(0px, 0px); }
+86.8% { transform: translate(0px, 0px); }
+87% { transform: translate(0px, 0px); }
+87.3% { transform: translate(0px, 0.12px); }
+87.6% { transform: translate(0px, 0px); }
+87.8% { transform: translate(0px, 0px); }
+88.1% { transform: translate(0px, 0px); }
+88.4% { transform: translate(0px, 0px); }
+88.6% { transform: translate(0px, 0px); }
+88.9% { transform: translate(0px, 0px); }
+89.2% { transform: translate(0px, 0px); }
+89.5% { transform: translate(0px, 0px); }
+89.7% { transform: translate(0px, 0px); }
+90% { transform: translate(0px, 0px); }
+90.3% { transform: translate(0px, 0px); }
+90.5% { transform: translate(0px, 0px); }
+90.8% { transform: translate(0px, 0.12px); }
+91.1% { transform: translate(0px, 0px); }
+91.4% { transform: translate(0px, 0px); }
+91.6% { transform: translate(0px, 0.12px); }
+91.9% { transform: translate(0px, 0.24px); }
+92.2% { transform: translate(0px, 0.06px); }
+92.4% { transform: translate(0px, 0.18px); }
+92.7% { transform: translate(0px, 0px); }
+93% { transform: translate(0px, 0px); }
+93.2% { transform: translate(0px, 0px); }
+93.5% { transform: translate(0px, 0px); }
+93.8% { transform: translate(0px, 0px); }
+94.1% { transform: translate(0px, 0px); }
+94.3% { transform: translate(0px, 0px); }
+94.6% { transform: translate(0px, 0px); }
+94.9% { transform: translate(0px, 0px); }
+95.1% { transform: translate(0px, 0px); }
+95.4% { transform: translate(0px, 0px); }
+95.7% { transform: translate(0px, 0px); }
+95.9% { transform: translate(0px, 0px); }
+96.2% { transform: translate(0px, 0px); }
+96.5% { transform: translate(0px, 0.12px); }
+96.8% { transform: translate(0px, 0px); }
+97% { transform: translate(0px, 0px); }
+97.3% { transform: translate(0px, 0px); }
+97.6% { transform: translate(0px, 0px); }
+97.8% { transform: translate(0px, 0px); }
+98.1% { transform: translate(0px, 0px); }
+98.4% { transform: translate(0px, 0px); }
+98.6% { transform: translate(0px, 0px); }
+98.9% { transform: translate(0px, 0px); }
+99.2% { transform: translate(0px, 0px); }
+99.5% { transform: translate(0px, 0px); }
+99.7% { transform: translate(0px, 0px); }
+100% { transform: translate(0px, 0px); } }
+    @keyframes climb2 {  }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
+  ]]></style>
+
+  <rect x="18" y="18" width="864" height="224" rx="16" class="frame"/>
+
+  <g transform="translate(34, 38)">
+    <text class="title">snapshot-user • Ranked Climb</text>
+    <text class="sub" y="22">Streak: 13d (best 29d) • 30d: 255 • Best day: 42 on 2024-01-03 • Busiest: Tue</text>
+
+  </g>
+
+  <g>
+    <line x1="228" y1="76" x2="228" y2="196" class="ladderRail"/>
+    <line x1="228" y1="76" x2="228" y2="196" class="ladderInner"/>
+
+      <g class="tier">
+        <line x1="228" y1="196" x2="864" y2="196" stroke="#4A4A56" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="201" text-anchor="end" class="tierLabel">IRON</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="183.997" x2="864" y2="183.997" stroke="#7A4A2A" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="188.997" text-anchor="end" class="tierLabel">BRONZE</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="171.994" x2="864" y2="171.994" stroke="#A7B3C4" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="176.994" text-anchor="end" class="tierLabel">SILVER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="159.991" x2="864" y2="159.991" stroke="#F2C14E" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="164.991" text-anchor="end" class="tierLabel">GOLD</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="147.988" x2="864" y2="147.988" stroke="#41E2C6" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="152.988" text-anchor="end" class="tierLabel">PLAT</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="135.985" x2="864" y2="135.985" stroke="#1FE38C" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="140.985" text-anchor="end" class="tierLabel">EMERALD</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="123.982" x2="864" y2="123.982" stroke="#59A6FF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="128.982" text-anchor="end" class="tierLabel">DIAMOND</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="111.979" x2="864" y2="111.979" stroke="#B05CFF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="116.979" text-anchor="end" class="tierLabel">MASTER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="99.976" x2="864" y2="99.976" stroke="#FF4E68" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="104.976" text-anchor="end" class="tierLabel">GRANDMASTER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="87.973" x2="864" y2="87.973" stroke="#FFD36B" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="92.973" text-anchor="end" class="tierLabel">CHALLENGER</text>
+      </g>
+
+  </g>
+
+  <g transform="translate(34, 76)">
+    <rect width="170" height="44" rx="10" class="lpBox"/>
+    <text x="14" y="27" class="lpText">3999 LP</text>
+    <text x="14" y="40" class="lpSmall">snapshot-user</text>
+  </g>
+
+
+
+  <g transform="translate(854, 76)" class="marker anim">
+    <circle cx="0" cy="0" r="7.5" class="markerCore"/>
+    <circle cx="0" cy="0" r="11" class="markerRing"/>
+  </g>
+
+
+
+
+    <g transform="translate(18, 232)">
+      <text class="sub">lp-climb • data: GitHub contributions • theme: Assassin</text>
+    </g>
+
+</svg>
+
+--- theme:mage ---
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260" role="img" aria-label="Ranked climb ladder for snapshot-user">
+  <style><![CDATA[
+    :root{
+      --bg:#060B0F;
+      --frame:#1B2B2F;
+      --text:#D8F7FF;
+      --accent:#2FE6FF;
+      --glow:rgba(47, 230, 255, 0.45);
+    }
+    .frame{ fill: var(--bg); stroke: var(--frame); stroke-width: 2; }
+    .title{ fill: var(--text); font: 700 16px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.4px; }
+    .sub{ fill: rgba(255,255,255,0.72); font: 500 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .tierLabel{ fill: rgba(255,255,255,0.55); font: 700 10px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.8px; }
+    .lpBox{ fill: rgba(255,255,255,0.04); stroke: rgba(255,255,255,0.10); stroke-width: 1; }
+    .lpText{ fill: var(--text); font: 800 14px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .lpSmall{ fill: rgba(255,255,255,0.65); font: 600 11px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .ladderRail{ stroke: rgba(255,255,255,0.08); stroke-width: 10; stroke-linecap: round; }
+    .ladderInner{ stroke: rgba(255,255,255,0.10); stroke-width: 2; stroke-linecap: round; }
+    .marker{ filter: drop-shadow(0 0 10px var(--glow)); }
+    .markerCore{ fill: var(--accent); }
+    .markerRing{ fill: none; stroke: rgba(255,255,255,0.55); stroke-width: 1.5; }
+    .marker2 .markerCore{ fill: rgba(255,255,255,0.88); }
+    .marker2{ filter: drop-shadow(0 0 10px rgba(255,255,255,0.22)); }
+
+    @keyframes climb { 0% { transform: translate(0px, 96.114px); }
+0.3% { transform: translate(0px, 95.934px); }
+0.5% { transform: translate(0px, 94.794px); }
+0.8% { transform: translate(0px, 94.914px); }
+1.1% { transform: translate(0px, 94.614px); }
+1.4% { transform: translate(0px, 93.473px); }
+1.6% { transform: translate(0px, 93.593px); }
+1.9% { transform: translate(0px, 93.113px); }
+2.2% { transform: translate(0px, 92.633px); }
+2.4% { transform: translate(0px, 92.153px); }
+2.7% { transform: translate(0px, 91.673px); }
+3% { transform: translate(0px, 91.013px); }
+3.2% { transform: translate(0px, 90.353px); }
+3.5% { transform: translate(0px, 89.692px); }
+3.8% { transform: translate(0px, 89.032px); }
+4.1% { transform: translate(0px, 88.372px); }
+4.3% { transform: translate(0px, 87.712px); }
+4.6% { transform: translate(0px, 87.832px); }
+4.9% { transform: translate(0px, 87.652px); }
+5.1% { transform: translate(0px, 87.472px); }
+5.4% { transform: translate(0px, 87.172px); }
+5.7% { transform: translate(0px, 86.872px); }
+5.9% { transform: translate(0px, 86.572px); }
+6.2% { transform: translate(0px, 86.092px); }
+6.5% { transform: translate(0px, 85.611px); }
+6.8% { transform: translate(0px, 85.131px); }
+7% { transform: translate(0px, 84.651px); }
+7.3% { transform: translate(0px, 84.171px); }
+7.6% { transform: translate(0px, 83.511px); }
+7.8% { transform: translate(0px, 82.851px); }
+8.1% { transform: translate(0px, 82.191px); }
+8.4% { transform: translate(0px, 81.53px); }
+8.6% { transform: translate(0px, 80.87px); }
+8.9% { transform: translate(0px, 80.21px); }
+9.2% { transform: translate(0px, 80.33px); }
+9.5% { transform: translate(0px, 80.15px); }
+9.7% { transform: translate(0px, 79.97px); }
+10% { transform: translate(0px, 79.67px); }
+10.3% { transform: translate(0px, 79.37px); }
+10.5% { transform: translate(0px, 79.07px); }
+10.8% { transform: translate(0px, 78.59px); }
+11.1% { transform: translate(0px, 78.11px); }
+11.4% { transform: translate(0px, 77.629px); }
+11.6% { transform: translate(0px, 77.149px); }
+11.9% { transform: translate(0px, 76.669px); }
+12.2% { transform: translate(0px, 76.009px); }
+12.4% { transform: translate(0px, 75.349px); }
+12.7% { transform: translate(0px, 74.689px); }
+13% { transform: translate(0px, 74.029px); }
+13.2% { transform: translate(0px, 73.368px); }
+13.5% { transform: translate(0px, 72.708px); }
+13.8% { transform: translate(0px, 72.828px); }
+14.1% { transform: translate(0px, 72.648px); }
+14.3% { transform: translate(0px, 72.468px); }
+14.6% { transform: translate(0px, 72.168px); }
+14.9% { transform: translate(0px, 71.868px); }
+15.1% { transform: translate(0px, 71.988px); }
+15.4% { transform: translate(0px, 71.508px); }
+15.7% { transform: translate(0px, 71.028px); }
+15.9% { transform: translate(0px, 71.148px); }
+16.2% { transform: translate(0px, 70.668px); }
+16.5% { transform: translate(0px, 70.188px); }
+16.8% { transform: translate(0px, 70.308px); }
+17% { transform: translate(0px, 69.647px); }
+17.3% { transform: translate(0px, 68.987px); }
+17.6% { transform: translate(0px, 67.847px); }
+17.8% { transform: translate(0px, 67.187px); }
+18.1% { transform: translate(0px, 66.527px); }
+18.4% { transform: translate(0px, 66.647px); }
+18.6% { transform: translate(0px, 66.467px); }
+18.9% { transform: translate(0px, 66.287px); }
+19.2% { transform: translate(0px, 65.986px); }
+19.5% { transform: translate(0px, 65.686px); }
+19.7% { transform: translate(0px, 65.386px); }
+20% { transform: translate(0px, 64.906px); }
+20.3% { transform: translate(0px, 64.426px); }
+20.5% { transform: translate(0px, 63.946px); }
+20.8% { transform: translate(0px, 64.066px); }
+21.1% { transform: translate(0px, 63.586px); }
+21.4% { transform: translate(0px, 62.926px); }
+21.6% { transform: translate(0px, 62.266px); }
+21.9% { transform: translate(0px, 61.605px); }
+22.2% { transform: translate(0px, 60.945px); }
+22.4% { transform: translate(0px, 60.285px); }
+22.7% { transform: translate(0px, 59.625px); }
+23% { transform: translate(0px, 59.745px); }
+23.2% { transform: translate(0px, 59.565px); }
+23.5% { transform: translate(0px, 59.385px); }
+23.8% { transform: translate(0px, 59.085px); }
+24.1% { transform: translate(0px, 58.785px); }
+24.3% { transform: translate(0px, 58.485px); }
+24.6% { transform: translate(0px, 58.005px); }
+24.9% { transform: translate(0px, 57.524px); }
+25.1% { transform: translate(0px, 57.044px); }
+25.4% { transform: translate(0px, 56.564px); }
+25.7% { transform: translate(0px, 56.084px); }
+25.9% { transform: translate(0px, 54.944px); }
+26.2% { transform: translate(0px, 54.284px); }
+26.5% { transform: translate(0px, 53.623px); }
+26.8% { transform: translate(0px, 52.963px); }
+27% { transform: translate(0px, 52.303px); }
+27.3% { transform: translate(0px, 51.643px); }
+27.6% { transform: translate(0px, 51.763px); }
+27.8% { transform: translate(0px, 51.583px); }
+28.1% { transform: translate(0px, 51.403px); }
+28.4% { transform: translate(0px, 51.103px); }
+28.6% { transform: translate(0px, 50.803px); }
+28.9% { transform: translate(0px, 50.503px); }
+29.2% { transform: translate(0px, 50.023px); }
+29.5% { transform: translate(0px, 49.542px); }
+29.7% { transform: translate(0px, 49.062px); }
+30% { transform: translate(0px, 48.582px); }
+30.3% { transform: translate(0px, 48.702px); }
+30.5% { transform: translate(0px, 48.042px); }
+30.8% { transform: translate(0px, 47.382px); }
+31.1% { transform: translate(0px, 47.502px); }
+31.4% { transform: translate(0px, 46.842px); }
+31.6% { transform: translate(0px, 46.182px); }
+31.9% { transform: translate(0px, 46.302px); }
+32.2% { transform: translate(0px, 46.422px); }
+32.4% { transform: translate(0px, 46.242px); }
+32.7% { transform: translate(0px, 46.062px); }
+33% { transform: translate(0px, 45.761px); }
+33.2% { transform: translate(0px, 45.461px); }
+33.5% { transform: translate(0px, 45.161px); }
+33.8% { transform: translate(0px, 44.681px); }
+34.1% { transform: translate(0px, 44.201px); }
+34.3% { transform: translate(0px, 43.721px); }
+34.6% { transform: translate(0px, 42.581px); }
+34.9% { transform: translate(0px, 42.101px); }
+35.1% { transform: translate(0px, 41.44px); }
+35.4% { transform: translate(0px, 40.78px); }
+35.7% { transform: translate(0px, 40.12px); }
+35.9% { transform: translate(0px, 39.46px); }
+36.2% { transform: translate(0px, 38.8px); }
+36.5% { transform: translate(0px, 38.14px); }
+36.8% { transform: translate(0px, 38.26px); }
+37% { transform: translate(0px, 38.08px); }
+37.3% { transform: translate(0px, 37.899px); }
+37.6% { transform: translate(0px, 37.599px); }
+37.8% { transform: translate(0px, 37.299px); }
+38.1% { transform: translate(0px, 36.999px); }
+38.4% { transform: translate(0px, 36.519px); }
+38.6% { transform: translate(0px, 36.039px); }
+38.9% { transform: translate(0px, 35.559px); }
+39.2% { transform: translate(0px, 35.079px); }
+39.5% { transform: translate(0px, 34.599px); }
+39.7% { transform: translate(0px, 33.938px); }
+40% { transform: translate(0px, 33.278px); }
+40.3% { transform: translate(0px, 32.618px); }
+40.5% { transform: translate(0px, 31.958px); }
+40.8% { transform: translate(0px, 31.298px); }
+41.1% { transform: translate(0px, 30.638px); }
+41.4% { transform: translate(0px, 30.758px); }
+41.6% { transform: translate(0px, 30.878px); }
+41.9% { transform: translate(0px, 30.698px); }
+42.2% { transform: translate(0px, 30.398px); }
+42.4% { transform: translate(0px, 30.098px); }
+42.7% { transform: translate(0px, 29.797px); }
+43% { transform: translate(0px, 29.317px); }
+43.2% { transform: translate(0px, 28.837px); }
+43.5% { transform: translate(0px, 28.357px); }
+43.8% { transform: translate(0px, 27.877px); }
+44.1% { transform: translate(0px, 27.397px); }
+44.3% { transform: translate(0px, 26.737px); }
+44.6% { transform: translate(0px, 26.077px); }
+44.9% { transform: translate(0px, 25.416px); }
+45.1% { transform: translate(0px, 24.756px); }
+45.4% { transform: translate(0px, 24.876px); }
+45.7% { transform: translate(0px, 24.216px); }
+45.9% { transform: translate(0px, 24.336px); }
+46.2% { transform: translate(0px, 24.456px); }
+46.5% { transform: translate(0px, 24.276px); }
+46.8% { transform: translate(0px, 23.976px); }
+47% { transform: translate(0px, 24.096px); }
+47.3% { transform: translate(0px, 23.796px); }
+47.6% { transform: translate(0px, 23.316px); }
+47.8% { transform: translate(0px, 22.836px); }
+48.1% { transform: translate(0px, 22.356px); }
+48.4% { transform: translate(0px, 21.875px); }
+48.6% { transform: translate(0px, 21.395px); }
+48.9% { transform: translate(0px, 20.735px); }
+49.2% { transform: translate(0px, 20.075px); }
+49.5% { transform: translate(0px, 19.415px); }
+49.7% { transform: translate(0px, 18.755px); }
+50% { transform: translate(0px, 18.095px); }
+50.3% { transform: translate(0px, 17.434px); }
+50.5% { transform: translate(0px, 16.294px); }
+50.8% { transform: translate(0px, 16.114px); }
+51.1% { transform: translate(0px, 15.934px); }
+51.4% { transform: translate(0px, 15.634px); }
+51.6% { transform: translate(0px, 14.494px); }
+51.9% { transform: translate(0px, 14.194px); }
+52.2% { transform: translate(0px, 13.713px); }
+52.4% { transform: translate(0px, 13.233px); }
+52.7% { transform: translate(0px, 12.753px); }
+53% { transform: translate(0px, 12.273px); }
+53.2% { transform: translate(0px, 11.793px); }
+53.5% { transform: translate(0px, 11.133px); }
+53.8% { transform: translate(0px, 10.473px); }
+54.1% { transform: translate(0px, 9.812px); }
+54.3% { transform: translate(0px, 9.152px); }
+54.6% { transform: translate(0px, 8.492px); }
+54.9% { transform: translate(0px, 7.832px); }
+55.1% { transform: translate(0px, 7.952px); }
+55.4% { transform: translate(0px, 7.772px); }
+55.7% { transform: translate(0px, 7.592px); }
+55.9% { transform: translate(0px, 7.292px); }
+56.2% { transform: translate(0px, 6.992px); }
+56.5% { transform: translate(0px, 6.692px); }
+56.8% { transform: translate(0px, 6.212px); }
+57% { transform: translate(0px, 5.731px); }
+57.3% { transform: translate(0px, 5.251px); }
+57.6% { transform: translate(0px, 4.771px); }
+57.8% { transform: translate(0px, 4.291px); }
+58.1% { transform: translate(0px, 3.631px); }
+58.4% { transform: translate(0px, 2.971px); }
+58.6% { transform: translate(0px, 2.311px); }
+58.9% { transform: translate(0px, 1.65px); }
+59.2% { transform: translate(0px, 0.99px); }
+59.5% { transform: translate(0px, 0.33px); }
+59.7% { transform: translate(0px, 0.45px); }
+60% { transform: translate(0px, 0.27px); }
+60.3% { transform: translate(0px, 0.09px); }
+60.5% { transform: translate(0px, 0.21px); }
+60.8% { transform: translate(0px, 0px); }
+61.1% { transform: translate(0px, 0px); }
+61.4% { transform: translate(0px, 0.12px); }
+61.6% { transform: translate(0px, 0px); }
+61.9% { transform: translate(0px, 0px); }
+62.2% { transform: translate(0px, 0.12px); }
+62.4% { transform: translate(0px, 0.24px); }
+62.7% { transform: translate(0px, 0px); }
+63% { transform: translate(0px, 0px); }
+63.2% { transform: translate(0px, 0px); }
+63.5% { transform: translate(0px, 0px); }
+63.8% { transform: translate(0px, 0px); }
+64.1% { transform: translate(0px, 0px); }
+64.3% { transform: translate(0px, 0.12px); }
+64.6% { transform: translate(0px, 0px); }
+64.9% { transform: translate(0px, 0px); }
+65.1% { transform: translate(0px, 0px); }
+65.4% { transform: translate(0px, 0px); }
+65.7% { transform: translate(0px, 0px); }
+65.9% { transform: translate(0px, 0px); }
+66.2% { transform: translate(0px, 0px); }
+66.5% { transform: translate(0px, 0px); }
+66.8% { transform: translate(0px, 0px); }
+67% { transform: translate(0px, 0px); }
+67.3% { transform: translate(0px, 0px); }
+67.6% { transform: translate(0px, 0px); }
+67.8% { transform: translate(0px, 0px); }
+68.1% { transform: translate(0px, 0px); }
+68.4% { transform: translate(0px, 0px); }
+68.6% { transform: translate(0px, 0px); }
+68.9% { transform: translate(0px, 0.12px); }
+69.2% { transform: translate(0px, 0px); }
+69.5% { transform: translate(0px, 0px); }
+69.7% { transform: translate(0px, 0px); }
+70% { transform: translate(0px, 0px); }
+70.3% { transform: translate(0px, 0px); }
+70.5% { transform: translate(0px, 0px); }
+70.8% { transform: translate(0px, 0px); }
+71.1% { transform: translate(0px, 0px); }
+71.4% { transform: translate(0px, 0px); }
+71.6% { transform: translate(0px, 0px); }
+71.9% { transform: translate(0px, 0px); }
+72.2% { transform: translate(0px, 0px); }
+72.4% { transform: translate(0px, 0px); }
+72.7% { transform: translate(0px, 0px); }
+73% { transform: translate(0px, 0px); }
+73.2% { transform: translate(0px, 0px); }
+73.5% { transform: translate(0px, 0.12px); }
+73.8% { transform: translate(0px, 0px); }
+74.1% { transform: translate(0px, 0px); }
+74.3% { transform: translate(0px, 0px); }
+74.6% { transform: translate(0px, 0px); }
+74.9% { transform: translate(0px, 0px); }
+75.1% { transform: translate(0px, 0px); }
+75.4% { transform: translate(0px, 0px); }
+75.7% { transform: translate(0px, 0.12px); }
+75.9% { transform: translate(0px, 0px); }
+76.2% { transform: translate(0px, 0px); }
+76.5% { transform: translate(0px, 0.12px); }
+76.8% { transform: translate(0px, 0px); }
+77% { transform: translate(0px, 0px); }
+77.3% { transform: translate(0px, 0.12px); }
+77.6% { transform: translate(0px, 0px); }
+77.8% { transform: translate(0px, 0px); }
+78.1% { transform: translate(0px, 0.12px); }
+78.4% { transform: translate(0px, 0px); }
+78.6% { transform: translate(0px, 0px); }
+78.9% { transform: translate(0px, 0px); }
+79.2% { transform: translate(0px, 0px); }
+79.5% { transform: translate(0px, 0px); }
+79.7% { transform: translate(0px, 0px); }
+80% { transform: translate(0px, 0px); }
+80.3% { transform: translate(0px, 0px); }
+80.5% { transform: translate(0px, 0px); }
+80.8% { transform: translate(0px, 0px); }
+81.1% { transform: translate(0px, 0px); }
+81.4% { transform: translate(0px, 0px); }
+81.6% { transform: translate(0px, 0px); }
+81.9% { transform: translate(0px, 0px); }
+82.2% { transform: translate(0px, 0px); }
+82.4% { transform: translate(0px, 0px); }
+82.7% { transform: translate(0px, 0.12px); }
+83% { transform: translate(0px, 0px); }
+83.2% { transform: translate(0px, 0.12px); }
+83.5% { transform: translate(0px, 0px); }
+83.8% { transform: translate(0px, 0px); }
+84.1% { transform: translate(0px, 0px); }
+84.3% { transform: translate(0px, 0px); }
+84.6% { transform: translate(0px, 0px); }
+84.9% { transform: translate(0px, 0px); }
+85.1% { transform: translate(0px, 0px); }
+85.4% { transform: translate(0px, 0px); }
+85.7% { transform: translate(0px, 0px); }
+85.9% { transform: translate(0px, 0px); }
+86.2% { transform: translate(0px, 0px); }
+86.5% { transform: translate(0px, 0px); }
+86.8% { transform: translate(0px, 0px); }
+87% { transform: translate(0px, 0px); }
+87.3% { transform: translate(0px, 0.12px); }
+87.6% { transform: translate(0px, 0px); }
+87.8% { transform: translate(0px, 0px); }
+88.1% { transform: translate(0px, 0px); }
+88.4% { transform: translate(0px, 0px); }
+88.6% { transform: translate(0px, 0px); }
+88.9% { transform: translate(0px, 0px); }
+89.2% { transform: translate(0px, 0px); }
+89.5% { transform: translate(0px, 0px); }
+89.7% { transform: translate(0px, 0px); }
+90% { transform: translate(0px, 0px); }
+90.3% { transform: translate(0px, 0px); }
+90.5% { transform: translate(0px, 0px); }
+90.8% { transform: translate(0px, 0.12px); }
+91.1% { transform: translate(0px, 0px); }
+91.4% { transform: translate(0px, 0px); }
+91.6% { transform: translate(0px, 0.12px); }
+91.9% { transform: translate(0px, 0.24px); }
+92.2% { transform: translate(0px, 0.06px); }
+92.4% { transform: translate(0px, 0.18px); }
+92.7% { transform: translate(0px, 0px); }
+93% { transform: translate(0px, 0px); }
+93.2% { transform: translate(0px, 0px); }
+93.5% { transform: translate(0px, 0px); }
+93.8% { transform: translate(0px, 0px); }
+94.1% { transform: translate(0px, 0px); }
+94.3% { transform: translate(0px, 0px); }
+94.6% { transform: translate(0px, 0px); }
+94.9% { transform: translate(0px, 0px); }
+95.1% { transform: translate(0px, 0px); }
+95.4% { transform: translate(0px, 0px); }
+95.7% { transform: translate(0px, 0px); }
+95.9% { transform: translate(0px, 0px); }
+96.2% { transform: translate(0px, 0px); }
+96.5% { transform: translate(0px, 0.12px); }
+96.8% { transform: translate(0px, 0px); }
+97% { transform: translate(0px, 0px); }
+97.3% { transform: translate(0px, 0px); }
+97.6% { transform: translate(0px, 0px); }
+97.8% { transform: translate(0px, 0px); }
+98.1% { transform: translate(0px, 0px); }
+98.4% { transform: translate(0px, 0px); }
+98.6% { transform: translate(0px, 0px); }
+98.9% { transform: translate(0px, 0px); }
+99.2% { transform: translate(0px, 0px); }
+99.5% { transform: translate(0px, 0px); }
+99.7% { transform: translate(0px, 0px); }
+100% { transform: translate(0px, 0px); } }
+    @keyframes climb2 {  }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
+  ]]></style>
+
+  <rect x="18" y="18" width="864" height="224" rx="16" class="frame"/>
+
+  <g transform="translate(34, 38)">
+    <text class="title">snapshot-user • Ranked Climb</text>
+    <text class="sub" y="22">Streak: 13d (best 29d) • 30d: 255 • Best day: 42 on 2024-01-03 • Busiest: Tue</text>
+
+  </g>
+
+  <g>
+    <line x1="228" y1="76" x2="228" y2="196" class="ladderRail"/>
+    <line x1="228" y1="76" x2="228" y2="196" class="ladderInner"/>
+
+      <g class="tier">
+        <line x1="228" y1="196" x2="864" y2="196" stroke="#49535A" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="201" text-anchor="end" class="tierLabel">IRON</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="183.997" x2="864" y2="183.997" stroke="#7A5A3A" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="188.997" text-anchor="end" class="tierLabel">BRONZE</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="171.994" x2="864" y2="171.994" stroke="#B8C7D9" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="176.994" text-anchor="end" class="tierLabel">SILVER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="159.991" x2="864" y2="159.991" stroke="#F2D06B" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="164.991" text-anchor="end" class="tierLabel">GOLD</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="147.988" x2="864" y2="147.988" stroke="#45F1E3" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="152.988" text-anchor="end" class="tierLabel">PLAT</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="135.985" x2="864" y2="135.985" stroke="#2BE58E" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="140.985" text-anchor="end" class="tierLabel">EMERALD</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="123.982" x2="864" y2="123.982" stroke="#6CB5FF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="128.982" text-anchor="end" class="tierLabel">DIAMOND</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="111.979" x2="864" y2="111.979" stroke="#C070FF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="116.979" text-anchor="end" class="tierLabel">MASTER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="99.976" x2="864" y2="99.976" stroke="#FF5A7C" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="104.976" text-anchor="end" class="tierLabel">GRANDMASTER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="87.973" x2="864" y2="87.973" stroke="#FFE08A" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="92.973" text-anchor="end" class="tierLabel">CHALLENGER</text>
+      </g>
+
+  </g>
+
+  <g transform="translate(34, 76)">
+    <rect width="170" height="44" rx="10" class="lpBox"/>
+    <text x="14" y="27" class="lpText">3999 LP</text>
+    <text x="14" y="40" class="lpSmall">snapshot-user</text>
+  </g>
+
+
+
+  <g transform="translate(854, 76)" class="marker anim">
+    <circle cx="0" cy="0" r="7.5" class="markerCore"/>
+    <circle cx="0" cy="0" r="11" class="markerRing"/>
+  </g>
+
+
+
+
+    <g transform="translate(18, 232)">
+      <text class="sub">lp-climb • data: GitHub contributions • theme: Mage</text>
+    </g>
+
+</svg>
+
+--- theme:marksman ---
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260" role="img" aria-label="Ranked climb ladder for snapshot-user">
+  <style><![CDATA[
+    :root{
+      --bg:#0A0906;
+      --frame:#2E2414;
+      --text:#FFF4D6;
+      --accent:#FFB74A;
+      --glow:rgba(255, 183, 74, 0.40);
+    }
+    .frame{ fill: var(--bg); stroke: var(--frame); stroke-width: 2; }
+    .title{ fill: var(--text); font: 700 16px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.4px; }
+    .sub{ fill: rgba(255,255,255,0.72); font: 500 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .tierLabel{ fill: rgba(255,255,255,0.55); font: 700 10px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.8px; }
+    .lpBox{ fill: rgba(255,255,255,0.04); stroke: rgba(255,255,255,0.10); stroke-width: 1; }
+    .lpText{ fill: var(--text); font: 800 14px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .lpSmall{ fill: rgba(255,255,255,0.65); font: 600 11px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .ladderRail{ stroke: rgba(255,255,255,0.08); stroke-width: 10; stroke-linecap: round; }
+    .ladderInner{ stroke: rgba(255,255,255,0.10); stroke-width: 2; stroke-linecap: round; }
+    .marker{ filter: drop-shadow(0 0 10px var(--glow)); }
+    .markerCore{ fill: var(--accent); }
+    .markerRing{ fill: none; stroke: rgba(255,255,255,0.55); stroke-width: 1.5; }
+    .marker2 .markerCore{ fill: rgba(255,255,255,0.88); }
+    .marker2{ filter: drop-shadow(0 0 10px rgba(255,255,255,0.22)); }
+
+    @keyframes climb { 0% { transform: translate(0px, 96.114px); }
+0.3% { transform: translate(0px, 95.934px); }
+0.5% { transform: translate(0px, 94.794px); }
+0.8% { transform: translate(0px, 94.914px); }
+1.1% { transform: translate(0px, 94.614px); }
+1.4% { transform: translate(0px, 93.473px); }
+1.6% { transform: translate(0px, 93.593px); }
+1.9% { transform: translate(0px, 93.113px); }
+2.2% { transform: translate(0px, 92.633px); }
+2.4% { transform: translate(0px, 92.153px); }
+2.7% { transform: translate(0px, 91.673px); }
+3% { transform: translate(0px, 91.013px); }
+3.2% { transform: translate(0px, 90.353px); }
+3.5% { transform: translate(0px, 89.692px); }
+3.8% { transform: translate(0px, 89.032px); }
+4.1% { transform: translate(0px, 88.372px); }
+4.3% { transform: translate(0px, 87.712px); }
+4.6% { transform: translate(0px, 87.832px); }
+4.9% { transform: translate(0px, 87.652px); }
+5.1% { transform: translate(0px, 87.472px); }
+5.4% { transform: translate(0px, 87.172px); }
+5.7% { transform: translate(0px, 86.872px); }
+5.9% { transform: translate(0px, 86.572px); }
+6.2% { transform: translate(0px, 86.092px); }
+6.5% { transform: translate(0px, 85.611px); }
+6.8% { transform: translate(0px, 85.131px); }
+7% { transform: translate(0px, 84.651px); }
+7.3% { transform: translate(0px, 84.171px); }
+7.6% { transform: translate(0px, 83.511px); }
+7.8% { transform: translate(0px, 82.851px); }
+8.1% { transform: translate(0px, 82.191px); }
+8.4% { transform: translate(0px, 81.53px); }
+8.6% { transform: translate(0px, 80.87px); }
+8.9% { transform: translate(0px, 80.21px); }
+9.2% { transform: translate(0px, 80.33px); }
+9.5% { transform: translate(0px, 80.15px); }
+9.7% { transform: translate(0px, 79.97px); }
+10% { transform: translate(0px, 79.67px); }
+10.3% { transform: translate(0px, 79.37px); }
+10.5% { transform: translate(0px, 79.07px); }
+10.8% { transform: translate(0px, 78.59px); }
+11.1% { transform: translate(0px, 78.11px); }
+11.4% { transform: translate(0px, 77.629px); }
+11.6% { transform: translate(0px, 77.149px); }
+11.9% { transform: translate(0px, 76.669px); }
+12.2% { transform: translate(0px, 76.009px); }
+12.4% { transform: translate(0px, 75.349px); }
+12.7% { transform: translate(0px, 74.689px); }
+13% { transform: translate(0px, 74.029px); }
+13.2% { transform: translate(0px, 73.368px); }
+13.5% { transform: translate(0px, 72.708px); }
+13.8% { transform: translate(0px, 72.828px); }
+14.1% { transform: translate(0px, 72.648px); }
+14.3% { transform: translate(0px, 72.468px); }
+14.6% { transform: translate(0px, 72.168px); }
+14.9% { transform: translate(0px, 71.868px); }
+15.1% { transform: translate(0px, 71.988px); }
+15.4% { transform: translate(0px, 71.508px); }
+15.7% { transform: translate(0px, 71.028px); }
+15.9% { transform: translate(0px, 71.148px); }
+16.2% { transform: translate(0px, 70.668px); }
+16.5% { transform: translate(0px, 70.188px); }
+16.8% { transform: translate(0px, 70.308px); }
+17% { transform: translate(0px, 69.647px); }
+17.3% { transform: translate(0px, 68.987px); }
+17.6% { transform: translate(0px, 67.847px); }
+17.8% { transform: translate(0px, 67.187px); }
+18.1% { transform: translate(0px, 66.527px); }
+18.4% { transform: translate(0px, 66.647px); }
+18.6% { transform: translate(0px, 66.467px); }
+18.9% { transform: translate(0px, 66.287px); }
+19.2% { transform: translate(0px, 65.986px); }
+19.5% { transform: translate(0px, 65.686px); }
+19.7% { transform: translate(0px, 65.386px); }
+20% { transform: translate(0px, 64.906px); }
+20.3% { transform: translate(0px, 64.426px); }
+20.5% { transform: translate(0px, 63.946px); }
+20.8% { transform: translate(0px, 64.066px); }
+21.1% { transform: translate(0px, 63.586px); }
+21.4% { transform: translate(0px, 62.926px); }
+21.6% { transform: translate(0px, 62.266px); }
+21.9% { transform: translate(0px, 61.605px); }
+22.2% { transform: translate(0px, 60.945px); }
+22.4% { transform: translate(0px, 60.285px); }
+22.7% { transform: translate(0px, 59.625px); }
+23% { transform: translate(0px, 59.745px); }
+23.2% { transform: translate(0px, 59.565px); }
+23.5% { transform: translate(0px, 59.385px); }
+23.8% { transform: translate(0px, 59.085px); }
+24.1% { transform: translate(0px, 58.785px); }
+24.3% { transform: translate(0px, 58.485px); }
+24.6% { transform: translate(0px, 58.005px); }
+24.9% { transform: translate(0px, 57.524px); }
+25.1% { transform: translate(0px, 57.044px); }
+25.4% { transform: translate(0px, 56.564px); }
+25.7% { transform: translate(0px, 56.084px); }
+25.9% { transform: translate(0px, 54.944px); }
+26.2% { transform: translate(0px, 54.284px); }
+26.5% { transform: translate(0px, 53.623px); }
+26.8% { transform: translate(0px, 52.963px); }
+27% { transform: translate(0px, 52.303px); }
+27.3% { transform: translate(0px, 51.643px); }
+27.6% { transform: translate(0px, 51.763px); }
+27.8% { transform: translate(0px, 51.583px); }
+28.1% { transform: translate(0px, 51.403px); }
+28.4% { transform: translate(0px, 51.103px); }
+28.6% { transform: translate(0px, 50.803px); }
+28.9% { transform: translate(0px, 50.503px); }
+29.2% { transform: translate(0px, 50.023px); }
+29.5% { transform: translate(0px, 49.542px); }
+29.7% { transform: translate(0px, 49.062px); }
+30% { transform: translate(0px, 48.582px); }
+30.3% { transform: translate(0px, 48.702px); }
+30.5% { transform: translate(0px, 48.042px); }
+30.8% { transform: translate(0px, 47.382px); }
+31.1% { transform: translate(0px, 47.502px); }
+31.4% { transform: translate(0px, 46.842px); }
+31.6% { transform: translate(0px, 46.182px); }
+31.9% { transform: translate(0px, 46.302px); }
+32.2% { transform: translate(0px, 46.422px); }
+32.4% { transform: translate(0px, 46.242px); }
+32.7% { transform: translate(0px, 46.062px); }
+33% { transform: translate(0px, 45.761px); }
+33.2% { transform: translate(0px, 45.461px); }
+33.5% { transform: translate(0px, 45.161px); }
+33.8% { transform: translate(0px, 44.681px); }
+34.1% { transform: translate(0px, 44.201px); }
+34.3% { transform: translate(0px, 43.721px); }
+34.6% { transform: translate(0px, 42.581px); }
+34.9% { transform: translate(0px, 42.101px); }
+35.1% { transform: translate(0px, 41.44px); }
+35.4% { transform: translate(0px, 40.78px); }
+35.7% { transform: translate(0px, 40.12px); }
+35.9% { transform: translate(0px, 39.46px); }
+36.2% { transform: translate(0px, 38.8px); }
+36.5% { transform: translate(0px, 38.14px); }
+36.8% { transform: translate(0px, 38.26px); }
+37% { transform: translate(0px, 38.08px); }
+37.3% { transform: translate(0px, 37.899px); }
+37.6% { transform: translate(0px, 37.599px); }
+37.8% { transform: translate(0px, 37.299px); }
+38.1% { transform: translate(0px, 36.999px); }
+38.4% { transform: translate(0px, 36.519px); }
+38.6% { transform: translate(0px, 36.039px); }
+38.9% { transform: translate(0px, 35.559px); }
+39.2% { transform: translate(0px, 35.079px); }
+39.5% { transform: translate(0px, 34.599px); }
+39.7% { transform: translate(0px, 33.938px); }
+40% { transform: translate(0px, 33.278px); }
+40.3% { transform: translate(0px, 32.618px); }
+40.5% { transform: translate(0px, 31.958px); }
+40.8% { transform: translate(0px, 31.298px); }
+41.1% { transform: translate(0px, 30.638px); }
+41.4% { transform: translate(0px, 30.758px); }
+41.6% { transform: translate(0px, 30.878px); }
+41.9% { transform: translate(0px, 30.698px); }
+42.2% { transform: translate(0px, 30.398px); }
+42.4% { transform: translate(0px, 30.098px); }
+42.7% { transform: translate(0px, 29.797px); }
+43% { transform: translate(0px, 29.317px); }
+43.2% { transform: translate(0px, 28.837px); }
+43.5% { transform: translate(0px, 28.357px); }
+43.8% { transform: translate(0px, 27.877px); }
+44.1% { transform: translate(0px, 27.397px); }
+44.3% { transform: translate(0px, 26.737px); }
+44.6% { transform: translate(0px, 26.077px); }
+44.9% { transform: translate(0px, 25.416px); }
+45.1% { transform: translate(0px, 24.756px); }
+45.4% { transform: translate(0px, 24.876px); }
+45.7% { transform: translate(0px, 24.216px); }
+45.9% { transform: translate(0px, 24.336px); }
+46.2% { transform: translate(0px, 24.456px); }
+46.5% { transform: translate(0px, 24.276px); }
+46.8% { transform: translate(0px, 23.976px); }
+47% { transform: translate(0px, 24.096px); }
+47.3% { transform: translate(0px, 23.796px); }
+47.6% { transform: translate(0px, 23.316px); }
+47.8% { transform: translate(0px, 22.836px); }
+48.1% { transform: translate(0px, 22.356px); }
+48.4% { transform: translate(0px, 21.875px); }
+48.6% { transform: translate(0px, 21.395px); }
+48.9% { transform: translate(0px, 20.735px); }
+49.2% { transform: translate(0px, 20.075px); }
+49.5% { transform: translate(0px, 19.415px); }
+49.7% { transform: translate(0px, 18.755px); }
+50% { transform: translate(0px, 18.095px); }
+50.3% { transform: translate(0px, 17.434px); }
+50.5% { transform: translate(0px, 16.294px); }
+50.8% { transform: translate(0px, 16.114px); }
+51.1% { transform: translate(0px, 15.934px); }
+51.4% { transform: translate(0px, 15.634px); }
+51.6% { transform: translate(0px, 14.494px); }
+51.9% { transform: translate(0px, 14.194px); }
+52.2% { transform: translate(0px, 13.713px); }
+52.4% { transform: translate(0px, 13.233px); }
+52.7% { transform: translate(0px, 12.753px); }
+53% { transform: translate(0px, 12.273px); }
+53.2% { transform: translate(0px, 11.793px); }
+53.5% { transform: translate(0px, 11.133px); }
+53.8% { transform: translate(0px, 10.473px); }
+54.1% { transform: translate(0px, 9.812px); }
+54.3% { transform: translate(0px, 9.152px); }
+54.6% { transform: translate(0px, 8.492px); }
+54.9% { transform: translate(0px, 7.832px); }
+55.1% { transform: translate(0px, 7.952px); }
+55.4% { transform: translate(0px, 7.772px); }
+55.7% { transform: translate(0px, 7.592px); }
+55.9% { transform: translate(0px, 7.292px); }
+56.2% { transform: translate(0px, 6.992px); }
+56.5% { transform: translate(0px, 6.692px); }
+56.8% { transform: translate(0px, 6.212px); }
+57% { transform: translate(0px, 5.731px); }
+57.3% { transform: translate(0px, 5.251px); }
+57.6% { transform: translate(0px, 4.771px); }
+57.8% { transform: translate(0px, 4.291px); }
+58.1% { transform: translate(0px, 3.631px); }
+58.4% { transform: translate(0px, 2.971px); }
+58.6% { transform: translate(0px, 2.311px); }
+58.9% { transform: translate(0px, 1.65px); }
+59.2% { transform: translate(0px, 0.99px); }
+59.5% { transform: translate(0px, 0.33px); }
+59.7% { transform: translate(0px, 0.45px); }
+60% { transform: translate(0px, 0.27px); }
+60.3% { transform: translate(0px, 0.09px); }
+60.5% { transform: translate(0px, 0.21px); }
+60.8% { transform: translate(0px, 0px); }
+61.1% { transform: translate(0px, 0px); }
+61.4% { transform: translate(0px, 0.12px); }
+61.6% { transform: translate(0px, 0px); }
+61.9% { transform: translate(0px, 0px); }
+62.2% { transform: translate(0px, 0.12px); }
+62.4% { transform: translate(0px, 0.24px); }
+62.7% { transform: translate(0px, 0px); }
+63% { transform: translate(0px, 0px); }
+63.2% { transform: translate(0px, 0px); }
+63.5% { transform: translate(0px, 0px); }
+63.8% { transform: translate(0px, 0px); }
+64.1% { transform: translate(0px, 0px); }
+64.3% { transform: translate(0px, 0.12px); }
+64.6% { transform: translate(0px, 0px); }
+64.9% { transform: translate(0px, 0px); }
+65.1% { transform: translate(0px, 0px); }
+65.4% { transform: translate(0px, 0px); }
+65.7% { transform: translate(0px, 0px); }
+65.9% { transform: translate(0px, 0px); }
+66.2% { transform: translate(0px, 0px); }
+66.5% { transform: translate(0px, 0px); }
+66.8% { transform: translate(0px, 0px); }
+67% { transform: translate(0px, 0px); }
+67.3% { transform: translate(0px, 0px); }
+67.6% { transform: translate(0px, 0px); }
+67.8% { transform: translate(0px, 0px); }
+68.1% { transform: translate(0px, 0px); }
+68.4% { transform: translate(0px, 0px); }
+68.6% { transform: translate(0px, 0px); }
+68.9% { transform: translate(0px, 0.12px); }
+69.2% { transform: translate(0px, 0px); }
+69.5% { transform: translate(0px, 0px); }
+69.7% { transform: translate(0px, 0px); }
+70% { transform: translate(0px, 0px); }
+70.3% { transform: translate(0px, 0px); }
+70.5% { transform: translate(0px, 0px); }
+70.8% { transform: translate(0px, 0px); }
+71.1% { transform: translate(0px, 0px); }
+71.4% { transform: translate(0px, 0px); }
+71.6% { transform: translate(0px, 0px); }
+71.9% { transform: translate(0px, 0px); }
+72.2% { transform: translate(0px, 0px); }
+72.4% { transform: translate(0px, 0px); }
+72.7% { transform: translate(0px, 0px); }
+73% { transform: translate(0px, 0px); }
+73.2% { transform: translate(0px, 0px); }
+73.5% { transform: translate(0px, 0.12px); }
+73.8% { transform: translate(0px, 0px); }
+74.1% { transform: translate(0px, 0px); }
+74.3% { transform: translate(0px, 0px); }
+74.6% { transform: translate(0px, 0px); }
+74.9% { transform: translate(0px, 0px); }
+75.1% { transform: translate(0px, 0px); }
+75.4% { transform: translate(0px, 0px); }
+75.7% { transform: translate(0px, 0.12px); }
+75.9% { transform: translate(0px, 0px); }
+76.2% { transform: translate(0px, 0px); }
+76.5% { transform: translate(0px, 0.12px); }
+76.8% { transform: translate(0px, 0px); }
+77% { transform: translate(0px, 0px); }
+77.3% { transform: translate(0px, 0.12px); }
+77.6% { transform: translate(0px, 0px); }
+77.8% { transform: translate(0px, 0px); }
+78.1% { transform: translate(0px, 0.12px); }
+78.4% { transform: translate(0px, 0px); }
+78.6% { transform: translate(0px, 0px); }
+78.9% { transform: translate(0px, 0px); }
+79.2% { transform: translate(0px, 0px); }
+79.5% { transform: translate(0px, 0px); }
+79.7% { transform: translate(0px, 0px); }
+80% { transform: translate(0px, 0px); }
+80.3% { transform: translate(0px, 0px); }
+80.5% { transform: translate(0px, 0px); }
+80.8% { transform: translate(0px, 0px); }
+81.1% { transform: translate(0px, 0px); }
+81.4% { transform: translate(0px, 0px); }
+81.6% { transform: translate(0px, 0px); }
+81.9% { transform: translate(0px, 0px); }
+82.2% { transform: translate(0px, 0px); }
+82.4% { transform: translate(0px, 0px); }
+82.7% { transform: translate(0px, 0.12px); }
+83% { transform: translate(0px, 0px); }
+83.2% { transform: translate(0px, 0.12px); }
+83.5% { transform: translate(0px, 0px); }
+83.8% { transform: translate(0px, 0px); }
+84.1% { transform: translate(0px, 0px); }
+84.3% { transform: translate(0px, 0px); }
+84.6% { transform: translate(0px, 0px); }
+84.9% { transform: translate(0px, 0px); }
+85.1% { transform: translate(0px, 0px); }
+85.4% { transform: translate(0px, 0px); }
+85.7% { transform: translate(0px, 0px); }
+85.9% { transform: translate(0px, 0px); }
+86.2% { transform: translate(0px, 0px); }
+86.5% { transform: translate(0px, 0px); }
+86.8% { transform: translate(0px, 0px); }
+87% { transform: translate(0px, 0px); }
+87.3% { transform: translate(0px, 0.12px); }
+87.6% { transform: translate(0px, 0px); }
+87.8% { transform: translate(0px, 0px); }
+88.1% { transform: translate(0px, 0px); }
+88.4% { transform: translate(0px, 0px); }
+88.6% { transform: translate(0px, 0px); }
+88.9% { transform: translate(0px, 0px); }
+89.2% { transform: translate(0px, 0px); }
+89.5% { transform: translate(0px, 0px); }
+89.7% { transform: translate(0px, 0px); }
+90% { transform: translate(0px, 0px); }
+90.3% { transform: translate(0px, 0px); }
+90.5% { transform: translate(0px, 0px); }
+90.8% { transform: translate(0px, 0.12px); }
+91.1% { transform: translate(0px, 0px); }
+91.4% { transform: translate(0px, 0px); }
+91.6% { transform: translate(0px, 0.12px); }
+91.9% { transform: translate(0px, 0.24px); }
+92.2% { transform: translate(0px, 0.06px); }
+92.4% { transform: translate(0px, 0.18px); }
+92.7% { transform: translate(0px, 0px); }
+93% { transform: translate(0px, 0px); }
+93.2% { transform: translate(0px, 0px); }
+93.5% { transform: translate(0px, 0px); }
+93.8% { transform: translate(0px, 0px); }
+94.1% { transform: translate(0px, 0px); }
+94.3% { transform: translate(0px, 0px); }
+94.6% { transform: translate(0px, 0px); }
+94.9% { transform: translate(0px, 0px); }
+95.1% { transform: translate(0px, 0px); }
+95.4% { transform: translate(0px, 0px); }
+95.7% { transform: translate(0px, 0px); }
+95.9% { transform: translate(0px, 0px); }
+96.2% { transform: translate(0px, 0px); }
+96.5% { transform: translate(0px, 0.12px); }
+96.8% { transform: translate(0px, 0px); }
+97% { transform: translate(0px, 0px); }
+97.3% { transform: translate(0px, 0px); }
+97.6% { transform: translate(0px, 0px); }
+97.8% { transform: translate(0px, 0px); }
+98.1% { transform: translate(0px, 0px); }
+98.4% { transform: translate(0px, 0px); }
+98.6% { transform: translate(0px, 0px); }
+98.9% { transform: translate(0px, 0px); }
+99.2% { transform: translate(0px, 0px); }
+99.5% { transform: translate(0px, 0px); }
+99.7% { transform: translate(0px, 0px); }
+100% { transform: translate(0px, 0px); } }
+    @keyframes climb2 {  }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
+  ]]></style>
+
+  <rect x="18" y="18" width="864" height="224" rx="16" class="frame"/>
+
+  <g transform="translate(34, 38)">
+    <text class="title">snapshot-user • Ranked Climb</text>
+    <text class="sub" y="22">Streak: 13d (best 29d) • 30d: 255 • Best day: 42 on 2024-01-03 • Busiest: Tue</text>
+
+  </g>
+
+  <g>
+    <line x1="228" y1="76" x2="228" y2="196" class="ladderRail"/>
+    <line x1="228" y1="76" x2="228" y2="196" class="ladderInner"/>
+
+      <g class="tier">
+        <line x1="228" y1="196" x2="864" y2="196" stroke="#55524A" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="201" text-anchor="end" class="tierLabel">IRON</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="183.997" x2="864" y2="183.997" stroke="#8A5B2E" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="188.997" text-anchor="end" class="tierLabel">BRONZE</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="171.994" x2="864" y2="171.994" stroke="#C5CBD3" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="176.994" text-anchor="end" class="tierLabel">SILVER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="159.991" x2="864" y2="159.991" stroke="#FFD36B" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="164.991" text-anchor="end" class="tierLabel">GOLD</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="147.988" x2="864" y2="147.988" stroke="#44E6D4" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="152.988" text-anchor="end" class="tierLabel">PLAT</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="135.985" x2="864" y2="135.985" stroke="#26E88C" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="140.985" text-anchor="end" class="tierLabel">EMERALD</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="123.982" x2="864" y2="123.982" stroke="#67B1FF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="128.982" text-anchor="end" class="tierLabel">DIAMOND</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="111.979" x2="864" y2="111.979" stroke="#C06FFF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="116.979" text-anchor="end" class="tierLabel">MASTER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="99.976" x2="864" y2="99.976" stroke="#FF5770" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="104.976" text-anchor="end" class="tierLabel">GRANDMASTER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="87.973" x2="864" y2="87.973" stroke="#FFE49A" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="92.973" text-anchor="end" class="tierLabel">CHALLENGER</text>
+      </g>
+
+  </g>
+
+  <g transform="translate(34, 76)">
+    <rect width="170" height="44" rx="10" class="lpBox"/>
+    <text x="14" y="27" class="lpText">3999 LP</text>
+    <text x="14" y="40" class="lpSmall">snapshot-user</text>
+  </g>
+
+
+
+  <g transform="translate(854, 76)" class="marker anim">
+    <circle cx="0" cy="0" r="7.5" class="markerCore"/>
+    <circle cx="0" cy="0" r="11" class="markerRing"/>
+  </g>
+
+
+
+
+    <g transform="translate(18, 232)">
+      <text class="sub">lp-climb • data: GitHub contributions • theme: Marksman</text>
+    </g>
+
+</svg>
+
+--- theme:mono ---
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260" role="img" aria-label="Ranked climb ladder for snapshot-user">
+  <style><![CDATA[
+    :root{
+      --bg:#0B0B0D;
+      --frame:#2B2B33;
+      --text:#F0F0F4;
+      --accent:#FFFFFF;
+      --glow:rgba(255, 255, 255, 0.18);
+    }
+    .frame{ fill: var(--bg); stroke: var(--frame); stroke-width: 2; }
+    .title{ fill: var(--text); font: 700 16px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.4px; }
+    .sub{ fill: rgba(255,255,255,0.72); font: 500 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .tierLabel{ fill: rgba(255,255,255,0.55); font: 700 10px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.8px; }
+    .lpBox{ fill: rgba(255,255,255,0.04); stroke: rgba(255,255,255,0.10); stroke-width: 1; }
+    .lpText{ fill: var(--text); font: 800 14px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .lpSmall{ fill: rgba(255,255,255,0.65); font: 600 11px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .ladderRail{ stroke: rgba(255,255,255,0.08); stroke-width: 10; stroke-linecap: round; }
+    .ladderInner{ stroke: rgba(255,255,255,0.10); stroke-width: 2; stroke-linecap: round; }
+    .marker{ filter: drop-shadow(0 0 10px var(--glow)); }
+    .markerCore{ fill: var(--accent); }
+    .markerRing{ fill: none; stroke: rgba(255,255,255,0.55); stroke-width: 1.5; }
+    .marker2 .markerCore{ fill: rgba(255,255,255,0.88); }
+    .marker2{ filter: drop-shadow(0 0 10px rgba(255,255,255,0.22)); }
+
+    @keyframes climb { 0% { transform: translate(0px, 96.114px); }
+0.3% { transform: translate(0px, 95.934px); }
+0.5% { transform: translate(0px, 94.794px); }
+0.8% { transform: translate(0px, 94.914px); }
+1.1% { transform: translate(0px, 94.614px); }
+1.4% { transform: translate(0px, 93.473px); }
+1.6% { transform: translate(0px, 93.593px); }
+1.9% { transform: translate(0px, 93.113px); }
+2.2% { transform: translate(0px, 92.633px); }
+2.4% { transform: translate(0px, 92.153px); }
+2.7% { transform: translate(0px, 91.673px); }
+3% { transform: translate(0px, 91.013px); }
+3.2% { transform: translate(0px, 90.353px); }
+3.5% { transform: translate(0px, 89.692px); }
+3.8% { transform: translate(0px, 89.032px); }
+4.1% { transform: translate(0px, 88.372px); }
+4.3% { transform: translate(0px, 87.712px); }
+4.6% { transform: translate(0px, 87.832px); }
+4.9% { transform: translate(0px, 87.652px); }
+5.1% { transform: translate(0px, 87.472px); }
+5.4% { transform: translate(0px, 87.172px); }
+5.7% { transform: translate(0px, 86.872px); }
+5.9% { transform: translate(0px, 86.572px); }
+6.2% { transform: translate(0px, 86.092px); }
+6.5% { transform: translate(0px, 85.611px); }
+6.8% { transform: translate(0px, 85.131px); }
+7% { transform: translate(0px, 84.651px); }
+7.3% { transform: translate(0px, 84.171px); }
+7.6% { transform: translate(0px, 83.511px); }
+7.8% { transform: translate(0px, 82.851px); }
+8.1% { transform: translate(0px, 82.191px); }
+8.4% { transform: translate(0px, 81.53px); }
+8.6% { transform: translate(0px, 80.87px); }
+8.9% { transform: translate(0px, 80.21px); }
+9.2% { transform: translate(0px, 80.33px); }
+9.5% { transform: translate(0px, 80.15px); }
+9.7% { transform: translate(0px, 79.97px); }
+10% { transform: translate(0px, 79.67px); }
+10.3% { transform: translate(0px, 79.37px); }
+10.5% { transform: translate(0px, 79.07px); }
+10.8% { transform: translate(0px, 78.59px); }
+11.1% { transform: translate(0px, 78.11px); }
+11.4% { transform: translate(0px, 77.629px); }
+11.6% { transform: translate(0px, 77.149px); }
+11.9% { transform: translate(0px, 76.669px); }
+12.2% { transform: translate(0px, 76.009px); }
+12.4% { transform: translate(0px, 75.349px); }
+12.7% { transform: translate(0px, 74.689px); }
+13% { transform: translate(0px, 74.029px); }
+13.2% { transform: translate(0px, 73.368px); }
+13.5% { transform: translate(0px, 72.708px); }
+13.8% { transform: translate(0px, 72.828px); }
+14.1% { transform: translate(0px, 72.648px); }
+14.3% { transform: translate(0px, 72.468px); }
+14.6% { transform: translate(0px, 72.168px); }
+14.9% { transform: translate(0px, 71.868px); }
+15.1% { transform: translate(0px, 71.988px); }
+15.4% { transform: translate(0px, 71.508px); }
+15.7% { transform: translate(0px, 71.028px); }
+15.9% { transform: translate(0px, 71.148px); }
+16.2% { transform: translate(0px, 70.668px); }
+16.5% { transform: translate(0px, 70.188px); }
+16.8% { transform: translate(0px, 70.308px); }
+17% { transform: translate(0px, 69.647px); }
+17.3% { transform: translate(0px, 68.987px); }
+17.6% { transform: translate(0px, 67.847px); }
+17.8% { transform: translate(0px, 67.187px); }
+18.1% { transform: translate(0px, 66.527px); }
+18.4% { transform: translate(0px, 66.647px); }
+18.6% { transform: translate(0px, 66.467px); }
+18.9% { transform: translate(0px, 66.287px); }
+19.2% { transform: translate(0px, 65.986px); }
+19.5% { transform: translate(0px, 65.686px); }
+19.7% { transform: translate(0px, 65.386px); }
+20% { transform: translate(0px, 64.906px); }
+20.3% { transform: translate(0px, 64.426px); }
+20.5% { transform: translate(0px, 63.946px); }
+20.8% { transform: translate(0px, 64.066px); }
+21.1% { transform: translate(0px, 63.586px); }
+21.4% { transform: translate(0px, 62.926px); }
+21.6% { transform: translate(0px, 62.266px); }
+21.9% { transform: translate(0px, 61.605px); }
+22.2% { transform: translate(0px, 60.945px); }
+22.4% { transform: translate(0px, 60.285px); }
+22.7% { transform: translate(0px, 59.625px); }
+23% { transform: translate(0px, 59.745px); }
+23.2% { transform: translate(0px, 59.565px); }
+23.5% { transform: translate(0px, 59.385px); }
+23.8% { transform: translate(0px, 59.085px); }
+24.1% { transform: translate(0px, 58.785px); }
+24.3% { transform: translate(0px, 58.485px); }
+24.6% { transform: translate(0px, 58.005px); }
+24.9% { transform: translate(0px, 57.524px); }
+25.1% { transform: translate(0px, 57.044px); }
+25.4% { transform: translate(0px, 56.564px); }
+25.7% { transform: translate(0px, 56.084px); }
+25.9% { transform: translate(0px, 54.944px); }
+26.2% { transform: translate(0px, 54.284px); }
+26.5% { transform: translate(0px, 53.623px); }
+26.8% { transform: translate(0px, 52.963px); }
+27% { transform: translate(0px, 52.303px); }
+27.3% { transform: translate(0px, 51.643px); }
+27.6% { transform: translate(0px, 51.763px); }
+27.8% { transform: translate(0px, 51.583px); }
+28.1% { transform: translate(0px, 51.403px); }
+28.4% { transform: translate(0px, 51.103px); }
+28.6% { transform: translate(0px, 50.803px); }
+28.9% { transform: translate(0px, 50.503px); }
+29.2% { transform: translate(0px, 50.023px); }
+29.5% { transform: translate(0px, 49.542px); }
+29.7% { transform: translate(0px, 49.062px); }
+30% { transform: translate(0px, 48.582px); }
+30.3% { transform: translate(0px, 48.702px); }
+30.5% { transform: translate(0px, 48.042px); }
+30.8% { transform: translate(0px, 47.382px); }
+31.1% { transform: translate(0px, 47.502px); }
+31.4% { transform: translate(0px, 46.842px); }
+31.6% { transform: translate(0px, 46.182px); }
+31.9% { transform: translate(0px, 46.302px); }
+32.2% { transform: translate(0px, 46.422px); }
+32.4% { transform: translate(0px, 46.242px); }
+32.7% { transform: translate(0px, 46.062px); }
+33% { transform: translate(0px, 45.761px); }
+33.2% { transform: translate(0px, 45.461px); }
+33.5% { transform: translate(0px, 45.161px); }
+33.8% { transform: translate(0px, 44.681px); }
+34.1% { transform: translate(0px, 44.201px); }
+34.3% { transform: translate(0px, 43.721px); }
+34.6% { transform: translate(0px, 42.581px); }
+34.9% { transform: translate(0px, 42.101px); }
+35.1% { transform: translate(0px, 41.44px); }
+35.4% { transform: translate(0px, 40.78px); }
+35.7% { transform: translate(0px, 40.12px); }
+35.9% { transform: translate(0px, 39.46px); }
+36.2% { transform: translate(0px, 38.8px); }
+36.5% { transform: translate(0px, 38.14px); }
+36.8% { transform: translate(0px, 38.26px); }
+37% { transform: translate(0px, 38.08px); }
+37.3% { transform: translate(0px, 37.899px); }
+37.6% { transform: translate(0px, 37.599px); }
+37.8% { transform: translate(0px, 37.299px); }
+38.1% { transform: translate(0px, 36.999px); }
+38.4% { transform: translate(0px, 36.519px); }
+38.6% { transform: translate(0px, 36.039px); }
+38.9% { transform: translate(0px, 35.559px); }
+39.2% { transform: translate(0px, 35.079px); }
+39.5% { transform: translate(0px, 34.599px); }
+39.7% { transform: translate(0px, 33.938px); }
+40% { transform: translate(0px, 33.278px); }
+40.3% { transform: translate(0px, 32.618px); }
+40.5% { transform: translate(0px, 31.958px); }
+40.8% { transform: translate(0px, 31.298px); }
+41.1% { transform: translate(0px, 30.638px); }
+41.4% { transform: translate(0px, 30.758px); }
+41.6% { transform: translate(0px, 30.878px); }
+41.9% { transform: translate(0px, 30.698px); }
+42.2% { transform: translate(0px, 30.398px); }
+42.4% { transform: translate(0px, 30.098px); }
+42.7% { transform: translate(0px, 29.797px); }
+43% { transform: translate(0px, 29.317px); }
+43.2% { transform: translate(0px, 28.837px); }
+43.5% { transform: translate(0px, 28.357px); }
+43.8% { transform: translate(0px, 27.877px); }
+44.1% { transform: translate(0px, 27.397px); }
+44.3% { transform: translate(0px, 26.737px); }
+44.6% { transform: translate(0px, 26.077px); }
+44.9% { transform: translate(0px, 25.416px); }
+45.1% { transform: translate(0px, 24.756px); }
+45.4% { transform: translate(0px, 24.876px); }
+45.7% { transform: translate(0px, 24.216px); }
+45.9% { transform: translate(0px, 24.336px); }
+46.2% { transform: translate(0px, 24.456px); }
+46.5% { transform: translate(0px, 24.276px); }
+46.8% { transform: translate(0px, 23.976px); }
+47% { transform: translate(0px, 24.096px); }
+47.3% { transform: translate(0px, 23.796px); }
+47.6% { transform: translate(0px, 23.316px); }
+47.8% { transform: translate(0px, 22.836px); }
+48.1% { transform: translate(0px, 22.356px); }
+48.4% { transform: translate(0px, 21.875px); }
+48.6% { transform: translate(0px, 21.395px); }
+48.9% { transform: translate(0px, 20.735px); }
+49.2% { transform: translate(0px, 20.075px); }
+49.5% { transform: translate(0px, 19.415px); }
+49.7% { transform: translate(0px, 18.755px); }
+50% { transform: translate(0px, 18.095px); }
+50.3% { transform: translate(0px, 17.434px); }
+50.5% { transform: translate(0px, 16.294px); }
+50.8% { transform: translate(0px, 16.114px); }
+51.1% { transform: translate(0px, 15.934px); }
+51.4% { transform: translate(0px, 15.634px); }
+51.6% { transform: translate(0px, 14.494px); }
+51.9% { transform: translate(0px, 14.194px); }
+52.2% { transform: translate(0px, 13.713px); }
+52.4% { transform: translate(0px, 13.233px); }
+52.7% { transform: translate(0px, 12.753px); }
+53% { transform: translate(0px, 12.273px); }
+53.2% { transform: translate(0px, 11.793px); }
+53.5% { transform: translate(0px, 11.133px); }
+53.8% { transform: translate(0px, 10.473px); }
+54.1% { transform: translate(0px, 9.812px); }
+54.3% { transform: translate(0px, 9.152px); }
+54.6% { transform: translate(0px, 8.492px); }
+54.9% { transform: translate(0px, 7.832px); }
+55.1% { transform: translate(0px, 7.952px); }
+55.4% { transform: translate(0px, 7.772px); }
+55.7% { transform: translate(0px, 7.592px); }
+55.9% { transform: translate(0px, 7.292px); }
+56.2% { transform: translate(0px, 6.992px); }
+56.5% { transform: translate(0px, 6.692px); }
+56.8% { transform: translate(0px, 6.212px); }
+57% { transform: translate(0px, 5.731px); }
+57.3% { transform: translate(0px, 5.251px); }
+57.6% { transform: translate(0px, 4.771px); }
+57.8% { transform: translate(0px, 4.291px); }
+58.1% { transform: translate(0px, 3.631px); }
+58.4% { transform: translate(0px, 2.971px); }
+58.6% { transform: translate(0px, 2.311px); }
+58.9% { transform: translate(0px, 1.65px); }
+59.2% { transform: translate(0px, 0.99px); }
+59.5% { transform: translate(0px, 0.33px); }
+59.7% { transform: translate(0px, 0.45px); }
+60% { transform: translate(0px, 0.27px); }
+60.3% { transform: translate(0px, 0.09px); }
+60.5% { transform: translate(0px, 0.21px); }
+60.8% { transform: translate(0px, 0px); }
+61.1% { transform: translate(0px, 0px); }
+61.4% { transform: translate(0px, 0.12px); }
+61.6% { transform: translate(0px, 0px); }
+61.9% { transform: translate(0px, 0px); }
+62.2% { transform: translate(0px, 0.12px); }
+62.4% { transform: translate(0px, 0.24px); }
+62.7% { transform: translate(0px, 0px); }
+63% { transform: translate(0px, 0px); }
+63.2% { transform: translate(0px, 0px); }
+63.5% { transform: translate(0px, 0px); }
+63.8% { transform: translate(0px, 0px); }
+64.1% { transform: translate(0px, 0px); }
+64.3% { transform: translate(0px, 0.12px); }
+64.6% { transform: translate(0px, 0px); }
+64.9% { transform: translate(0px, 0px); }
+65.1% { transform: translate(0px, 0px); }
+65.4% { transform: translate(0px, 0px); }
+65.7% { transform: translate(0px, 0px); }
+65.9% { transform: translate(0px, 0px); }
+66.2% { transform: translate(0px, 0px); }
+66.5% { transform: translate(0px, 0px); }
+66.8% { transform: translate(0px, 0px); }
+67% { transform: translate(0px, 0px); }
+67.3% { transform: translate(0px, 0px); }
+67.6% { transform: translate(0px, 0px); }
+67.8% { transform: translate(0px, 0px); }
+68.1% { transform: translate(0px, 0px); }
+68.4% { transform: translate(0px, 0px); }
+68.6% { transform: translate(0px, 0px); }
+68.9% { transform: translate(0px, 0.12px); }
+69.2% { transform: translate(0px, 0px); }
+69.5% { transform: translate(0px, 0px); }
+69.7% { transform: translate(0px, 0px); }
+70% { transform: translate(0px, 0px); }
+70.3% { transform: translate(0px, 0px); }
+70.5% { transform: translate(0px, 0px); }
+70.8% { transform: translate(0px, 0px); }
+71.1% { transform: translate(0px, 0px); }
+71.4% { transform: translate(0px, 0px); }
+71.6% { transform: translate(0px, 0px); }
+71.9% { transform: translate(0px, 0px); }
+72.2% { transform: translate(0px, 0px); }
+72.4% { transform: translate(0px, 0px); }
+72.7% { transform: translate(0px, 0px); }
+73% { transform: translate(0px, 0px); }
+73.2% { transform: translate(0px, 0px); }
+73.5% { transform: translate(0px, 0.12px); }
+73.8% { transform: translate(0px, 0px); }
+74.1% { transform: translate(0px, 0px); }
+74.3% { transform: translate(0px, 0px); }
+74.6% { transform: translate(0px, 0px); }
+74.9% { transform: translate(0px, 0px); }
+75.1% { transform: translate(0px, 0px); }
+75.4% { transform: translate(0px, 0px); }
+75.7% { transform: translate(0px, 0.12px); }
+75.9% { transform: translate(0px, 0px); }
+76.2% { transform: translate(0px, 0px); }
+76.5% { transform: translate(0px, 0.12px); }
+76.8% { transform: translate(0px, 0px); }
+77% { transform: translate(0px, 0px); }
+77.3% { transform: translate(0px, 0.12px); }
+77.6% { transform: translate(0px, 0px); }
+77.8% { transform: translate(0px, 0px); }
+78.1% { transform: translate(0px, 0.12px); }
+78.4% { transform: translate(0px, 0px); }
+78.6% { transform: translate(0px, 0px); }
+78.9% { transform: translate(0px, 0px); }
+79.2% { transform: translate(0px, 0px); }
+79.5% { transform: translate(0px, 0px); }
+79.7% { transform: translate(0px, 0px); }
+80% { transform: translate(0px, 0px); }
+80.3% { transform: translate(0px, 0px); }
+80.5% { transform: translate(0px, 0px); }
+80.8% { transform: translate(0px, 0px); }
+81.1% { transform: translate(0px, 0px); }
+81.4% { transform: translate(0px, 0px); }
+81.6% { transform: translate(0px, 0px); }
+81.9% { transform: translate(0px, 0px); }
+82.2% { transform: translate(0px, 0px); }
+82.4% { transform: translate(0px, 0px); }
+82.7% { transform: translate(0px, 0.12px); }
+83% { transform: translate(0px, 0px); }
+83.2% { transform: translate(0px, 0.12px); }
+83.5% { transform: translate(0px, 0px); }
+83.8% { transform: translate(0px, 0px); }
+84.1% { transform: translate(0px, 0px); }
+84.3% { transform: translate(0px, 0px); }
+84.6% { transform: translate(0px, 0px); }
+84.9% { transform: translate(0px, 0px); }
+85.1% { transform: translate(0px, 0px); }
+85.4% { transform: translate(0px, 0px); }
+85.7% { transform: translate(0px, 0px); }
+85.9% { transform: translate(0px, 0px); }
+86.2% { transform: translate(0px, 0px); }
+86.5% { transform: translate(0px, 0px); }
+86.8% { transform: translate(0px, 0px); }
+87% { transform: translate(0px, 0px); }
+87.3% { transform: translate(0px, 0.12px); }
+87.6% { transform: translate(0px, 0px); }
+87.8% { transform: translate(0px, 0px); }
+88.1% { transform: translate(0px, 0px); }
+88.4% { transform: translate(0px, 0px); }
+88.6% { transform: translate(0px, 0px); }
+88.9% { transform: translate(0px, 0px); }
+89.2% { transform: translate(0px, 0px); }
+89.5% { transform: translate(0px, 0px); }
+89.7% { transform: translate(0px, 0px); }
+90% { transform: translate(0px, 0px); }
+90.3% { transform: translate(0px, 0px); }
+90.5% { transform: translate(0px, 0px); }
+90.8% { transform: translate(0px, 0.12px); }
+91.1% { transform: translate(0px, 0px); }
+91.4% { transform: translate(0px, 0px); }
+91.6% { transform: translate(0px, 0.12px); }
+91.9% { transform: translate(0px, 0.24px); }
+92.2% { transform: translate(0px, 0.06px); }
+92.4% { transform: translate(0px, 0.18px); }
+92.7% { transform: translate(0px, 0px); }
+93% { transform: translate(0px, 0px); }
+93.2% { transform: translate(0px, 0px); }
+93.5% { transform: translate(0px, 0px); }
+93.8% { transform: translate(0px, 0px); }
+94.1% { transform: translate(0px, 0px); }
+94.3% { transform: translate(0px, 0px); }
+94.6% { transform: translate(0px, 0px); }
+94.9% { transform: translate(0px, 0px); }
+95.1% { transform: translate(0px, 0px); }
+95.4% { transform: translate(0px, 0px); }
+95.7% { transform: translate(0px, 0px); }
+95.9% { transform: translate(0px, 0px); }
+96.2% { transform: translate(0px, 0px); }
+96.5% { transform: translate(0px, 0.12px); }
+96.8% { transform: translate(0px, 0px); }
+97% { transform: translate(0px, 0px); }
+97.3% { transform: translate(0px, 0px); }
+97.6% { transform: translate(0px, 0px); }
+97.8% { transform: translate(0px, 0px); }
+98.1% { transform: translate(0px, 0px); }
+98.4% { transform: translate(0px, 0px); }
+98.6% { transform: translate(0px, 0px); }
+98.9% { transform: translate(0px, 0px); }
+99.2% { transform: translate(0px, 0px); }
+99.5% { transform: translate(0px, 0px); }
+99.7% { transform: translate(0px, 0px); }
+100% { transform: translate(0px, 0px); } }
+    @keyframes climb2 {  }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
+  ]]></style>
+
+  <rect x="18" y="18" width="864" height="224" rx="16" class="frame"/>
+
+  <g transform="translate(34, 38)">
+    <text class="title">snapshot-user • Ranked Climb</text>
+    <text class="sub" y="22">Streak: 13d (best 29d) • 30d: 255 • Best day: 42 on 2024-01-03 • Busiest: Tue</text>
+
+  </g>
+
+  <g>
+    <line x1="228" y1="76" x2="228" y2="196" class="ladderRail"/>
+    <line x1="228" y1="76" x2="228" y2="196" class="ladderInner"/>
+
+      <g class="tier">
+        <line x1="228" y1="196" x2="864" y2="196" stroke="#666672" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="201" text-anchor="end" class="tierLabel">IRON</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="183.997" x2="864" y2="183.997" stroke="#7A7A88" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="188.997" text-anchor="end" class="tierLabel">BRONZE</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="171.994" x2="864" y2="171.994" stroke="#9A9AAF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="176.994" text-anchor="end" class="tierLabel">SILVER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="159.991" x2="864" y2="159.991" stroke="#B8B8D0" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="164.991" text-anchor="end" class="tierLabel">GOLD</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="147.988" x2="864" y2="147.988" stroke="#CFCFE0" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="152.988" text-anchor="end" class="tierLabel">PLAT</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="135.985" x2="864" y2="135.985" stroke="#D8D8EA" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="140.985" text-anchor="end" class="tierLabel">EMERALD</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="123.982" x2="864" y2="123.982" stroke="#E0E0F4" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="128.982" text-anchor="end" class="tierLabel">DIAMOND</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="111.979" x2="864" y2="111.979" stroke="#E8E8FF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="116.979" text-anchor="end" class="tierLabel">MASTER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="99.976" x2="864" y2="99.976" stroke="#F0F0FF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="104.976" text-anchor="end" class="tierLabel">GRANDMASTER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="87.973" x2="864" y2="87.973" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="92.973" text-anchor="end" class="tierLabel">CHALLENGER</text>
+      </g>
+
+  </g>
+
+  <g transform="translate(34, 76)">
+    <rect width="170" height="44" rx="10" class="lpBox"/>
+    <text x="14" y="27" class="lpText">3999 LP</text>
+    <text x="14" y="40" class="lpSmall">snapshot-user</text>
+  </g>
+
+
+
+  <g transform="translate(854, 76)" class="marker anim">
+    <circle cx="0" cy="0" r="7.5" class="markerCore"/>
+    <circle cx="0" cy="0" r="11" class="markerRing"/>
+  </g>
+
+
+
+
+    <g transform="translate(18, 232)">
+      <text class="sub">lp-climb • data: GitHub contributions • theme: Mono</text>
+    </g>
+
+</svg>
+
+--- theme:rift ---
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260" role="img" aria-label="Ranked climb ladder for snapshot-user">
+  <style><![CDATA[
+    :root{
+      --bg:#060B0A;
+      --frame:#19312B;
+      --text:#DFF7EC;
+      --accent:#2AE98C;
+      --glow:rgba(42, 233, 140, 0.35);
+    }
+    .frame{ fill: var(--bg); stroke: var(--frame); stroke-width: 2; }
+    .title{ fill: var(--text); font: 700 16px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.4px; }
+    .sub{ fill: rgba(255,255,255,0.72); font: 500 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .tierLabel{ fill: rgba(255,255,255,0.55); font: 700 10px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.8px; }
+    .lpBox{ fill: rgba(255,255,255,0.04); stroke: rgba(255,255,255,0.10); stroke-width: 1; }
+    .lpText{ fill: var(--text); font: 800 14px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .lpSmall{ fill: rgba(255,255,255,0.65); font: 600 11px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .ladderRail{ stroke: rgba(255,255,255,0.08); stroke-width: 10; stroke-linecap: round; }
+    .ladderInner{ stroke: rgba(255,255,255,0.10); stroke-width: 2; stroke-linecap: round; }
+    .marker{ filter: drop-shadow(0 0 10px var(--glow)); }
+    .markerCore{ fill: var(--accent); }
+    .markerRing{ fill: none; stroke: rgba(255,255,255,0.55); stroke-width: 1.5; }
+    .marker2 .markerCore{ fill: rgba(255,255,255,0.88); }
+    .marker2{ filter: drop-shadow(0 0 10px rgba(255,255,255,0.22)); }
+
+    @keyframes climb { 0% { transform: translate(0px, 96.114px); }
+0.3% { transform: translate(0px, 95.934px); }
+0.5% { transform: translate(0px, 94.794px); }
+0.8% { transform: translate(0px, 94.914px); }
+1.1% { transform: translate(0px, 94.614px); }
+1.4% { transform: translate(0px, 93.473px); }
+1.6% { transform: translate(0px, 93.593px); }
+1.9% { transform: translate(0px, 93.113px); }
+2.2% { transform: translate(0px, 92.633px); }
+2.4% { transform: translate(0px, 92.153px); }
+2.7% { transform: translate(0px, 91.673px); }
+3% { transform: translate(0px, 91.013px); }
+3.2% { transform: translate(0px, 90.353px); }
+3.5% { transform: translate(0px, 89.692px); }
+3.8% { transform: translate(0px, 89.032px); }
+4.1% { transform: translate(0px, 88.372px); }
+4.3% { transform: translate(0px, 87.712px); }
+4.6% { transform: translate(0px, 87.832px); }
+4.9% { transform: translate(0px, 87.652px); }
+5.1% { transform: translate(0px, 87.472px); }
+5.4% { transform: translate(0px, 87.172px); }
+5.7% { transform: translate(0px, 86.872px); }
+5.9% { transform: translate(0px, 86.572px); }
+6.2% { transform: translate(0px, 86.092px); }
+6.5% { transform: translate(0px, 85.611px); }
+6.8% { transform: translate(0px, 85.131px); }
+7% { transform: translate(0px, 84.651px); }
+7.3% { transform: translate(0px, 84.171px); }
+7.6% { transform: translate(0px, 83.511px); }
+7.8% { transform: translate(0px, 82.851px); }
+8.1% { transform: translate(0px, 82.191px); }
+8.4% { transform: translate(0px, 81.53px); }
+8.6% { transform: translate(0px, 80.87px); }
+8.9% { transform: translate(0px, 80.21px); }
+9.2% { transform: translate(0px, 80.33px); }
+9.5% { transform: translate(0px, 80.15px); }
+9.7% { transform: translate(0px, 79.97px); }
+10% { transform: translate(0px, 79.67px); }
+10.3% { transform: translate(0px, 79.37px); }
+10.5% { transform: translate(0px, 79.07px); }
+10.8% { transform: translate(0px, 78.59px); }
+11.1% { transform: translate(0px, 78.11px); }
+11.4% { transform: translate(0px, 77.629px); }
+11.6% { transform: translate(0px, 77.149px); }
+11.9% { transform: translate(0px, 76.669px); }
+12.2% { transform: translate(0px, 76.009px); }
+12.4% { transform: translate(0px, 75.349px); }
+12.7% { transform: translate(0px, 74.689px); }
+13% { transform: translate(0px, 74.029px); }
+13.2% { transform: translate(0px, 73.368px); }
+13.5% { transform: translate(0px, 72.708px); }
+13.8% { transform: translate(0px, 72.828px); }
+14.1% { transform: translate(0px, 72.648px); }
+14.3% { transform: translate(0px, 72.468px); }
+14.6% { transform: translate(0px, 72.168px); }
+14.9% { transform: translate(0px, 71.868px); }
+15.1% { transform: translate(0px, 71.988px); }
+15.4% { transform: translate(0px, 71.508px); }
+15.7% { transform: translate(0px, 71.028px); }
+15.9% { transform: translate(0px, 71.148px); }
+16.2% { transform: translate(0px, 70.668px); }
+16.5% { transform: translate(0px, 70.188px); }
+16.8% { transform: translate(0px, 70.308px); }
+17% { transform: translate(0px, 69.647px); }
+17.3% { transform: translate(0px, 68.987px); }
+17.6% { transform: translate(0px, 67.847px); }
+17.8% { transform: translate(0px, 67.187px); }
+18.1% { transform: translate(0px, 66.527px); }
+18.4% { transform: translate(0px, 66.647px); }
+18.6% { transform: translate(0px, 66.467px); }
+18.9% { transform: translate(0px, 66.287px); }
+19.2% { transform: translate(0px, 65.986px); }
+19.5% { transform: translate(0px, 65.686px); }
+19.7% { transform: translate(0px, 65.386px); }
+20% { transform: translate(0px, 64.906px); }
+20.3% { transform: translate(0px, 64.426px); }
+20.5% { transform: translate(0px, 63.946px); }
+20.8% { transform: translate(0px, 64.066px); }
+21.1% { transform: translate(0px, 63.586px); }
+21.4% { transform: translate(0px, 62.926px); }
+21.6% { transform: translate(0px, 62.266px); }
+21.9% { transform: translate(0px, 61.605px); }
+22.2% { transform: translate(0px, 60.945px); }
+22.4% { transform: translate(0px, 60.285px); }
+22.7% { transform: translate(0px, 59.625px); }
+23% { transform: translate(0px, 59.745px); }
+23.2% { transform: translate(0px, 59.565px); }
+23.5% { transform: translate(0px, 59.385px); }
+23.8% { transform: translate(0px, 59.085px); }
+24.1% { transform: translate(0px, 58.785px); }
+24.3% { transform: translate(0px, 58.485px); }
+24.6% { transform: translate(0px, 58.005px); }
+24.9% { transform: translate(0px, 57.524px); }
+25.1% { transform: translate(0px, 57.044px); }
+25.4% { transform: translate(0px, 56.564px); }
+25.7% { transform: translate(0px, 56.084px); }
+25.9% { transform: translate(0px, 54.944px); }
+26.2% { transform: translate(0px, 54.284px); }
+26.5% { transform: translate(0px, 53.623px); }
+26.8% { transform: translate(0px, 52.963px); }
+27% { transform: translate(0px, 52.303px); }
+27.3% { transform: translate(0px, 51.643px); }
+27.6% { transform: translate(0px, 51.763px); }
+27.8% { transform: translate(0px, 51.583px); }
+28.1% { transform: translate(0px, 51.403px); }
+28.4% { transform: translate(0px, 51.103px); }
+28.6% { transform: translate(0px, 50.803px); }
+28.9% { transform: translate(0px, 50.503px); }
+29.2% { transform: translate(0px, 50.023px); }
+29.5% { transform: translate(0px, 49.542px); }
+29.7% { transform: translate(0px, 49.062px); }
+30% { transform: translate(0px, 48.582px); }
+30.3% { transform: translate(0px, 48.702px); }
+30.5% { transform: translate(0px, 48.042px); }
+30.8% { transform: translate(0px, 47.382px); }
+31.1% { transform: translate(0px, 47.502px); }
+31.4% { transform: translate(0px, 46.842px); }
+31.6% { transform: translate(0px, 46.182px); }
+31.9% { transform: translate(0px, 46.302px); }
+32.2% { transform: translate(0px, 46.422px); }
+32.4% { transform: translate(0px, 46.242px); }
+32.7% { transform: translate(0px, 46.062px); }
+33% { transform: translate(0px, 45.761px); }
+33.2% { transform: translate(0px, 45.461px); }
+33.5% { transform: translate(0px, 45.161px); }
+33.8% { transform: translate(0px, 44.681px); }
+34.1% { transform: translate(0px, 44.201px); }
+34.3% { transform: translate(0px, 43.721px); }
+34.6% { transform: translate(0px, 42.581px); }
+34.9% { transform: translate(0px, 42.101px); }
+35.1% { transform: translate(0px, 41.44px); }
+35.4% { transform: translate(0px, 40.78px); }
+35.7% { transform: translate(0px, 40.12px); }
+35.9% { transform: translate(0px, 39.46px); }
+36.2% { transform: translate(0px, 38.8px); }
+36.5% { transform: translate(0px, 38.14px); }
+36.8% { transform: translate(0px, 38.26px); }
+37% { transform: translate(0px, 38.08px); }
+37.3% { transform: translate(0px, 37.899px); }
+37.6% { transform: translate(0px, 37.599px); }
+37.8% { transform: translate(0px, 37.299px); }
+38.1% { transform: translate(0px, 36.999px); }
+38.4% { transform: translate(0px, 36.519px); }
+38.6% { transform: translate(0px, 36.039px); }
+38.9% { transform: translate(0px, 35.559px); }
+39.2% { transform: translate(0px, 35.079px); }
+39.5% { transform: translate(0px, 34.599px); }
+39.7% { transform: translate(0px, 33.938px); }
+40% { transform: translate(0px, 33.278px); }
+40.3% { transform: translate(0px, 32.618px); }
+40.5% { transform: translate(0px, 31.958px); }
+40.8% { transform: translate(0px, 31.298px); }
+41.1% { transform: translate(0px, 30.638px); }
+41.4% { transform: translate(0px, 30.758px); }
+41.6% { transform: translate(0px, 30.878px); }
+41.9% { transform: translate(0px, 30.698px); }
+42.2% { transform: translate(0px, 30.398px); }
+42.4% { transform: translate(0px, 30.098px); }
+42.7% { transform: translate(0px, 29.797px); }
+43% { transform: translate(0px, 29.317px); }
+43.2% { transform: translate(0px, 28.837px); }
+43.5% { transform: translate(0px, 28.357px); }
+43.8% { transform: translate(0px, 27.877px); }
+44.1% { transform: translate(0px, 27.397px); }
+44.3% { transform: translate(0px, 26.737px); }
+44.6% { transform: translate(0px, 26.077px); }
+44.9% { transform: translate(0px, 25.416px); }
+45.1% { transform: translate(0px, 24.756px); }
+45.4% { transform: translate(0px, 24.876px); }
+45.7% { transform: translate(0px, 24.216px); }
+45.9% { transform: translate(0px, 24.336px); }
+46.2% { transform: translate(0px, 24.456px); }
+46.5% { transform: translate(0px, 24.276px); }
+46.8% { transform: translate(0px, 23.976px); }
+47% { transform: translate(0px, 24.096px); }
+47.3% { transform: translate(0px, 23.796px); }
+47.6% { transform: translate(0px, 23.316px); }
+47.8% { transform: translate(0px, 22.836px); }
+48.1% { transform: translate(0px, 22.356px); }
+48.4% { transform: translate(0px, 21.875px); }
+48.6% { transform: translate(0px, 21.395px); }
+48.9% { transform: translate(0px, 20.735px); }
+49.2% { transform: translate(0px, 20.075px); }
+49.5% { transform: translate(0px, 19.415px); }
+49.7% { transform: translate(0px, 18.755px); }
+50% { transform: translate(0px, 18.095px); }
+50.3% { transform: translate(0px, 17.434px); }
+50.5% { transform: translate(0px, 16.294px); }
+50.8% { transform: translate(0px, 16.114px); }
+51.1% { transform: translate(0px, 15.934px); }
+51.4% { transform: translate(0px, 15.634px); }
+51.6% { transform: translate(0px, 14.494px); }
+51.9% { transform: translate(0px, 14.194px); }
+52.2% { transform: translate(0px, 13.713px); }
+52.4% { transform: translate(0px, 13.233px); }
+52.7% { transform: translate(0px, 12.753px); }
+53% { transform: translate(0px, 12.273px); }
+53.2% { transform: translate(0px, 11.793px); }
+53.5% { transform: translate(0px, 11.133px); }
+53.8% { transform: translate(0px, 10.473px); }
+54.1% { transform: translate(0px, 9.812px); }
+54.3% { transform: translate(0px, 9.152px); }
+54.6% { transform: translate(0px, 8.492px); }
+54.9% { transform: translate(0px, 7.832px); }
+55.1% { transform: translate(0px, 7.952px); }
+55.4% { transform: translate(0px, 7.772px); }
+55.7% { transform: translate(0px, 7.592px); }
+55.9% { transform: translate(0px, 7.292px); }
+56.2% { transform: translate(0px, 6.992px); }
+56.5% { transform: translate(0px, 6.692px); }
+56.8% { transform: translate(0px, 6.212px); }
+57% { transform: translate(0px, 5.731px); }
+57.3% { transform: translate(0px, 5.251px); }
+57.6% { transform: translate(0px, 4.771px); }
+57.8% { transform: translate(0px, 4.291px); }
+58.1% { transform: translate(0px, 3.631px); }
+58.4% { transform: translate(0px, 2.971px); }
+58.6% { transform: translate(0px, 2.311px); }
+58.9% { transform: translate(0px, 1.65px); }
+59.2% { transform: translate(0px, 0.99px); }
+59.5% { transform: translate(0px, 0.33px); }
+59.7% { transform: translate(0px, 0.45px); }
+60% { transform: translate(0px, 0.27px); }
+60.3% { transform: translate(0px, 0.09px); }
+60.5% { transform: translate(0px, 0.21px); }
+60.8% { transform: translate(0px, 0px); }
+61.1% { transform: translate(0px, 0px); }
+61.4% { transform: translate(0px, 0.12px); }
+61.6% { transform: translate(0px, 0px); }
+61.9% { transform: translate(0px, 0px); }
+62.2% { transform: translate(0px, 0.12px); }
+62.4% { transform: translate(0px, 0.24px); }
+62.7% { transform: translate(0px, 0px); }
+63% { transform: translate(0px, 0px); }
+63.2% { transform: translate(0px, 0px); }
+63.5% { transform: translate(0px, 0px); }
+63.8% { transform: translate(0px, 0px); }
+64.1% { transform: translate(0px, 0px); }
+64.3% { transform: translate(0px, 0.12px); }
+64.6% { transform: translate(0px, 0px); }
+64.9% { transform: translate(0px, 0px); }
+65.1% { transform: translate(0px, 0px); }
+65.4% { transform: translate(0px, 0px); }
+65.7% { transform: translate(0px, 0px); }
+65.9% { transform: translate(0px, 0px); }
+66.2% { transform: translate(0px, 0px); }
+66.5% { transform: translate(0px, 0px); }
+66.8% { transform: translate(0px, 0px); }
+67% { transform: translate(0px, 0px); }
+67.3% { transform: translate(0px, 0px); }
+67.6% { transform: translate(0px, 0px); }
+67.8% { transform: translate(0px, 0px); }
+68.1% { transform: translate(0px, 0px); }
+68.4% { transform: translate(0px, 0px); }
+68.6% { transform: translate(0px, 0px); }
+68.9% { transform: translate(0px, 0.12px); }
+69.2% { transform: translate(0px, 0px); }
+69.5% { transform: translate(0px, 0px); }
+69.7% { transform: translate(0px, 0px); }
+70% { transform: translate(0px, 0px); }
+70.3% { transform: translate(0px, 0px); }
+70.5% { transform: translate(0px, 0px); }
+70.8% { transform: translate(0px, 0px); }
+71.1% { transform: translate(0px, 0px); }
+71.4% { transform: translate(0px, 0px); }
+71.6% { transform: translate(0px, 0px); }
+71.9% { transform: translate(0px, 0px); }
+72.2% { transform: translate(0px, 0px); }
+72.4% { transform: translate(0px, 0px); }
+72.7% { transform: translate(0px, 0px); }
+73% { transform: translate(0px, 0px); }
+73.2% { transform: translate(0px, 0px); }
+73.5% { transform: translate(0px, 0.12px); }
+73.8% { transform: translate(0px, 0px); }
+74.1% { transform: translate(0px, 0px); }
+74.3% { transform: translate(0px, 0px); }
+74.6% { transform: translate(0px, 0px); }
+74.9% { transform: translate(0px, 0px); }
+75.1% { transform: translate(0px, 0px); }
+75.4% { transform: translate(0px, 0px); }
+75.7% { transform: translate(0px, 0.12px); }
+75.9% { transform: translate(0px, 0px); }
+76.2% { transform: translate(0px, 0px); }
+76.5% { transform: translate(0px, 0.12px); }
+76.8% { transform: translate(0px, 0px); }
+77% { transform: translate(0px, 0px); }
+77.3% { transform: translate(0px, 0.12px); }
+77.6% { transform: translate(0px, 0px); }
+77.8% { transform: translate(0px, 0px); }
+78.1% { transform: translate(0px, 0.12px); }
+78.4% { transform: translate(0px, 0px); }
+78.6% { transform: translate(0px, 0px); }
+78.9% { transform: translate(0px, 0px); }
+79.2% { transform: translate(0px, 0px); }
+79.5% { transform: translate(0px, 0px); }
+79.7% { transform: translate(0px, 0px); }
+80% { transform: translate(0px, 0px); }
+80.3% { transform: translate(0px, 0px); }
+80.5% { transform: translate(0px, 0px); }
+80.8% { transform: translate(0px, 0px); }
+81.1% { transform: translate(0px, 0px); }
+81.4% { transform: translate(0px, 0px); }
+81.6% { transform: translate(0px, 0px); }
+81.9% { transform: translate(0px, 0px); }
+82.2% { transform: translate(0px, 0px); }
+82.4% { transform: translate(0px, 0px); }
+82.7% { transform: translate(0px, 0.12px); }
+83% { transform: translate(0px, 0px); }
+83.2% { transform: translate(0px, 0.12px); }
+83.5% { transform: translate(0px, 0px); }
+83.8% { transform: translate(0px, 0px); }
+84.1% { transform: translate(0px, 0px); }
+84.3% { transform: translate(0px, 0px); }
+84.6% { transform: translate(0px, 0px); }
+84.9% { transform: translate(0px, 0px); }
+85.1% { transform: translate(0px, 0px); }
+85.4% { transform: translate(0px, 0px); }
+85.7% { transform: translate(0px, 0px); }
+85.9% { transform: translate(0px, 0px); }
+86.2% { transform: translate(0px, 0px); }
+86.5% { transform: translate(0px, 0px); }
+86.8% { transform: translate(0px, 0px); }
+87% { transform: translate(0px, 0px); }
+87.3% { transform: translate(0px, 0.12px); }
+87.6% { transform: translate(0px, 0px); }
+87.8% { transform: translate(0px, 0px); }
+88.1% { transform: translate(0px, 0px); }
+88.4% { transform: translate(0px, 0px); }
+88.6% { transform: translate(0px, 0px); }
+88.9% { transform: translate(0px, 0px); }
+89.2% { transform: translate(0px, 0px); }
+89.5% { transform: translate(0px, 0px); }
+89.7% { transform: translate(0px, 0px); }
+90% { transform: translate(0px, 0px); }
+90.3% { transform: translate(0px, 0px); }
+90.5% { transform: translate(0px, 0px); }
+90.8% { transform: translate(0px, 0.12px); }
+91.1% { transform: translate(0px, 0px); }
+91.4% { transform: translate(0px, 0px); }
+91.6% { transform: translate(0px, 0.12px); }
+91.9% { transform: translate(0px, 0.24px); }
+92.2% { transform: translate(0px, 0.06px); }
+92.4% { transform: translate(0px, 0.18px); }
+92.7% { transform: translate(0px, 0px); }
+93% { transform: translate(0px, 0px); }
+93.2% { transform: translate(0px, 0px); }
+93.5% { transform: translate(0px, 0px); }
+93.8% { transform: translate(0px, 0px); }
+94.1% { transform: translate(0px, 0px); }
+94.3% { transform: translate(0px, 0px); }
+94.6% { transform: translate(0px, 0px); }
+94.9% { transform: translate(0px, 0px); }
+95.1% { transform: translate(0px, 0px); }
+95.4% { transform: translate(0px, 0px); }
+95.7% { transform: translate(0px, 0px); }
+95.9% { transform: translate(0px, 0px); }
+96.2% { transform: translate(0px, 0px); }
+96.5% { transform: translate(0px, 0.12px); }
+96.8% { transform: translate(0px, 0px); }
+97% { transform: translate(0px, 0px); }
+97.3% { transform: translate(0px, 0px); }
+97.6% { transform: translate(0px, 0px); }
+97.8% { transform: translate(0px, 0px); }
+98.1% { transform: translate(0px, 0px); }
+98.4% { transform: translate(0px, 0px); }
+98.6% { transform: translate(0px, 0px); }
+98.9% { transform: translate(0px, 0px); }
+99.2% { transform: translate(0px, 0px); }
+99.5% { transform: translate(0px, 0px); }
+99.7% { transform: translate(0px, 0px); }
+100% { transform: translate(0px, 0px); } }
+    @keyframes climb2 {  }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
+  ]]></style>
+
+  <rect x="18" y="18" width="864" height="224" rx="16" class="frame"/>
+
+  <g transform="translate(34, 38)">
+    <text class="title">snapshot-user • Ranked Climb</text>
+    <text class="sub" y="22">Streak: 13d (best 29d) • 30d: 255 • Best day: 42 on 2024-01-03 • Busiest: Tue</text>
+
+  </g>
+
+  <g>
+    <line x1="228" y1="76" x2="228" y2="196" class="ladderRail"/>
+    <line x1="228" y1="76" x2="228" y2="196" class="ladderInner"/>
+
+      <g class="tier">
+        <line x1="228" y1="196" x2="864" y2="196" stroke="#4D5653" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="201" text-anchor="end" class="tierLabel">IRON</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="183.997" x2="864" y2="183.997" stroke="#7A5836" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="188.997" text-anchor="end" class="tierLabel">BRONZE</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="171.994" x2="864" y2="171.994" stroke="#B7C3C8" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="176.994" text-anchor="end" class="tierLabel">SILVER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="159.991" x2="864" y2="159.991" stroke="#F2D06B" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="164.991" text-anchor="end" class="tierLabel">GOLD</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="147.988" x2="864" y2="147.988" stroke="#45F1E3" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="152.988" text-anchor="end" class="tierLabel">PLAT</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="135.985" x2="864" y2="135.985" stroke="#2AE98C" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="140.985" text-anchor="end" class="tierLabel">EMERALD</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="123.982" x2="864" y2="123.982" stroke="#59A6FF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="128.982" text-anchor="end" class="tierLabel">DIAMOND</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="111.979" x2="864" y2="111.979" stroke="#B16AFF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="116.979" text-anchor="end" class="tierLabel">MASTER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="99.976" x2="864" y2="99.976" stroke="#FF5970" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="104.976" text-anchor="end" class="tierLabel">GRANDMASTER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="87.973" x2="864" y2="87.973" stroke="#FFD36B" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="92.973" text-anchor="end" class="tierLabel">CHALLENGER</text>
+      </g>
+
+  </g>
+
+  <g transform="translate(34, 76)">
+    <rect width="170" height="44" rx="10" class="lpBox"/>
+    <text x="14" y="27" class="lpText">3999 LP</text>
+    <text x="14" y="40" class="lpSmall">snapshot-user</text>
+  </g>
+
+
+
+  <g transform="translate(854, 76)" class="marker anim">
+    <circle cx="0" cy="0" r="7.5" class="markerCore"/>
+    <circle cx="0" cy="0" r="11" class="markerRing"/>
+  </g>
+
+
+
+
+    <g transform="translate(18, 232)">
+      <text class="sub">lp-climb • data: GitHub contributions • theme: Rift</text>
+    </g>
+
+</svg>
+
+--- theme:support ---
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260" role="img" aria-label="Ranked climb ladder for snapshot-user">
+  <style><![CDATA[
+    :root{
+      --bg:#070A0C;
+      --frame:#1A2530;
+      --text:#E9F7FF;
+      --accent:#6CE1FF;
+      --glow:rgba(108, 225, 255, 0.35);
+    }
+    .frame{ fill: var(--bg); stroke: var(--frame); stroke-width: 2; }
+    .title{ fill: var(--text); font: 700 16px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.4px; }
+    .sub{ fill: rgba(255,255,255,0.72); font: 500 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .tierLabel{ fill: rgba(255,255,255,0.55); font: 700 10px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.8px; }
+    .lpBox{ fill: rgba(255,255,255,0.04); stroke: rgba(255,255,255,0.10); stroke-width: 1; }
+    .lpText{ fill: var(--text); font: 800 14px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .lpSmall{ fill: rgba(255,255,255,0.65); font: 600 11px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .ladderRail{ stroke: rgba(255,255,255,0.08); stroke-width: 10; stroke-linecap: round; }
+    .ladderInner{ stroke: rgba(255,255,255,0.10); stroke-width: 2; stroke-linecap: round; }
+    .marker{ filter: drop-shadow(0 0 10px var(--glow)); }
+    .markerCore{ fill: var(--accent); }
+    .markerRing{ fill: none; stroke: rgba(255,255,255,0.55); stroke-width: 1.5; }
+    .marker2 .markerCore{ fill: rgba(255,255,255,0.88); }
+    .marker2{ filter: drop-shadow(0 0 10px rgba(255,255,255,0.22)); }
+
+    @keyframes climb { 0% { transform: translate(0px, 96.114px); }
+0.3% { transform: translate(0px, 95.934px); }
+0.5% { transform: translate(0px, 94.794px); }
+0.8% { transform: translate(0px, 94.914px); }
+1.1% { transform: translate(0px, 94.614px); }
+1.4% { transform: translate(0px, 93.473px); }
+1.6% { transform: translate(0px, 93.593px); }
+1.9% { transform: translate(0px, 93.113px); }
+2.2% { transform: translate(0px, 92.633px); }
+2.4% { transform: translate(0px, 92.153px); }
+2.7% { transform: translate(0px, 91.673px); }
+3% { transform: translate(0px, 91.013px); }
+3.2% { transform: translate(0px, 90.353px); }
+3.5% { transform: translate(0px, 89.692px); }
+3.8% { transform: translate(0px, 89.032px); }
+4.1% { transform: translate(0px, 88.372px); }
+4.3% { transform: translate(0px, 87.712px); }
+4.6% { transform: translate(0px, 87.832px); }
+4.9% { transform: translate(0px, 87.652px); }
+5.1% { transform: translate(0px, 87.472px); }
+5.4% { transform: translate(0px, 87.172px); }
+5.7% { transform: translate(0px, 86.872px); }
+5.9% { transform: translate(0px, 86.572px); }
+6.2% { transform: translate(0px, 86.092px); }
+6.5% { transform: translate(0px, 85.611px); }
+6.8% { transform: translate(0px, 85.131px); }
+7% { transform: translate(0px, 84.651px); }
+7.3% { transform: translate(0px, 84.171px); }
+7.6% { transform: translate(0px, 83.511px); }
+7.8% { transform: translate(0px, 82.851px); }
+8.1% { transform: translate(0px, 82.191px); }
+8.4% { transform: translate(0px, 81.53px); }
+8.6% { transform: translate(0px, 80.87px); }
+8.9% { transform: translate(0px, 80.21px); }
+9.2% { transform: translate(0px, 80.33px); }
+9.5% { transform: translate(0px, 80.15px); }
+9.7% { transform: translate(0px, 79.97px); }
+10% { transform: translate(0px, 79.67px); }
+10.3% { transform: translate(0px, 79.37px); }
+10.5% { transform: translate(0px, 79.07px); }
+10.8% { transform: translate(0px, 78.59px); }
+11.1% { transform: translate(0px, 78.11px); }
+11.4% { transform: translate(0px, 77.629px); }
+11.6% { transform: translate(0px, 77.149px); }
+11.9% { transform: translate(0px, 76.669px); }
+12.2% { transform: translate(0px, 76.009px); }
+12.4% { transform: translate(0px, 75.349px); }
+12.7% { transform: translate(0px, 74.689px); }
+13% { transform: translate(0px, 74.029px); }
+13.2% { transform: translate(0px, 73.368px); }
+13.5% { transform: translate(0px, 72.708px); }
+13.8% { transform: translate(0px, 72.828px); }
+14.1% { transform: translate(0px, 72.648px); }
+14.3% { transform: translate(0px, 72.468px); }
+14.6% { transform: translate(0px, 72.168px); }
+14.9% { transform: translate(0px, 71.868px); }
+15.1% { transform: translate(0px, 71.988px); }
+15.4% { transform: translate(0px, 71.508px); }
+15.7% { transform: translate(0px, 71.028px); }
+15.9% { transform: translate(0px, 71.148px); }
+16.2% { transform: translate(0px, 70.668px); }
+16.5% { transform: translate(0px, 70.188px); }
+16.8% { transform: translate(0px, 70.308px); }
+17% { transform: translate(0px, 69.647px); }
+17.3% { transform: translate(0px, 68.987px); }
+17.6% { transform: translate(0px, 67.847px); }
+17.8% { transform: translate(0px, 67.187px); }
+18.1% { transform: translate(0px, 66.527px); }
+18.4% { transform: translate(0px, 66.647px); }
+18.6% { transform: translate(0px, 66.467px); }
+18.9% { transform: translate(0px, 66.287px); }
+19.2% { transform: translate(0px, 65.986px); }
+19.5% { transform: translate(0px, 65.686px); }
+19.7% { transform: translate(0px, 65.386px); }
+20% { transform: translate(0px, 64.906px); }
+20.3% { transform: translate(0px, 64.426px); }
+20.5% { transform: translate(0px, 63.946px); }
+20.8% { transform: translate(0px, 64.066px); }
+21.1% { transform: translate(0px, 63.586px); }
+21.4% { transform: translate(0px, 62.926px); }
+21.6% { transform: translate(0px, 62.266px); }
+21.9% { transform: translate(0px, 61.605px); }
+22.2% { transform: translate(0px, 60.945px); }
+22.4% { transform: translate(0px, 60.285px); }
+22.7% { transform: translate(0px, 59.625px); }
+23% { transform: translate(0px, 59.745px); }
+23.2% { transform: translate(0px, 59.565px); }
+23.5% { transform: translate(0px, 59.385px); }
+23.8% { transform: translate(0px, 59.085px); }
+24.1% { transform: translate(0px, 58.785px); }
+24.3% { transform: translate(0px, 58.485px); }
+24.6% { transform: translate(0px, 58.005px); }
+24.9% { transform: translate(0px, 57.524px); }
+25.1% { transform: translate(0px, 57.044px); }
+25.4% { transform: translate(0px, 56.564px); }
+25.7% { transform: translate(0px, 56.084px); }
+25.9% { transform: translate(0px, 54.944px); }
+26.2% { transform: translate(0px, 54.284px); }
+26.5% { transform: translate(0px, 53.623px); }
+26.8% { transform: translate(0px, 52.963px); }
+27% { transform: translate(0px, 52.303px); }
+27.3% { transform: translate(0px, 51.643px); }
+27.6% { transform: translate(0px, 51.763px); }
+27.8% { transform: translate(0px, 51.583px); }
+28.1% { transform: translate(0px, 51.403px); }
+28.4% { transform: translate(0px, 51.103px); }
+28.6% { transform: translate(0px, 50.803px); }
+28.9% { transform: translate(0px, 50.503px); }
+29.2% { transform: translate(0px, 50.023px); }
+29.5% { transform: translate(0px, 49.542px); }
+29.7% { transform: translate(0px, 49.062px); }
+30% { transform: translate(0px, 48.582px); }
+30.3% { transform: translate(0px, 48.702px); }
+30.5% { transform: translate(0px, 48.042px); }
+30.8% { transform: translate(0px, 47.382px); }
+31.1% { transform: translate(0px, 47.502px); }
+31.4% { transform: translate(0px, 46.842px); }
+31.6% { transform: translate(0px, 46.182px); }
+31.9% { transform: translate(0px, 46.302px); }
+32.2% { transform: translate(0px, 46.422px); }
+32.4% { transform: translate(0px, 46.242px); }
+32.7% { transform: translate(0px, 46.062px); }
+33% { transform: translate(0px, 45.761px); }
+33.2% { transform: translate(0px, 45.461px); }
+33.5% { transform: translate(0px, 45.161px); }
+33.8% { transform: translate(0px, 44.681px); }
+34.1% { transform: translate(0px, 44.201px); }
+34.3% { transform: translate(0px, 43.721px); }
+34.6% { transform: translate(0px, 42.581px); }
+34.9% { transform: translate(0px, 42.101px); }
+35.1% { transform: translate(0px, 41.44px); }
+35.4% { transform: translate(0px, 40.78px); }
+35.7% { transform: translate(0px, 40.12px); }
+35.9% { transform: translate(0px, 39.46px); }
+36.2% { transform: translate(0px, 38.8px); }
+36.5% { transform: translate(0px, 38.14px); }
+36.8% { transform: translate(0px, 38.26px); }
+37% { transform: translate(0px, 38.08px); }
+37.3% { transform: translate(0px, 37.899px); }
+37.6% { transform: translate(0px, 37.599px); }
+37.8% { transform: translate(0px, 37.299px); }
+38.1% { transform: translate(0px, 36.999px); }
+38.4% { transform: translate(0px, 36.519px); }
+38.6% { transform: translate(0px, 36.039px); }
+38.9% { transform: translate(0px, 35.559px); }
+39.2% { transform: translate(0px, 35.079px); }
+39.5% { transform: translate(0px, 34.599px); }
+39.7% { transform: translate(0px, 33.938px); }
+40% { transform: translate(0px, 33.278px); }
+40.3% { transform: translate(0px, 32.618px); }
+40.5% { transform: translate(0px, 31.958px); }
+40.8% { transform: translate(0px, 31.298px); }
+41.1% { transform: translate(0px, 30.638px); }
+41.4% { transform: translate(0px, 30.758px); }
+41.6% { transform: translate(0px, 30.878px); }
+41.9% { transform: translate(0px, 30.698px); }
+42.2% { transform: translate(0px, 30.398px); }
+42.4% { transform: translate(0px, 30.098px); }
+42.7% { transform: translate(0px, 29.797px); }
+43% { transform: translate(0px, 29.317px); }
+43.2% { transform: translate(0px, 28.837px); }
+43.5% { transform: translate(0px, 28.357px); }
+43.8% { transform: translate(0px, 27.877px); }
+44.1% { transform: translate(0px, 27.397px); }
+44.3% { transform: translate(0px, 26.737px); }
+44.6% { transform: translate(0px, 26.077px); }
+44.9% { transform: translate(0px, 25.416px); }
+45.1% { transform: translate(0px, 24.756px); }
+45.4% { transform: translate(0px, 24.876px); }
+45.7% { transform: translate(0px, 24.216px); }
+45.9% { transform: translate(0px, 24.336px); }
+46.2% { transform: translate(0px, 24.456px); }
+46.5% { transform: translate(0px, 24.276px); }
+46.8% { transform: translate(0px, 23.976px); }
+47% { transform: translate(0px, 24.096px); }
+47.3% { transform: translate(0px, 23.796px); }
+47.6% { transform: translate(0px, 23.316px); }
+47.8% { transform: translate(0px, 22.836px); }
+48.1% { transform: translate(0px, 22.356px); }
+48.4% { transform: translate(0px, 21.875px); }
+48.6% { transform: translate(0px, 21.395px); }
+48.9% { transform: translate(0px, 20.735px); }
+49.2% { transform: translate(0px, 20.075px); }
+49.5% { transform: translate(0px, 19.415px); }
+49.7% { transform: translate(0px, 18.755px); }
+50% { transform: translate(0px, 18.095px); }
+50.3% { transform: translate(0px, 17.434px); }
+50.5% { transform: translate(0px, 16.294px); }
+50.8% { transform: translate(0px, 16.114px); }
+51.1% { transform: translate(0px, 15.934px); }
+51.4% { transform: translate(0px, 15.634px); }
+51.6% { transform: translate(0px, 14.494px); }
+51.9% { transform: translate(0px, 14.194px); }
+52.2% { transform: translate(0px, 13.713px); }
+52.4% { transform: translate(0px, 13.233px); }
+52.7% { transform: translate(0px, 12.753px); }
+53% { transform: translate(0px, 12.273px); }
+53.2% { transform: translate(0px, 11.793px); }
+53.5% { transform: translate(0px, 11.133px); }
+53.8% { transform: translate(0px, 10.473px); }
+54.1% { transform: translate(0px, 9.812px); }
+54.3% { transform: translate(0px, 9.152px); }
+54.6% { transform: translate(0px, 8.492px); }
+54.9% { transform: translate(0px, 7.832px); }
+55.1% { transform: translate(0px, 7.952px); }
+55.4% { transform: translate(0px, 7.772px); }
+55.7% { transform: translate(0px, 7.592px); }
+55.9% { transform: translate(0px, 7.292px); }
+56.2% { transform: translate(0px, 6.992px); }
+56.5% { transform: translate(0px, 6.692px); }
+56.8% { transform: translate(0px, 6.212px); }
+57% { transform: translate(0px, 5.731px); }
+57.3% { transform: translate(0px, 5.251px); }
+57.6% { transform: translate(0px, 4.771px); }
+57.8% { transform: translate(0px, 4.291px); }
+58.1% { transform: translate(0px, 3.631px); }
+58.4% { transform: translate(0px, 2.971px); }
+58.6% { transform: translate(0px, 2.311px); }
+58.9% { transform: translate(0px, 1.65px); }
+59.2% { transform: translate(0px, 0.99px); }
+59.5% { transform: translate(0px, 0.33px); }
+59.7% { transform: translate(0px, 0.45px); }
+60% { transform: translate(0px, 0.27px); }
+60.3% { transform: translate(0px, 0.09px); }
+60.5% { transform: translate(0px, 0.21px); }
+60.8% { transform: translate(0px, 0px); }
+61.1% { transform: translate(0px, 0px); }
+61.4% { transform: translate(0px, 0.12px); }
+61.6% { transform: translate(0px, 0px); }
+61.9% { transform: translate(0px, 0px); }
+62.2% { transform: translate(0px, 0.12px); }
+62.4% { transform: translate(0px, 0.24px); }
+62.7% { transform: translate(0px, 0px); }
+63% { transform: translate(0px, 0px); }
+63.2% { transform: translate(0px, 0px); }
+63.5% { transform: translate(0px, 0px); }
+63.8% { transform: translate(0px, 0px); }
+64.1% { transform: translate(0px, 0px); }
+64.3% { transform: translate(0px, 0.12px); }
+64.6% { transform: translate(0px, 0px); }
+64.9% { transform: translate(0px, 0px); }
+65.1% { transform: translate(0px, 0px); }
+65.4% { transform: translate(0px, 0px); }
+65.7% { transform: translate(0px, 0px); }
+65.9% { transform: translate(0px, 0px); }
+66.2% { transform: translate(0px, 0px); }
+66.5% { transform: translate(0px, 0px); }
+66.8% { transform: translate(0px, 0px); }
+67% { transform: translate(0px, 0px); }
+67.3% { transform: translate(0px, 0px); }
+67.6% { transform: translate(0px, 0px); }
+67.8% { transform: translate(0px, 0px); }
+68.1% { transform: translate(0px, 0px); }
+68.4% { transform: translate(0px, 0px); }
+68.6% { transform: translate(0px, 0px); }
+68.9% { transform: translate(0px, 0.12px); }
+69.2% { transform: translate(0px, 0px); }
+69.5% { transform: translate(0px, 0px); }
+69.7% { transform: translate(0px, 0px); }
+70% { transform: translate(0px, 0px); }
+70.3% { transform: translate(0px, 0px); }
+70.5% { transform: translate(0px, 0px); }
+70.8% { transform: translate(0px, 0px); }
+71.1% { transform: translate(0px, 0px); }
+71.4% { transform: translate(0px, 0px); }
+71.6% { transform: translate(0px, 0px); }
+71.9% { transform: translate(0px, 0px); }
+72.2% { transform: translate(0px, 0px); }
+72.4% { transform: translate(0px, 0px); }
+72.7% { transform: translate(0px, 0px); }
+73% { transform: translate(0px, 0px); }
+73.2% { transform: translate(0px, 0px); }
+73.5% { transform: translate(0px, 0.12px); }
+73.8% { transform: translate(0px, 0px); }
+74.1% { transform: translate(0px, 0px); }
+74.3% { transform: translate(0px, 0px); }
+74.6% { transform: translate(0px, 0px); }
+74.9% { transform: translate(0px, 0px); }
+75.1% { transform: translate(0px, 0px); }
+75.4% { transform: translate(0px, 0px); }
+75.7% { transform: translate(0px, 0.12px); }
+75.9% { transform: translate(0px, 0px); }
+76.2% { transform: translate(0px, 0px); }
+76.5% { transform: translate(0px, 0.12px); }
+76.8% { transform: translate(0px, 0px); }
+77% { transform: translate(0px, 0px); }
+77.3% { transform: translate(0px, 0.12px); }
+77.6% { transform: translate(0px, 0px); }
+77.8% { transform: translate(0px, 0px); }
+78.1% { transform: translate(0px, 0.12px); }
+78.4% { transform: translate(0px, 0px); }
+78.6% { transform: translate(0px, 0px); }
+78.9% { transform: translate(0px, 0px); }
+79.2% { transform: translate(0px, 0px); }
+79.5% { transform: translate(0px, 0px); }
+79.7% { transform: translate(0px, 0px); }
+80% { transform: translate(0px, 0px); }
+80.3% { transform: translate(0px, 0px); }
+80.5% { transform: translate(0px, 0px); }
+80.8% { transform: translate(0px, 0px); }
+81.1% { transform: translate(0px, 0px); }
+81.4% { transform: translate(0px, 0px); }
+81.6% { transform: translate(0px, 0px); }
+81.9% { transform: translate(0px, 0px); }
+82.2% { transform: translate(0px, 0px); }
+82.4% { transform: translate(0px, 0px); }
+82.7% { transform: translate(0px, 0.12px); }
+83% { transform: translate(0px, 0px); }
+83.2% { transform: translate(0px, 0.12px); }
+83.5% { transform: translate(0px, 0px); }
+83.8% { transform: translate(0px, 0px); }
+84.1% { transform: translate(0px, 0px); }
+84.3% { transform: translate(0px, 0px); }
+84.6% { transform: translate(0px, 0px); }
+84.9% { transform: translate(0px, 0px); }
+85.1% { transform: translate(0px, 0px); }
+85.4% { transform: translate(0px, 0px); }
+85.7% { transform: translate(0px, 0px); }
+85.9% { transform: translate(0px, 0px); }
+86.2% { transform: translate(0px, 0px); }
+86.5% { transform: translate(0px, 0px); }
+86.8% { transform: translate(0px, 0px); }
+87% { transform: translate(0px, 0px); }
+87.3% { transform: translate(0px, 0.12px); }
+87.6% { transform: translate(0px, 0px); }
+87.8% { transform: translate(0px, 0px); }
+88.1% { transform: translate(0px, 0px); }
+88.4% { transform: translate(0px, 0px); }
+88.6% { transform: translate(0px, 0px); }
+88.9% { transform: translate(0px, 0px); }
+89.2% { transform: translate(0px, 0px); }
+89.5% { transform: translate(0px, 0px); }
+89.7% { transform: translate(0px, 0px); }
+90% { transform: translate(0px, 0px); }
+90.3% { transform: translate(0px, 0px); }
+90.5% { transform: translate(0px, 0px); }
+90.8% { transform: translate(0px, 0.12px); }
+91.1% { transform: translate(0px, 0px); }
+91.4% { transform: translate(0px, 0px); }
+91.6% { transform: translate(0px, 0.12px); }
+91.9% { transform: translate(0px, 0.24px); }
+92.2% { transform: translate(0px, 0.06px); }
+92.4% { transform: translate(0px, 0.18px); }
+92.7% { transform: translate(0px, 0px); }
+93% { transform: translate(0px, 0px); }
+93.2% { transform: translate(0px, 0px); }
+93.5% { transform: translate(0px, 0px); }
+93.8% { transform: translate(0px, 0px); }
+94.1% { transform: translate(0px, 0px); }
+94.3% { transform: translate(0px, 0px); }
+94.6% { transform: translate(0px, 0px); }
+94.9% { transform: translate(0px, 0px); }
+95.1% { transform: translate(0px, 0px); }
+95.4% { transform: translate(0px, 0px); }
+95.7% { transform: translate(0px, 0px); }
+95.9% { transform: translate(0px, 0px); }
+96.2% { transform: translate(0px, 0px); }
+96.5% { transform: translate(0px, 0.12px); }
+96.8% { transform: translate(0px, 0px); }
+97% { transform: translate(0px, 0px); }
+97.3% { transform: translate(0px, 0px); }
+97.6% { transform: translate(0px, 0px); }
+97.8% { transform: translate(0px, 0px); }
+98.1% { transform: translate(0px, 0px); }
+98.4% { transform: translate(0px, 0px); }
+98.6% { transform: translate(0px, 0px); }
+98.9% { transform: translate(0px, 0px); }
+99.2% { transform: translate(0px, 0px); }
+99.5% { transform: translate(0px, 0px); }
+99.7% { transform: translate(0px, 0px); }
+100% { transform: translate(0px, 0px); } }
+    @keyframes climb2 {  }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
+  ]]></style>
+
+  <rect x="18" y="18" width="864" height="224" rx="16" class="frame"/>
+
+  <g transform="translate(34, 38)">
+    <text class="title">snapshot-user • Ranked Climb</text>
+    <text class="sub" y="22">Streak: 13d (best 29d) • 30d: 255 • Best day: 42 on 2024-01-03 • Busiest: Tue</text>
+
+  </g>
+
+  <g>
+    <line x1="228" y1="76" x2="228" y2="196" class="ladderRail"/>
+    <line x1="228" y1="76" x2="228" y2="196" class="ladderInner"/>
+
+      <g class="tier">
+        <line x1="228" y1="196" x2="864" y2="196" stroke="#4B5159" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="201" text-anchor="end" class="tierLabel">IRON</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="183.997" x2="864" y2="183.997" stroke="#7A583C" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="188.997" text-anchor="end" class="tierLabel">BRONZE</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="171.994" x2="864" y2="171.994" stroke="#B9C6D4" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="176.994" text-anchor="end" class="tierLabel">SILVER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="159.991" x2="864" y2="159.991" stroke="#F2D27A" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="164.991" text-anchor="end" class="tierLabel">GOLD</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="147.988" x2="864" y2="147.988" stroke="#55E8D5" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="152.988" text-anchor="end" class="tierLabel">PLAT</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="135.985" x2="864" y2="135.985" stroke="#2AE98C" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="140.985" text-anchor="end" class="tierLabel">EMERALD</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="123.982" x2="864" y2="123.982" stroke="#6AAFFF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="128.982" text-anchor="end" class="tierLabel">DIAMOND</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="111.979" x2="864" y2="111.979" stroke="#BD77FF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="116.979" text-anchor="end" class="tierLabel">MASTER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="99.976" x2="864" y2="99.976" stroke="#FF6078" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="104.976" text-anchor="end" class="tierLabel">GRANDMASTER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="87.973" x2="864" y2="87.973" stroke="#FFE08A" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="92.973" text-anchor="end" class="tierLabel">CHALLENGER</text>
+      </g>
+
+  </g>
+
+  <g transform="translate(34, 76)">
+    <rect width="170" height="44" rx="10" class="lpBox"/>
+    <text x="14" y="27" class="lpText">3999 LP</text>
+    <text x="14" y="40" class="lpSmall">snapshot-user</text>
+  </g>
+
+
+
+  <g transform="translate(854, 76)" class="marker anim">
+    <circle cx="0" cy="0" r="7.5" class="markerCore"/>
+    <circle cx="0" cy="0" r="11" class="markerRing"/>
+  </g>
+
+
+
+
+    <g transform="translate(18, 232)">
+      <text class="sub">lp-climb • data: GitHub contributions • theme: Support</text>
+    </g>
+
+</svg>
+
+--- theme:tank ---
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260" role="img" aria-label="Ranked climb ladder for snapshot-user">
+  <style><![CDATA[
+    :root{
+      --bg:#070B08;
+      --frame:#1F2A1C;
+      --text:#E6F3E3;
+      --accent:#51D26B;
+      --glow:rgba(81, 210, 107, 0.40);
+    }
+    .frame{ fill: var(--bg); stroke: var(--frame); stroke-width: 2; }
+    .title{ fill: var(--text); font: 700 16px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.4px; }
+    .sub{ fill: rgba(255,255,255,0.72); font: 500 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .tierLabel{ fill: rgba(255,255,255,0.55); font: 700 10px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; letter-spacing: 0.8px; }
+    .lpBox{ fill: rgba(255,255,255,0.04); stroke: rgba(255,255,255,0.10); stroke-width: 1; }
+    .lpText{ fill: var(--text); font: 800 14px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .lpSmall{ fill: rgba(255,255,255,0.65); font: 600 11px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    .ladderRail{ stroke: rgba(255,255,255,0.08); stroke-width: 10; stroke-linecap: round; }
+    .ladderInner{ stroke: rgba(255,255,255,0.10); stroke-width: 2; stroke-linecap: round; }
+    .marker{ filter: drop-shadow(0 0 10px var(--glow)); }
+    .markerCore{ fill: var(--accent); }
+    .markerRing{ fill: none; stroke: rgba(255,255,255,0.55); stroke-width: 1.5; }
+    .marker2 .markerCore{ fill: rgba(255,255,255,0.88); }
+    .marker2{ filter: drop-shadow(0 0 10px rgba(255,255,255,0.22)); }
+
+    @keyframes climb { 0% { transform: translate(0px, 96.114px); }
+0.3% { transform: translate(0px, 95.934px); }
+0.5% { transform: translate(0px, 94.794px); }
+0.8% { transform: translate(0px, 94.914px); }
+1.1% { transform: translate(0px, 94.614px); }
+1.4% { transform: translate(0px, 93.473px); }
+1.6% { transform: translate(0px, 93.593px); }
+1.9% { transform: translate(0px, 93.113px); }
+2.2% { transform: translate(0px, 92.633px); }
+2.4% { transform: translate(0px, 92.153px); }
+2.7% { transform: translate(0px, 91.673px); }
+3% { transform: translate(0px, 91.013px); }
+3.2% { transform: translate(0px, 90.353px); }
+3.5% { transform: translate(0px, 89.692px); }
+3.8% { transform: translate(0px, 89.032px); }
+4.1% { transform: translate(0px, 88.372px); }
+4.3% { transform: translate(0px, 87.712px); }
+4.6% { transform: translate(0px, 87.832px); }
+4.9% { transform: translate(0px, 87.652px); }
+5.1% { transform: translate(0px, 87.472px); }
+5.4% { transform: translate(0px, 87.172px); }
+5.7% { transform: translate(0px, 86.872px); }
+5.9% { transform: translate(0px, 86.572px); }
+6.2% { transform: translate(0px, 86.092px); }
+6.5% { transform: translate(0px, 85.611px); }
+6.8% { transform: translate(0px, 85.131px); }
+7% { transform: translate(0px, 84.651px); }
+7.3% { transform: translate(0px, 84.171px); }
+7.6% { transform: translate(0px, 83.511px); }
+7.8% { transform: translate(0px, 82.851px); }
+8.1% { transform: translate(0px, 82.191px); }
+8.4% { transform: translate(0px, 81.53px); }
+8.6% { transform: translate(0px, 80.87px); }
+8.9% { transform: translate(0px, 80.21px); }
+9.2% { transform: translate(0px, 80.33px); }
+9.5% { transform: translate(0px, 80.15px); }
+9.7% { transform: translate(0px, 79.97px); }
+10% { transform: translate(0px, 79.67px); }
+10.3% { transform: translate(0px, 79.37px); }
+10.5% { transform: translate(0px, 79.07px); }
+10.8% { transform: translate(0px, 78.59px); }
+11.1% { transform: translate(0px, 78.11px); }
+11.4% { transform: translate(0px, 77.629px); }
+11.6% { transform: translate(0px, 77.149px); }
+11.9% { transform: translate(0px, 76.669px); }
+12.2% { transform: translate(0px, 76.009px); }
+12.4% { transform: translate(0px, 75.349px); }
+12.7% { transform: translate(0px, 74.689px); }
+13% { transform: translate(0px, 74.029px); }
+13.2% { transform: translate(0px, 73.368px); }
+13.5% { transform: translate(0px, 72.708px); }
+13.8% { transform: translate(0px, 72.828px); }
+14.1% { transform: translate(0px, 72.648px); }
+14.3% { transform: translate(0px, 72.468px); }
+14.6% { transform: translate(0px, 72.168px); }
+14.9% { transform: translate(0px, 71.868px); }
+15.1% { transform: translate(0px, 71.988px); }
+15.4% { transform: translate(0px, 71.508px); }
+15.7% { transform: translate(0px, 71.028px); }
+15.9% { transform: translate(0px, 71.148px); }
+16.2% { transform: translate(0px, 70.668px); }
+16.5% { transform: translate(0px, 70.188px); }
+16.8% { transform: translate(0px, 70.308px); }
+17% { transform: translate(0px, 69.647px); }
+17.3% { transform: translate(0px, 68.987px); }
+17.6% { transform: translate(0px, 67.847px); }
+17.8% { transform: translate(0px, 67.187px); }
+18.1% { transform: translate(0px, 66.527px); }
+18.4% { transform: translate(0px, 66.647px); }
+18.6% { transform: translate(0px, 66.467px); }
+18.9% { transform: translate(0px, 66.287px); }
+19.2% { transform: translate(0px, 65.986px); }
+19.5% { transform: translate(0px, 65.686px); }
+19.7% { transform: translate(0px, 65.386px); }
+20% { transform: translate(0px, 64.906px); }
+20.3% { transform: translate(0px, 64.426px); }
+20.5% { transform: translate(0px, 63.946px); }
+20.8% { transform: translate(0px, 64.066px); }
+21.1% { transform: translate(0px, 63.586px); }
+21.4% { transform: translate(0px, 62.926px); }
+21.6% { transform: translate(0px, 62.266px); }
+21.9% { transform: translate(0px, 61.605px); }
+22.2% { transform: translate(0px, 60.945px); }
+22.4% { transform: translate(0px, 60.285px); }
+22.7% { transform: translate(0px, 59.625px); }
+23% { transform: translate(0px, 59.745px); }
+23.2% { transform: translate(0px, 59.565px); }
+23.5% { transform: translate(0px, 59.385px); }
+23.8% { transform: translate(0px, 59.085px); }
+24.1% { transform: translate(0px, 58.785px); }
+24.3% { transform: translate(0px, 58.485px); }
+24.6% { transform: translate(0px, 58.005px); }
+24.9% { transform: translate(0px, 57.524px); }
+25.1% { transform: translate(0px, 57.044px); }
+25.4% { transform: translate(0px, 56.564px); }
+25.7% { transform: translate(0px, 56.084px); }
+25.9% { transform: translate(0px, 54.944px); }
+26.2% { transform: translate(0px, 54.284px); }
+26.5% { transform: translate(0px, 53.623px); }
+26.8% { transform: translate(0px, 52.963px); }
+27% { transform: translate(0px, 52.303px); }
+27.3% { transform: translate(0px, 51.643px); }
+27.6% { transform: translate(0px, 51.763px); }
+27.8% { transform: translate(0px, 51.583px); }
+28.1% { transform: translate(0px, 51.403px); }
+28.4% { transform: translate(0px, 51.103px); }
+28.6% { transform: translate(0px, 50.803px); }
+28.9% { transform: translate(0px, 50.503px); }
+29.2% { transform: translate(0px, 50.023px); }
+29.5% { transform: translate(0px, 49.542px); }
+29.7% { transform: translate(0px, 49.062px); }
+30% { transform: translate(0px, 48.582px); }
+30.3% { transform: translate(0px, 48.702px); }
+30.5% { transform: translate(0px, 48.042px); }
+30.8% { transform: translate(0px, 47.382px); }
+31.1% { transform: translate(0px, 47.502px); }
+31.4% { transform: translate(0px, 46.842px); }
+31.6% { transform: translate(0px, 46.182px); }
+31.9% { transform: translate(0px, 46.302px); }
+32.2% { transform: translate(0px, 46.422px); }
+32.4% { transform: translate(0px, 46.242px); }
+32.7% { transform: translate(0px, 46.062px); }
+33% { transform: translate(0px, 45.761px); }
+33.2% { transform: translate(0px, 45.461px); }
+33.5% { transform: translate(0px, 45.161px); }
+33.8% { transform: translate(0px, 44.681px); }
+34.1% { transform: translate(0px, 44.201px); }
+34.3% { transform: translate(0px, 43.721px); }
+34.6% { transform: translate(0px, 42.581px); }
+34.9% { transform: translate(0px, 42.101px); }
+35.1% { transform: translate(0px, 41.44px); }
+35.4% { transform: translate(0px, 40.78px); }
+35.7% { transform: translate(0px, 40.12px); }
+35.9% { transform: translate(0px, 39.46px); }
+36.2% { transform: translate(0px, 38.8px); }
+36.5% { transform: translate(0px, 38.14px); }
+36.8% { transform: translate(0px, 38.26px); }
+37% { transform: translate(0px, 38.08px); }
+37.3% { transform: translate(0px, 37.899px); }
+37.6% { transform: translate(0px, 37.599px); }
+37.8% { transform: translate(0px, 37.299px); }
+38.1% { transform: translate(0px, 36.999px); }
+38.4% { transform: translate(0px, 36.519px); }
+38.6% { transform: translate(0px, 36.039px); }
+38.9% { transform: translate(0px, 35.559px); }
+39.2% { transform: translate(0px, 35.079px); }
+39.5% { transform: translate(0px, 34.599px); }
+39.7% { transform: translate(0px, 33.938px); }
+40% { transform: translate(0px, 33.278px); }
+40.3% { transform: translate(0px, 32.618px); }
+40.5% { transform: translate(0px, 31.958px); }
+40.8% { transform: translate(0px, 31.298px); }
+41.1% { transform: translate(0px, 30.638px); }
+41.4% { transform: translate(0px, 30.758px); }
+41.6% { transform: translate(0px, 30.878px); }
+41.9% { transform: translate(0px, 30.698px); }
+42.2% { transform: translate(0px, 30.398px); }
+42.4% { transform: translate(0px, 30.098px); }
+42.7% { transform: translate(0px, 29.797px); }
+43% { transform: translate(0px, 29.317px); }
+43.2% { transform: translate(0px, 28.837px); }
+43.5% { transform: translate(0px, 28.357px); }
+43.8% { transform: translate(0px, 27.877px); }
+44.1% { transform: translate(0px, 27.397px); }
+44.3% { transform: translate(0px, 26.737px); }
+44.6% { transform: translate(0px, 26.077px); }
+44.9% { transform: translate(0px, 25.416px); }
+45.1% { transform: translate(0px, 24.756px); }
+45.4% { transform: translate(0px, 24.876px); }
+45.7% { transform: translate(0px, 24.216px); }
+45.9% { transform: translate(0px, 24.336px); }
+46.2% { transform: translate(0px, 24.456px); }
+46.5% { transform: translate(0px, 24.276px); }
+46.8% { transform: translate(0px, 23.976px); }
+47% { transform: translate(0px, 24.096px); }
+47.3% { transform: translate(0px, 23.796px); }
+47.6% { transform: translate(0px, 23.316px); }
+47.8% { transform: translate(0px, 22.836px); }
+48.1% { transform: translate(0px, 22.356px); }
+48.4% { transform: translate(0px, 21.875px); }
+48.6% { transform: translate(0px, 21.395px); }
+48.9% { transform: translate(0px, 20.735px); }
+49.2% { transform: translate(0px, 20.075px); }
+49.5% { transform: translate(0px, 19.415px); }
+49.7% { transform: translate(0px, 18.755px); }
+50% { transform: translate(0px, 18.095px); }
+50.3% { transform: translate(0px, 17.434px); }
+50.5% { transform: translate(0px, 16.294px); }
+50.8% { transform: translate(0px, 16.114px); }
+51.1% { transform: translate(0px, 15.934px); }
+51.4% { transform: translate(0px, 15.634px); }
+51.6% { transform: translate(0px, 14.494px); }
+51.9% { transform: translate(0px, 14.194px); }
+52.2% { transform: translate(0px, 13.713px); }
+52.4% { transform: translate(0px, 13.233px); }
+52.7% { transform: translate(0px, 12.753px); }
+53% { transform: translate(0px, 12.273px); }
+53.2% { transform: translate(0px, 11.793px); }
+53.5% { transform: translate(0px, 11.133px); }
+53.8% { transform: translate(0px, 10.473px); }
+54.1% { transform: translate(0px, 9.812px); }
+54.3% { transform: translate(0px, 9.152px); }
+54.6% { transform: translate(0px, 8.492px); }
+54.9% { transform: translate(0px, 7.832px); }
+55.1% { transform: translate(0px, 7.952px); }
+55.4% { transform: translate(0px, 7.772px); }
+55.7% { transform: translate(0px, 7.592px); }
+55.9% { transform: translate(0px, 7.292px); }
+56.2% { transform: translate(0px, 6.992px); }
+56.5% { transform: translate(0px, 6.692px); }
+56.8% { transform: translate(0px, 6.212px); }
+57% { transform: translate(0px, 5.731px); }
+57.3% { transform: translate(0px, 5.251px); }
+57.6% { transform: translate(0px, 4.771px); }
+57.8% { transform: translate(0px, 4.291px); }
+58.1% { transform: translate(0px, 3.631px); }
+58.4% { transform: translate(0px, 2.971px); }
+58.6% { transform: translate(0px, 2.311px); }
+58.9% { transform: translate(0px, 1.65px); }
+59.2% { transform: translate(0px, 0.99px); }
+59.5% { transform: translate(0px, 0.33px); }
+59.7% { transform: translate(0px, 0.45px); }
+60% { transform: translate(0px, 0.27px); }
+60.3% { transform: translate(0px, 0.09px); }
+60.5% { transform: translate(0px, 0.21px); }
+60.8% { transform: translate(0px, 0px); }
+61.1% { transform: translate(0px, 0px); }
+61.4% { transform: translate(0px, 0.12px); }
+61.6% { transform: translate(0px, 0px); }
+61.9% { transform: translate(0px, 0px); }
+62.2% { transform: translate(0px, 0.12px); }
+62.4% { transform: translate(0px, 0.24px); }
+62.7% { transform: translate(0px, 0px); }
+63% { transform: translate(0px, 0px); }
+63.2% { transform: translate(0px, 0px); }
+63.5% { transform: translate(0px, 0px); }
+63.8% { transform: translate(0px, 0px); }
+64.1% { transform: translate(0px, 0px); }
+64.3% { transform: translate(0px, 0.12px); }
+64.6% { transform: translate(0px, 0px); }
+64.9% { transform: translate(0px, 0px); }
+65.1% { transform: translate(0px, 0px); }
+65.4% { transform: translate(0px, 0px); }
+65.7% { transform: translate(0px, 0px); }
+65.9% { transform: translate(0px, 0px); }
+66.2% { transform: translate(0px, 0px); }
+66.5% { transform: translate(0px, 0px); }
+66.8% { transform: translate(0px, 0px); }
+67% { transform: translate(0px, 0px); }
+67.3% { transform: translate(0px, 0px); }
+67.6% { transform: translate(0px, 0px); }
+67.8% { transform: translate(0px, 0px); }
+68.1% { transform: translate(0px, 0px); }
+68.4% { transform: translate(0px, 0px); }
+68.6% { transform: translate(0px, 0px); }
+68.9% { transform: translate(0px, 0.12px); }
+69.2% { transform: translate(0px, 0px); }
+69.5% { transform: translate(0px, 0px); }
+69.7% { transform: translate(0px, 0px); }
+70% { transform: translate(0px, 0px); }
+70.3% { transform: translate(0px, 0px); }
+70.5% { transform: translate(0px, 0px); }
+70.8% { transform: translate(0px, 0px); }
+71.1% { transform: translate(0px, 0px); }
+71.4% { transform: translate(0px, 0px); }
+71.6% { transform: translate(0px, 0px); }
+71.9% { transform: translate(0px, 0px); }
+72.2% { transform: translate(0px, 0px); }
+72.4% { transform: translate(0px, 0px); }
+72.7% { transform: translate(0px, 0px); }
+73% { transform: translate(0px, 0px); }
+73.2% { transform: translate(0px, 0px); }
+73.5% { transform: translate(0px, 0.12px); }
+73.8% { transform: translate(0px, 0px); }
+74.1% { transform: translate(0px, 0px); }
+74.3% { transform: translate(0px, 0px); }
+74.6% { transform: translate(0px, 0px); }
+74.9% { transform: translate(0px, 0px); }
+75.1% { transform: translate(0px, 0px); }
+75.4% { transform: translate(0px, 0px); }
+75.7% { transform: translate(0px, 0.12px); }
+75.9% { transform: translate(0px, 0px); }
+76.2% { transform: translate(0px, 0px); }
+76.5% { transform: translate(0px, 0.12px); }
+76.8% { transform: translate(0px, 0px); }
+77% { transform: translate(0px, 0px); }
+77.3% { transform: translate(0px, 0.12px); }
+77.6% { transform: translate(0px, 0px); }
+77.8% { transform: translate(0px, 0px); }
+78.1% { transform: translate(0px, 0.12px); }
+78.4% { transform: translate(0px, 0px); }
+78.6% { transform: translate(0px, 0px); }
+78.9% { transform: translate(0px, 0px); }
+79.2% { transform: translate(0px, 0px); }
+79.5% { transform: translate(0px, 0px); }
+79.7% { transform: translate(0px, 0px); }
+80% { transform: translate(0px, 0px); }
+80.3% { transform: translate(0px, 0px); }
+80.5% { transform: translate(0px, 0px); }
+80.8% { transform: translate(0px, 0px); }
+81.1% { transform: translate(0px, 0px); }
+81.4% { transform: translate(0px, 0px); }
+81.6% { transform: translate(0px, 0px); }
+81.9% { transform: translate(0px, 0px); }
+82.2% { transform: translate(0px, 0px); }
+82.4% { transform: translate(0px, 0px); }
+82.7% { transform: translate(0px, 0.12px); }
+83% { transform: translate(0px, 0px); }
+83.2% { transform: translate(0px, 0.12px); }
+83.5% { transform: translate(0px, 0px); }
+83.8% { transform: translate(0px, 0px); }
+84.1% { transform: translate(0px, 0px); }
+84.3% { transform: translate(0px, 0px); }
+84.6% { transform: translate(0px, 0px); }
+84.9% { transform: translate(0px, 0px); }
+85.1% { transform: translate(0px, 0px); }
+85.4% { transform: translate(0px, 0px); }
+85.7% { transform: translate(0px, 0px); }
+85.9% { transform: translate(0px, 0px); }
+86.2% { transform: translate(0px, 0px); }
+86.5% { transform: translate(0px, 0px); }
+86.8% { transform: translate(0px, 0px); }
+87% { transform: translate(0px, 0px); }
+87.3% { transform: translate(0px, 0.12px); }
+87.6% { transform: translate(0px, 0px); }
+87.8% { transform: translate(0px, 0px); }
+88.1% { transform: translate(0px, 0px); }
+88.4% { transform: translate(0px, 0px); }
+88.6% { transform: translate(0px, 0px); }
+88.9% { transform: translate(0px, 0px); }
+89.2% { transform: translate(0px, 0px); }
+89.5% { transform: translate(0px, 0px); }
+89.7% { transform: translate(0px, 0px); }
+90% { transform: translate(0px, 0px); }
+90.3% { transform: translate(0px, 0px); }
+90.5% { transform: translate(0px, 0px); }
+90.8% { transform: translate(0px, 0.12px); }
+91.1% { transform: translate(0px, 0px); }
+91.4% { transform: translate(0px, 0px); }
+91.6% { transform: translate(0px, 0.12px); }
+91.9% { transform: translate(0px, 0.24px); }
+92.2% { transform: translate(0px, 0.06px); }
+92.4% { transform: translate(0px, 0.18px); }
+92.7% { transform: translate(0px, 0px); }
+93% { transform: translate(0px, 0px); }
+93.2% { transform: translate(0px, 0px); }
+93.5% { transform: translate(0px, 0px); }
+93.8% { transform: translate(0px, 0px); }
+94.1% { transform: translate(0px, 0px); }
+94.3% { transform: translate(0px, 0px); }
+94.6% { transform: translate(0px, 0px); }
+94.9% { transform: translate(0px, 0px); }
+95.1% { transform: translate(0px, 0px); }
+95.4% { transform: translate(0px, 0px); }
+95.7% { transform: translate(0px, 0px); }
+95.9% { transform: translate(0px, 0px); }
+96.2% { transform: translate(0px, 0px); }
+96.5% { transform: translate(0px, 0.12px); }
+96.8% { transform: translate(0px, 0px); }
+97% { transform: translate(0px, 0px); }
+97.3% { transform: translate(0px, 0px); }
+97.6% { transform: translate(0px, 0px); }
+97.8% { transform: translate(0px, 0px); }
+98.1% { transform: translate(0px, 0px); }
+98.4% { transform: translate(0px, 0px); }
+98.6% { transform: translate(0px, 0px); }
+98.9% { transform: translate(0px, 0px); }
+99.2% { transform: translate(0px, 0px); }
+99.5% { transform: translate(0px, 0px); }
+99.7% { transform: translate(0px, 0px); }
+100% { transform: translate(0px, 0px); } }
+    @keyframes climb2 {  }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
+  ]]></style>
+
+  <rect x="18" y="18" width="864" height="224" rx="16" class="frame"/>
+
+  <g transform="translate(34, 38)">
+    <text class="title">snapshot-user • Ranked Climb</text>
+    <text class="sub" y="22">Streak: 13d (best 29d) • 30d: 255 • Best day: 42 on 2024-01-03 • Busiest: Tue</text>
+
+  </g>
+
+  <g>
+    <line x1="228" y1="76" x2="228" y2="196" class="ladderRail"/>
+    <line x1="228" y1="76" x2="228" y2="196" class="ladderInner"/>
+
+      <g class="tier">
+        <line x1="228" y1="196" x2="864" y2="196" stroke="#4D524F" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="201" text-anchor="end" class="tierLabel">IRON</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="183.997" x2="864" y2="183.997" stroke="#7A512E" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="188.997" text-anchor="end" class="tierLabel">BRONZE</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="171.994" x2="864" y2="171.994" stroke="#B7C0BF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="176.994" text-anchor="end" class="tierLabel">SILVER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="159.991" x2="864" y2="159.991" stroke="#F2C75D" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="164.991" text-anchor="end" class="tierLabel">GOLD</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="147.988" x2="864" y2="147.988" stroke="#49E0C4" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="152.988" text-anchor="end" class="tierLabel">PLAT</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="135.985" x2="864" y2="135.985" stroke="#2AE98C" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="140.985" text-anchor="end" class="tierLabel">EMERALD</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="123.982" x2="864" y2="123.982" stroke="#63AFFF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="128.982" text-anchor="end" class="tierLabel">DIAMOND</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="111.979" x2="864" y2="111.979" stroke="#B16AFF" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="116.979" text-anchor="end" class="tierLabel">MASTER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="99.976" x2="864" y2="99.976" stroke="#FF5970" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="104.976" text-anchor="end" class="tierLabel">GRANDMASTER</text>
+      </g>
+
+      <g class="tier">
+        <line x1="228" y1="87.973" x2="864" y2="87.973" stroke="#FFE08A" stroke-opacity="0.35" stroke-width="2"/>
+        <text x="216" y="92.973" text-anchor="end" class="tierLabel">CHALLENGER</text>
+      </g>
+
+  </g>
+
+  <g transform="translate(34, 76)">
+    <rect width="170" height="44" rx="10" class="lpBox"/>
+    <text x="14" y="27" class="lpText">3999 LP</text>
+    <text x="14" y="40" class="lpSmall">snapshot-user</text>
+  </g>
+
+
+
+  <g transform="translate(854, 76)" class="marker anim">
+    <circle cx="0" cy="0" r="7.5" class="markerCore"/>
+    <circle cx="0" cy="0" r="11" class="markerRing"/>
+  </g>
+
+
+
+
+    <g transform="translate(18, 232)">
+      <text class="sub">lp-climb • data: GitHub contributions • theme: Tank</text>
+    </g>
+
+</svg>
+"
+`;
