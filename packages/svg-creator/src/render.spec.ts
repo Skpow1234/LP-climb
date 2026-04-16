@@ -70,5 +70,61 @@ describe("renderRankedClimbSvg determinism", () => {
 
     expect(a).toEqual(b);
   });
+
+  it("renders team mode with distinct markers + badges per member", () => {
+    const cells = makeSyntheticCells();
+    const stats = computeStats(cells);
+    const theme = THEMES.rift;
+
+    const svg = renderRankedClimbSvg({
+      user: "alice",
+      cells,
+      stats,
+      theme,
+      width: 900,
+      height: 400,
+      team: [
+        { user: "bob", cells, stats },
+        { user: "carol", cells, stats },
+        { user: "dave", cells, stats }
+      ]
+    });
+
+    // Structural assertions — the renderer emits one keyframe / anim rule and
+    // one marker per team member, plus a badge with their login.
+    for (const idx of [0, 1, 2]) {
+      expect(svg).toContain(`@keyframes climbT${idx}`);
+      expect(svg).toContain(`animT${idx}`);
+      expect(svg).toContain(`markerT${idx}`);
+    }
+    expect(svg).toContain(">bob</text>");
+    expect(svg).toContain(">carol</text>");
+    expect(svg).toContain(">dave</text>");
+  });
+
+  it("ignores team when vs is set (vs-mode output is unchanged)", () => {
+    const cells = makeSyntheticCells();
+    const stats = computeStats(cells);
+    const theme = THEMES.rift;
+
+    const vsOnly = renderRankedClimbSvg({
+      user: "alice",
+      cells,
+      stats,
+      theme,
+      vs: { user: "bob", cells, stats }
+    });
+
+    const vsWithIgnoredTeam = renderRankedClimbSvg({
+      user: "alice",
+      cells,
+      stats,
+      theme,
+      vs: { user: "bob", cells, stats },
+      team: [{ user: "carol", cells, stats }]
+    });
+
+    expect(vsWithIgnoredTeam).toEqual(vsOnly);
+  });
 });
 

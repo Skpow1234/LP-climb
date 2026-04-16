@@ -75,7 +75,15 @@ https://<API_HOST>/v1/render.gif?user=octocat&theme=rift&frames=24&fps=12
 https://<API_HOST>/v1/render.svg?user=octocat&vs=torvalds&theme=rift
 ```
 
-### 4) Named size preset
+### 4) Team ladder (up to 6 climbers)
+
+```text
+https://<API_HOST>/v1/render.svg?user=octocat&team=torvalds,gaearon,sindresorhus&theme=rift&preset=banner
+```
+
+Up to **5** extra usernames in `team` (6 total including `user`). Each gets a distinct marker color + compact LP badge. Bump the height (via `preset=banner` or `&height=400`) so all badges fit. Mutually exclusive with `vs` — combining both returns `400`.
+
+### 5) Named size preset
 
 Skip fiddling with `width`/`height` — pass a preset (list at `/v1/presets.json`):
 
@@ -90,6 +98,7 @@ Explicit `width` / `height` always override the preset's values.
 - `GET /v1/render.svg?user=USER&theme=rift` (**recommended**)
   - Legacy alias: `GET /render.svg?...` (deprecated)
   - Optional: `&vs=OTHER_USER` for 1v1 comparison
+  - Optional: `&team=a,b,c` for up to 5 extra climbers on the same ladder (mutually exclusive with `vs`)
   - Optional: `&width=900&height=260` or `&preset=<id>` (see `/v1/presets.json`)
 - `GET /v1/render.png?user=USER&theme=rift`
   - Legacy alias: `GET /render.png?...` (deprecated)
@@ -98,7 +107,7 @@ Explicit `width` / `height` always override the preset's values.
 - `GET /v1/render.gif?user=USER&theme=rift&frames=24&fps=12` (animated; CPU-heavy)
 - `GET /v1/meta.json?user=USER` (**recommended**)
   - Legacy alias: `GET /meta.json?...` (deprecated)
-  - Optional: `&vs=OTHER_USER`
+  - Optional: `&vs=OTHER_USER` or `&team=a,b,c` (same rules as the render endpoints)
 - `GET /v1/github-contrib/:user` — normalized `{ x, y, date, count, level }` cells for clients that can't call GitHub GraphQL directly (shares the SWR cache with render endpoints; no token ever leaves the server)
 - `GET /v1/themes.json` (theme catalog)
 - `GET /v1/presets.json` (dimension preset catalog)

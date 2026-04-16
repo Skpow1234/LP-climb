@@ -141,7 +141,37 @@ const GithubLoginSchema = z
   .max(39)
   .regex(/^(?!-)(?!.*--)[a-zA-Z0-9-]{1,39}(?<!-)$/, "invalid github username");
 
-const RenderQuerySchema = z.object({
+// Cap total climbers (primary + team) to keep fan-out against the GitHub API
+// bounded per request. 6 is the width of the team-marker palette.
+const MAX_TEAM_SIZE = 5;
+
+// Parse `?team=a,b,c` into a de-duplicated array of logins. Empty / whitespace
+// entries are dropped. Returns `undefined` when the input is absent/blank so
+// downstream code can distinguish "no team" from "empty team".
+const TeamSchema = z
+  .string()
+  .optional()
+  .transform((v) => {
+    if (!v) return undefined;
+    const parts = v
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (parts.length === 0) return undefined;
+    return Array.from(new Set(parts));
+  })
+  .pipe(
+    z
+      .array(GithubLoginSchema)
+      .min(1, "team must include at least one username")
+      .max(MAX_TEAM_SIZE, `team may include at most ${MAX_TEAM_SIZE} usernames (excluding the primary user)`)
+      .optional()
+  );
+
+// Base object schema; `.extend()` / `.pick()` require a ZodObject, so the
+// vs+team mutual-exclusion rule is applied as a separate refinement below and
+// re-applied when extending (Gif / Raster schemas).
+const RenderQueryObject = z.object({
   user: GithubLoginSchema,
   theme: z.string().optional(),
   width: z.coerce.number().int().min(500).max(2000).optional(),
@@ -150,6 +180,11 @@ const RenderQuerySchema = z.object({
   // always override the preset's values.
   preset: z.enum(PRESET_IDS as [string, ...string[]]).optional(),
   vs: GithubLoginSchema.optional(),
+  // Team mode: comma-separated extra GitHub logins to render on the same
+  // ladder as additional climbers. Mutually exclusive with `vs` (see
+  // `vsTeamRefinement`). Duplicates and the primary user are de-duplicated
+  // server-side.
+  team: TeamSchema,
 
   // Optional theme overrides (for “champion select” personalization).
   // Example: &accent=%23ff00aa&tier_challenger=%23ffd36b
@@ -170,16 +205,34 @@ const RenderQuerySchema = z.object({
   tier_challenger: ColorSchema.optional()
 });
 
-const GifQuerySchema = RenderQuerySchema.extend({
+const vsTeamRefinement = {
+  check: (q: { vs?: string | undefined; team?: string[] | undefined }) =>
+    !(q.vs && q.team && q.team.length > 0),
+  message: "cannot combine `vs` and `team` — pass one or the other",
+  path: ["team"] as ["team"]
+};
+
+const RenderQuerySchema = RenderQueryObject.refine(vsTeamRefinement.check, {
+  message: vsTeamRefinement.message,
+  path: vsTeamRefinement.path
+});
+
+const GifQuerySchema = RenderQueryObject.extend({
   // GIFs are expensive; keep width/height tighter defaults but allow the full
   // render range. These clamps are enforced again inside the encoder.
   frames: z.coerce.number().int().min(6).max(60).optional(),
   fps: z.coerce.number().int().min(4).max(30).optional()
+}).refine(vsTeamRefinement.check, {
+  message: vsTeamRefinement.message,
+  path: vsTeamRefinement.path
 });
 
-const RasterQuerySchema = RenderQuerySchema.extend({
+const RasterQuerySchema = RenderQueryObject.extend({
   // Shared schema for WebP / AVIF endpoints.
   quality: z.coerce.number().int().min(1).max(100).optional()
+}).refine(vsTeamRefinement.check, {
+  message: vsTeamRefinement.message,
+  path: vsTeamRefinement.path
 });
 
 function applyThemeOverrides(base: any, q: any) {
@@ -211,6 +264,39 @@ function applyThemeOverrides(base: any, q: any) {
 }
 
 type ContribCacheSource = "hit" | "stale" | "miss";
+
+type ResolvedClimbers = {
+  primary: { cells: unknown[]; stamp: number };
+  vs: { user: string; cells: unknown[]; stamp: number } | null;
+  team: Array<{ user: string; cells: unknown[]; stamp: number }>;
+};
+
+// Shared fan-out for primary + optional vs + optional team. Team entries
+// matching the primary user are dropped (the renderer would draw a duplicate
+// marker otherwise). All fetches run in parallel.
+async function resolveClimbers(q: {
+  user: string;
+  vs?: string | undefined;
+  team?: string[] | undefined;
+}): Promise<ResolvedClimbers> {
+  const teamLogins = (q.team ?? []).filter((t) => t.toLowerCase() !== q.user.toLowerCase());
+
+  const [primary, vs, ...teamResults] = await Promise.all([
+    getContribCellsSWR(q.user),
+    q.vs ? getContribCellsSWR(q.vs) : Promise.resolve(null),
+    ...teamLogins.map((t) => getContribCellsSWR(t))
+  ]);
+
+  return {
+    primary: { cells: primary.cells, stamp: primary.stamp },
+    vs: q.vs && vs ? { user: q.vs, cells: vs.cells, stamp: vs.stamp } : null,
+    team: teamLogins.map((user, i) => ({
+      user,
+      cells: teamResults[i]!.cells,
+      stamp: teamResults[i]!.stamp
+    }))
+  };
+}
 
 async function getContribCellsSWR(user: string): Promise<{
   cells: unknown[];
@@ -266,6 +352,41 @@ async function getContribCellsSWR(user: string): Promise<{
   }
 }
 
+// Builds the shared `RenderParams` passed to every rasterizer / encoder. Owns
+// the `vs` vs `team` precedence (vs wins when both are set, matching the
+// schema-level refinement which already rejects the combination).
+function buildRenderParams(
+  q: { user: string },
+  theme: any,
+  dims: { width?: number; height?: number },
+  climbers: ResolvedClimbers
+) {
+  const primaryStats = computeStats(climbers.primary.cells as any);
+  const vs = climbers.vs
+    ? {
+        user: climbers.vs.user,
+        cells: climbers.vs.cells as any,
+        stats: computeStats(climbers.vs.cells as any)
+      }
+    : null;
+  const team = climbers.team.map((m) => ({
+    user: m.user,
+    cells: m.cells as any,
+    stats: computeStats(m.cells as any)
+  }));
+
+  return {
+    user: q.user,
+    cells: climbers.primary.cells as any,
+    stats: primaryStats,
+    theme,
+    ...(dims.width !== undefined ? { width: dims.width } : {}),
+    ...(dims.height !== undefined ? { height: dims.height } : {}),
+    ...(vs ? { vs } : {}),
+    ...(team.length > 0 ? { team } : {})
+  };
+}
+
 const handleRenderSvg = async (
   req: any,
   reply: any,
@@ -275,18 +396,17 @@ const handleRenderSvg = async (
   const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
   const dims = resolveDims(q);
 
-  const [a, b] = await Promise.all([
-    getContribCellsSWR(q.user),
-    q.vs ? getContribCellsSWR(q.vs) : Promise.resolve(null)
-  ]);
+  const climbers = await resolveClimbers(q);
 
   const cacheKey = JSON.stringify({
     v: 1,
     route: "v1/render.svg",
     user: q.user,
-    vs: q.vs ?? null,
-    stampA: a.stamp,
-    stampB: b?.stamp ?? null,
+    vs: climbers.vs?.user ?? null,
+    team: climbers.team.map((t) => t.user),
+    stampA: climbers.primary.stamp,
+    stampB: climbers.vs?.stamp ?? null,
+    stampsTeam: climbers.team.map((t) => t.stamp),
     theme: theme.id,
     width: dims.width ?? null,
     height: dims.height ?? null
@@ -307,20 +427,7 @@ const handleRenderSvg = async (
   }
   recordCacheEvent("render", "miss");
 
-  const cellsA = a.cells as any[];
-  const cellsB = b?.cells ?? null;
-  const statsA = computeStats(cellsA as any);
-  const statsB = cellsB ? computeStats(cellsB as any) : null;
-
-  const svg = renderRankedClimbSvg({
-    user: q.user,
-    cells: cellsA as any,
-    stats: statsA,
-    theme,
-    ...(dims.width !== undefined ? { width: dims.width } : {}),
-    ...(dims.height !== undefined ? { height: dims.height } : {}),
-    ...(q.vs && cellsB && statsB ? { vs: { user: q.vs, cells: cellsB as any, stats: statsB } } : {})
-  });
+  const svg = renderRankedClimbSvg(buildRenderParams(q, theme, dims, climbers));
 
   cache.set(cacheKey, svg, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
 
@@ -344,18 +451,17 @@ const handleRenderPng = async (
   const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
   const dims = resolveDims(q);
 
-  const [a, b] = await Promise.all([
-    getContribCellsSWR(q.user),
-    q.vs ? getContribCellsSWR(q.vs) : Promise.resolve(null)
-  ]);
+  const climbers = await resolveClimbers(q);
 
   const cacheKey = JSON.stringify({
     v: 1,
     route: "v1/render.png",
     user: q.user,
-    vs: q.vs ?? null,
-    stampA: a.stamp,
-    stampB: b?.stamp ?? null,
+    vs: climbers.vs?.user ?? null,
+    team: climbers.team.map((t) => t.user),
+    stampA: climbers.primary.stamp,
+    stampB: climbers.vs?.stamp ?? null,
+    stampsTeam: climbers.team.map((t) => t.stamp),
     theme: theme.id,
     width: dims.width ?? null,
     height: dims.height ?? null
@@ -376,20 +482,7 @@ const handleRenderPng = async (
   }
   recordCacheEvent("render", "miss");
 
-  const cellsA = a.cells as any[];
-  const cellsB = b?.cells ?? null;
-  const statsA = computeStats(cellsA as any);
-  const statsB = cellsB ? computeStats(cellsB as any) : null;
-
-  const png = renderRankedClimbPng({
-    user: q.user,
-    cells: cellsA as any,
-    stats: statsA,
-    theme,
-    ...(dims.width !== undefined ? { width: dims.width } : {}),
-    ...(dims.height !== undefined ? { height: dims.height } : {}),
-    ...(q.vs && cellsB && statsB ? { vs: { user: q.vs, cells: cellsB as any, stats: statsB } } : {})
-  });
+  const png = renderRankedClimbPng(buildRenderParams(q, theme, dims, climbers));
 
   cache.set(cacheKey, png.toString("base64"), env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
 
@@ -411,18 +504,17 @@ const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) =>
   const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
   const dims = resolveDims(q);
 
-  const [a, b] = await Promise.all([
-    getContribCellsSWR(q.user),
-    q.vs ? getContribCellsSWR(q.vs) : Promise.resolve(null)
-  ]);
+  const climbers = await resolveClimbers(q);
 
   const cacheKey = JSON.stringify({
     v: 1,
     route: `v1/render.${format}`,
     user: q.user,
-    vs: q.vs ?? null,
-    stampA: a.stamp,
-    stampB: b?.stamp ?? null,
+    vs: climbers.vs?.user ?? null,
+    team: climbers.team.map((t) => t.user),
+    stampA: climbers.primary.stamp,
+    stampB: climbers.vs?.stamp ?? null,
+    stampsTeam: climbers.team.map((t) => t.stamp),
     theme: theme.id,
     width: dims.width ?? null,
     height: dims.height ?? null,
@@ -441,20 +533,7 @@ const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) =>
   }
   recordCacheEvent("render", "miss");
 
-  const cellsA = a.cells as any[];
-  const cellsB = b?.cells ?? null;
-  const statsA = computeStats(cellsA as any);
-  const statsB = cellsB ? computeStats(cellsB as any) : null;
-
-  const params = {
-    user: q.user,
-    cells: cellsA as any,
-    stats: statsA,
-    theme,
-    ...(dims.width !== undefined ? { width: dims.width } : {}),
-    ...(dims.height !== undefined ? { height: dims.height } : {}),
-    ...(q.vs && cellsB && statsB ? { vs: { user: q.vs, cells: cellsB as any, stats: statsB } } : {})
-  };
+  const params = buildRenderParams(q, theme, dims, climbers);
   const encoderOpts = q.quality !== undefined ? { quality: q.quality } : {};
 
   const buf =
@@ -475,18 +554,17 @@ const handleRenderGif = async (req: any, reply: any) => {
   const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
   const dims = resolveDims(q);
 
-  const [a, b] = await Promise.all([
-    getContribCellsSWR(q.user),
-    q.vs ? getContribCellsSWR(q.vs) : Promise.resolve(null)
-  ]);
+  const climbers = await resolveClimbers(q);
 
   const cacheKey = JSON.stringify({
     v: 1,
     route: "v1/render.gif",
     user: q.user,
-    vs: q.vs ?? null,
-    stampA: a.stamp,
-    stampB: b?.stamp ?? null,
+    vs: climbers.vs?.user ?? null,
+    team: climbers.team.map((t) => t.user),
+    stampA: climbers.primary.stamp,
+    stampB: climbers.vs?.stamp ?? null,
+    stampsTeam: climbers.team.map((t) => t.stamp),
     theme: theme.id,
     width: dims.width ?? null,
     height: dims.height ?? null,
@@ -504,26 +582,10 @@ const handleRenderGif = async (req: any, reply: any) => {
   }
   recordCacheEvent("render", "miss");
 
-  const cellsA = a.cells as any[];
-  const cellsB = b?.cells ?? null;
-  const statsA = computeStats(cellsA as any);
-  const statsB = cellsB ? computeStats(cellsB as any) : null;
-
-  const gif = renderRankedClimbGif(
-    {
-      user: q.user,
-      cells: cellsA as any,
-      stats: statsA,
-      theme,
-      ...(dims.width !== undefined ? { width: dims.width } : {}),
-      ...(dims.height !== undefined ? { height: dims.height } : {}),
-      ...(q.vs && cellsB && statsB ? { vs: { user: q.vs, cells: cellsB as any, stats: statsB } } : {})
-    },
-    {
-      ...(q.frames !== undefined ? { frames: q.frames } : {}),
-      ...(q.fps !== undefined ? { fps: q.fps } : {})
-    }
-  );
+  const gif = renderRankedClimbGif(buildRenderParams(q, theme, dims, climbers), {
+    ...(q.frames !== undefined ? { frames: q.frames } : {}),
+    ...(q.fps !== undefined ? { fps: q.fps } : {})
+  });
 
   cache.set(cacheKey, gif.toString("base64"), env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
 
@@ -538,19 +600,23 @@ const handleMetaJson = async (
   reply: any,
   opts?: { deprecated?: boolean }
 ) => {
-  const q = RenderQuerySchema.pick({ user: true, vs: true }).parse(req.query);
-  const [a, b] = await Promise.all([
-    getContribCellsSWR(q.user),
-    q.vs ? getContribCellsSWR(q.vs) : Promise.resolve(null)
-  ]);
+  const q = RenderQueryObject.pick({ user: true, vs: true, team: true })
+    .refine(vsTeamRefinement.check, {
+      message: vsTeamRefinement.message,
+      path: vsTeamRefinement.path
+    })
+    .parse(req.query);
+  const climbers = await resolveClimbers(q);
 
   const cacheKey = JSON.stringify({
     v: 1,
     route: "v1/meta.json",
     user: q.user,
-    vs: q.vs ?? null,
-    stampA: a.stamp,
-    stampB: b?.stamp ?? null
+    vs: climbers.vs?.user ?? null,
+    team: climbers.team.map((t) => t.user),
+    stampA: climbers.primary.stamp,
+    stampB: climbers.vs?.stamp ?? null,
+    stampsTeam: climbers.team.map((t) => t.stamp)
   });
   const cached = cache.get(cacheKey);
   if (cached.hit) {
@@ -569,8 +635,9 @@ const handleMetaJson = async (
 
   const body = JSON.stringify({
     user: q.user,
-    stats: computeStats(a.cells as any),
-    vs: q.vs && b?.cells ? { user: q.vs, stats: computeStats(b.cells as any) } : null
+    stats: computeStats(climbers.primary.cells as any),
+    vs: climbers.vs ? { user: climbers.vs.user, stats: computeStats(climbers.vs.cells as any) } : null,
+    team: climbers.team.map((m) => ({ user: m.user, stats: computeStats(m.cells as any) }))
   });
 
   cache.set(cacheKey, body, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);

@@ -9,6 +9,12 @@ import sharp from "sharp";
 
 const { GIFEncoder, quantize, applyPalette } = gifenc;
 
+export type TeamMember = {
+  user: string;
+  cells: ContributionCell[];
+  stats: ContributionStats;
+};
+
 export type RenderParams = {
   user: string;
   cells: ContributionCell[];
@@ -16,11 +22,14 @@ export type RenderParams = {
   theme: Theme;
   width?: number;
   height?: number;
-  vs?: {
-    user: string;
-    cells: ContributionCell[];
-    stats: ContributionStats;
-  };
+  vs?: TeamMember;
+  /**
+   * Optional team members rendered alongside the primary user on the same
+   * ladder. When provided (non-empty), mutually exclusive with `vs` — the API
+   * layer rejects the combined request. Each member gets a distinctly-colored
+   * marker and a compact LP badge. Order is stable (insertion order).
+   */
+  team?: TeamMember[];
   /**
    * When set to a number in [0, 1], the SVG is rendered as a still frame
    * (no CSS animation) with markers positioned at the corresponding point
@@ -30,6 +39,20 @@ export type RenderParams = {
    */
   staticProgress?: number;
 };
+
+/**
+ * Distinct, accessible marker fill colors for team members. The primary user
+ * keeps the theme's `accent`; `vs` keeps its near-white fill. The first team
+ * member picks index 0 here, the second index 1, and so on (cycling).
+ */
+const TEAM_MARKER_COLORS = [
+  "#7dd3fc", // sky-300
+  "#f472b6", // pink-400
+  "#a78bfa", // violet-400
+  "#fbbf24", // amber-400
+  "#34d399", // emerald-400
+  "#fb7185"  // rose-400
+];
 
 export type RenderGifOptions = {
   /** Number of frames to sample (clamped 6..60). */
@@ -89,6 +112,12 @@ export function renderRankedClimbSvg(p: RenderParams): string {
   const t0 = computeLpTimeline(p.cells);
   const t1 = p.vs ? computeLpTimeline(p.vs.cells) : null;
 
+  // Team members are only rendered when `vs` is not set. API enforces this;
+  // the renderer defensively ignores `team` when `vs` is set so output for
+  // vs-mode stays byte-identical to the existing snapshot tests.
+  const teamMembers = !p.vs && p.team && p.team.length > 0 ? p.team : [];
+  const teamTimelines = teamMembers.map((m) => computeLpTimeline(m.cells));
+
   const head = t0.at(-1);
   const head2 = t1?.at(-1);
 
@@ -113,6 +142,30 @@ export function renderRankedClimbSvg(p: RenderParams): string {
     });
     return pts.join("\n");
   })();
+
+  const teamKeyframes = teamTimelines
+    .map((tl, idx) => {
+      if (tl.length === 0) return "";
+      const n = tl.length;
+      const name = `climbT${idx}`;
+      const pts = tl
+        .map((d, i) => {
+          const k = Math.round((i / Math.max(1, n - 1)) * 1000) / 10;
+          const y = lpToY(d.lp, ladderTop, ladderBottom);
+          return `${k}% { transform: translate(0px, ${roundPx(y - ladderTop)}px); }`;
+        })
+        .join("\n");
+      return `@keyframes ${name} { ${pts} }`;
+    })
+    .filter(Boolean)
+    .join("\n");
+
+  const teamCss = teamMembers
+    .map((_, idx) => {
+      const color = TEAM_MARKER_COLORS[idx % TEAM_MARKER_COLORS.length]!;
+      return `.markerT${idx} .markerCore { fill: ${color}; } .markerT${idx} { filter: drop-shadow(0 0 10px ${color}); } .animT${idx} { transform-origin: 0px 0px; animation: climbT${idx} 12s linear infinite; }`;
+    })
+    .join("\n");
 
   const tierTicks = TIERS.map((tier) => {
     const y = roundPx(lpToY(tier.lpMin, ladderTop, ladderBottom));
@@ -172,6 +225,17 @@ export function renderRankedClimbSvg(p: RenderParams): string {
     @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
   `;
 
+  // Team block is appended only when team mode is active. Concatenated after
+  // the base `style` so the primary-only / vs-only CSS output is byte-identical
+  // to previous snapshot tests.
+  const teamStyleBlock =
+    teamMembers.length > 0
+      ? `\n${teamKeyframes}\n${teamCss}\n@media (prefers-reduced-motion: reduce) { ${teamMembers
+          .map((_, i) => `.animT${i}`)
+          .join(", ")} { animation: none; } }\n`
+      : "";
+  const fullStyle = teamStyleBlock ? `${style}${teamStyleBlock}` : style;
+
   const lpLabel = head ? `${head.lp} LP` : "—";
   const lpLabel2 = head2 ? `${head2.lp} LP` : "";
 
@@ -195,6 +259,44 @@ export function renderRankedClimbSvg(p: RenderParams): string {
   const markerYA = hasStatic ? staticYA : ladderTop;
   const markerYB = hasStatic ? staticYB : ladderTop;
 
+  // Compact team badges, stacked under the primary LP badge. Uses height 30
+  // with a 4 px gap so up to ~6 members fit inside a 400 px SVG.
+  const teamBadgeHeight = 30;
+  const teamBadgeGap = 4;
+  const teamBadgesSvg = teamMembers
+    .map((m, idx) => {
+      const tlHead = teamTimelines[idx]!.at(-1);
+      const lp = tlHead ? `${tlHead.lp} LP` : "—";
+      const y = padding + headerH + 52 + idx * (teamBadgeHeight + teamBadgeGap);
+      const color = TEAM_MARKER_COLORS[idx % TEAM_MARKER_COLORS.length]!;
+      return `<g transform="translate(${padding + 16}, ${y})">
+    <rect width="170" height="${teamBadgeHeight}" rx="8" class="lpBox"/>
+    <rect x="8" y="${teamBadgeHeight / 2 - 5}" width="10" height="10" rx="2" fill="${color}"/>
+    <text x="24" y="${teamBadgeHeight / 2 + 4}" class="lpSmall" font-weight="700">${esc(lp)}</text>
+    <text x="74" y="${teamBadgeHeight / 2 + 4}" class="lpSmall">${esc(m.user)}</text>
+  </g>`;
+    })
+    .join("\n  ");
+
+  // Team markers, staggered 16 px left of the primary so they don't overlap.
+  const teamMarkersSvg = teamMembers
+    .map((_m, idx) => {
+      const tl = teamTimelines[idx]!;
+      const mx = markerX - (idx + 1) * 16;
+      const staticY = (() => {
+        if (!hasStatic || tl.length === 0) return ladderTop;
+        const i = Math.round(staticFrac * (tl.length - 1));
+        return roundPx(lpToY(tl[i]!.lp, ladderTop, ladderBottom));
+      })();
+      const my = hasStatic ? staticY : ladderTop;
+      const cls = hasStatic ? `marker markerT${idx}` : `marker markerT${idx} animT${idx}`;
+      return `<g transform="translate(${mx}, ${my})" class="${cls}">
+    <circle cx="0" cy="0" r="6.5" class="markerCore"/>
+    <circle cx="0" cy="0" r="10" class="markerRing"/>
+  </g>`;
+    })
+    .join("\n  ");
+
   const footer = `
     <g transform="translate(${padding}, ${H - padding - 10})">
       <text class="sub">lp-climb • data: GitHub contributions • theme: ${esc(p.theme.name)}</text>
@@ -203,7 +305,7 @@ export function renderRankedClimbSvg(p: RenderParams): string {
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Ranked climb ladder for ${esc(title)}">
-  <style><![CDATA[${style}]]></style>
+  <style><![CDATA[${fullStyle}]]></style>
 
   <rect x="${padding}" y="${padding}" width="${W - padding * 2}" height="${H - padding * 2}" rx="16" class="frame"/>
 
@@ -248,7 +350,7 @@ export function renderRankedClimbSvg(p: RenderParams): string {
   </g>`
       : ""
   }
-
+${teamBadgesSvg ? `  ${teamBadgesSvg}\n` : ""}${teamMarkersSvg ? `  ${teamMarkersSvg}\n` : ""}
   ${footer}
 </svg>`;
 }
