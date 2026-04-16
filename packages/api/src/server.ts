@@ -9,7 +9,7 @@ import { createMemoryCache } from "./cache.js";
 import { fetchGithubContributionCells, isGithubContribError } from "@lp-climb/github-contrib";
 import { computeStats } from "@lp-climb/core";
 import { getTheme, listThemes } from "@lp-climb/themes";
-import { renderRankedClimbPng, renderRankedClimbSvg } from "@lp-climb/svg-creator";
+import { renderRankedClimbGif, renderRankedClimbPng, renderRankedClimbSvg } from "@lp-climb/svg-creator";
 
 const env = loadEnv();
 const cache = createMemoryCache({ maxEntries: env.CACHE_MAX_ENTRIES });
@@ -75,6 +75,13 @@ const RenderQuerySchema = z.object({
   tier_master: ColorSchema.optional(),
   tier_grandmaster: ColorSchema.optional(),
   tier_challenger: ColorSchema.optional()
+});
+
+const GifQuerySchema = RenderQuerySchema.extend({
+  // GIFs are expensive; keep width/height tighter defaults but allow the full
+  // render range. These clamps are enforced again inside the encoder.
+  frames: z.coerce.number().int().min(6).max(60).optional(),
+  fps: z.coerce.number().int().min(4).max(30).optional()
 });
 
 function applyThemeOverrides(base: any, q: any) {
@@ -259,6 +266,66 @@ const handleRenderPng = async (req: any, reply: any) => {
   return png;
 };
 
+const handleRenderGif = async (req: any, reply: any) => {
+  const q = GifQuerySchema.parse(req.query);
+  const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
+
+  const [a, b] = await Promise.all([
+    getContribCellsSWR(q.user),
+    q.vs ? getContribCellsSWR(q.vs) : Promise.resolve(null)
+  ]);
+
+  const cacheKey = JSON.stringify({
+    v: 1,
+    route: "v1/render.gif",
+    user: q.user,
+    vs: q.vs ?? null,
+    stampA: a.stamp,
+    stampB: b?.stamp ?? null,
+    theme: theme.id,
+    width: q.width ?? null,
+    height: q.height ?? null,
+    frames: q.frames ?? null,
+    fps: q.fps ?? null
+  });
+
+  const cached = cache.get(cacheKey);
+  if (cached.hit) {
+    reply.header("Content-Type", "image/gif");
+    reply.header("Cache-Control", cacheControl);
+    reply.header("X-Cache", cached.stale ? "stale" : "hit");
+    return Buffer.from(cached.value, "base64");
+  }
+
+  const cellsA = a.cells as any[];
+  const cellsB = b?.cells ?? null;
+  const statsA = computeStats(cellsA as any);
+  const statsB = cellsB ? computeStats(cellsB as any) : null;
+
+  const gif = renderRankedClimbGif(
+    {
+      user: q.user,
+      cells: cellsA as any,
+      stats: statsA,
+      theme,
+      ...(q.width !== undefined ? { width: q.width } : {}),
+      ...(q.height !== undefined ? { height: q.height } : {}),
+      ...(q.vs && cellsB && statsB ? { vs: { user: q.vs, cells: cellsB as any, stats: statsB } } : {})
+    },
+    {
+      ...(q.frames !== undefined ? { frames: q.frames } : {}),
+      ...(q.fps !== undefined ? { fps: q.fps } : {})
+    }
+  );
+
+  cache.set(cacheKey, gif.toString("base64"), env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+
+  reply.header("Content-Type", "image/gif");
+  reply.header("Cache-Control", cacheControl);
+  reply.header("X-Cache", "miss");
+  return gif;
+};
+
 const handleMetaJson = async (
   req: any,
   reply: any,
@@ -312,6 +379,7 @@ const handleMetaJson = async (
 // v1 endpoints
 app.get("/v1/render.svg", (req, reply) => handleRenderSvg(req, reply));
 app.get("/v1/render.png", (req, reply) => handleRenderPng(req, reply));
+app.get("/v1/render.gif", (req, reply) => handleRenderGif(req, reply));
 app.get("/v1/meta.json", (req, reply) => handleMetaJson(req, reply));
 app.get("/v1/themes.json", async (_req, reply) => {
   reply.header("Content-Type", "application/json; charset=utf-8");

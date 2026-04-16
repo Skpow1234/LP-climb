@@ -1,6 +1,7 @@
 import type { ContributionCell, ContributionStats, Theme } from "@lp-climb/types";
 import { computeLpTimeline, TIERS } from "@lp-climb/core";
 import { Resvg } from "@resvg/resvg-js";
+import { GIFEncoder, quantize, applyPalette } from "gifenc";
 
 export type RenderParams = {
   user: string;
@@ -14,6 +15,21 @@ export type RenderParams = {
     cells: ContributionCell[];
     stats: ContributionStats;
   };
+  /**
+   * When set to a number in [0, 1], the SVG is rendered as a still frame
+   * (no CSS animation) with markers positioned at the corresponding point
+   * on the LP timeline. Used by the GIF encoder to rasterize individual frames.
+   * When undefined (default), the SVG contains CSS keyframe animations and
+   * the output is byte-identical to previous snapshot tests.
+   */
+  staticProgress?: number;
+};
+
+export type RenderGifOptions = {
+  /** Number of frames to sample (clamped 6..60). */
+  frames?: number;
+  /** Frames per second for GIF playback (clamped 4..30). */
+  fps?: number;
 };
 
 function clamp(n: number, a: number, b: number) {
@@ -151,6 +167,23 @@ export function renderRankedClimbSvg(p: RenderParams): string {
   const markerX = ladderX1 - 10;
   const markerX2 = ladderX1 - 28;
 
+  const hasStatic = typeof p.staticProgress === "number";
+  const staticFrac = hasStatic ? clamp(p.staticProgress as number, 0, 1) : 0;
+  const staticYA = (() => {
+    if (!hasStatic || t0.length === 0) return ladderTop;
+    const idx = Math.round(staticFrac * (t0.length - 1));
+    return roundPx(lpToY(t0[idx]!.lp, ladderTop, ladderBottom));
+  })();
+  const staticYB = (() => {
+    if (!hasStatic || !t1 || t1.length === 0) return ladderTop;
+    const idx = Math.round(staticFrac * (t1.length - 1));
+    return roundPx(lpToY(t1[idx]!.lp, ladderTop, ladderBottom));
+  })();
+  const markerClassA = hasStatic ? "marker" : "marker anim";
+  const markerClassB = hasStatic ? "marker marker2" : "marker marker2 anim2";
+  const markerYA = hasStatic ? staticYA : ladderTop;
+  const markerYB = hasStatic ? staticYB : ladderTop;
+
   const footer = `
     <g transform="translate(${padding}, ${H - padding - 10})">
       <text class="sub">lp-climb • data: GitHub contributions • theme: ${esc(p.theme.name)}</text>
@@ -191,14 +224,14 @@ export function renderRankedClimbSvg(p: RenderParams): string {
       : ""
   }
 
-  <g transform="translate(${markerX}, ${ladderTop})" class="marker anim">
+  <g transform="translate(${markerX}, ${markerYA})" class="${markerClassA}">
     <circle cx="0" cy="0" r="7.5" class="markerCore"/>
     <circle cx="0" cy="0" r="11" class="markerRing"/>
   </g>
 
   ${
     p.vs
-      ? `<g transform="translate(${markerX2}, ${ladderTop})" class="marker marker2 anim2">
+      ? `<g transform="translate(${markerX2}, ${markerYB})" class="${markerClassB}">
     <circle cx="0" cy="0" r="6.5" class="markerCore"/>
     <circle cx="0" cy="0" r="10" class="markerRing"/>
   </g>`
@@ -216,5 +249,50 @@ export function renderRankedClimbPng(p: RenderParams): Buffer {
     background: p.theme.bg
   });
   return resvg.render().asPng();
+}
+
+/**
+ * Render the ranked climb as an animated GIF. Expensive: each frame is a full
+ * SVG→raster pass via resvg, then quantized and appended to the GIF. Callers
+ * should cache aggressively and keep `frames`/`fps`/`width`/`height` small.
+ */
+export function renderRankedClimbGif(p: RenderParams, opts: RenderGifOptions = {}): Buffer {
+  const frames = clamp(Math.round(opts.frames ?? 24), 6, 60);
+  const fps = clamp(Math.round(opts.fps ?? 12), 4, 30);
+  const delayMs = Math.round(1000 / fps);
+
+  const gif = GIFEncoder();
+  let lastWidth = 0;
+  let lastHeight = 0;
+
+  for (let i = 0; i < frames; i++) {
+    // Loop cleanly: last frame should land just shy of 1.0 so the next loop
+    // iteration wraps back to 0 without a visible duplicate hold.
+    const progress = i / frames;
+    const svg = renderRankedClimbSvg({ ...p, staticProgress: progress });
+    const rendered = new Resvg(svg, { background: p.theme.bg }).render();
+    const { width, height } = rendered;
+    const pixels = rendered.pixels;
+    lastWidth = width;
+    lastHeight = height;
+
+    const palette = quantize(pixels, 256);
+    const index = applyPalette(pixels, palette);
+    gif.writeFrame(index, width, height, { palette, delay: delayMs });
+  }
+
+  gif.finish();
+  // Guard: if somehow no frames were written (empty timeline), still produce a
+  // 1x1 transparent GIF rather than throwing — keeps the endpoint resilient.
+  if (lastWidth === 0 || lastHeight === 0) {
+    const emptyGif = GIFEncoder();
+    const pixels = new Uint8Array([0, 0, 0, 0]);
+    const palette = quantize(pixels, 2);
+    const index = applyPalette(pixels, palette);
+    emptyGif.writeFrame(index, 1, 1, { palette, delay: delayMs });
+    emptyGif.finish();
+    return Buffer.from(emptyGif.bytes());
+  }
+  return Buffer.from(gif.bytes());
 }
 
