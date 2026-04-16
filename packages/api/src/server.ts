@@ -385,9 +385,13 @@ async function getContribCellsSWR(user: string): Promise<{
 // the `vs` vs `team` precedence (vs wins when both are set, matching the
 // schema-level refinement which already rejects the combination).
 function buildRenderParams(
-  q: { user: string; style?: "card" | "ladder" },
+  // `q` and `dims` come from Zod `.optional()` fields, which under the
+  // project's `exactOptionalPropertyTypes: true` produce `T | undefined` rather
+  // than "possibly omitted". Accept `undefined` explicitly so the call sites
+  // can pass the parsed query object straight through without narrowing.
+  q: { user: string; style?: "card" | "ladder" | undefined },
   theme: any,
-  dims: { width?: number; height?: number },
+  dims: { width?: number | undefined; height?: number | undefined },
   climbers: ResolvedClimbers
 ) {
   const primaryStats = computeStats(climbers.primary.cells as any);
