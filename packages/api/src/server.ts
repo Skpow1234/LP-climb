@@ -6,6 +6,7 @@ import helmet from "@fastify/helmet";
 import { z } from "zod";
 import { loadEnv } from "./env.js";
 import { createMemoryCache } from "./cache.js";
+import { listPresets, PRESET_IDS, resolveDims } from "./presets.js";
 import { fetchGithubContributionCells, isGithubContribError } from "@lp-climb/github-contrib";
 import { computeStats } from "@lp-climb/core";
 import { getTheme, listThemes } from "@lp-climb/themes";
@@ -62,6 +63,9 @@ const RenderQuerySchema = z.object({
   theme: z.string().optional(),
   width: z.coerce.number().int().min(500).max(2000).optional(),
   height: z.coerce.number().int().min(180).max(900).optional(),
+  // Named dimension preset (e.g. `readme`, `banner`). Explicit width/height
+  // always override the preset's values.
+  preset: z.enum(PRESET_IDS as [string, ...string[]]).optional(),
   vs: GithubLoginSchema.optional(),
 
   // Optional theme overrides (for “champion select” personalization).
@@ -166,6 +170,7 @@ const handleRenderSvg = async (
 ) => {
   const q = RenderQuerySchema.parse(req.query);
   const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
+  const dims = resolveDims(q);
 
   const [a, b] = await Promise.all([
     getContribCellsSWR(q.user),
@@ -180,8 +185,8 @@ const handleRenderSvg = async (
     stampA: a.stamp,
     stampB: b?.stamp ?? null,
     theme: theme.id,
-    width: q.width ?? null,
-    height: q.height ?? null
+    width: dims.width ?? null,
+    height: dims.height ?? null
   });
 
   const cached = cache.get(cacheKey);
@@ -207,8 +212,8 @@ const handleRenderSvg = async (
     cells: cellsA as any,
     stats: statsA,
     theme,
-    ...(q.width !== undefined ? { width: q.width } : {}),
-    ...(q.height !== undefined ? { height: q.height } : {}),
+    ...(dims.width !== undefined ? { width: dims.width } : {}),
+    ...(dims.height !== undefined ? { height: dims.height } : {}),
     ...(q.vs && cellsB && statsB ? { vs: { user: q.vs, cells: cellsB as any, stats: statsB } } : {})
   });
 
@@ -228,6 +233,7 @@ const handleRenderSvg = async (
 const handleRenderPng = async (req: any, reply: any) => {
   const q = RenderQuerySchema.parse(req.query);
   const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
+  const dims = resolveDims(q);
 
   const [a, b] = await Promise.all([
     getContribCellsSWR(q.user),
@@ -242,8 +248,8 @@ const handleRenderPng = async (req: any, reply: any) => {
     stampA: a.stamp,
     stampB: b?.stamp ?? null,
     theme: theme.id,
-    width: q.width ?? null,
-    height: q.height ?? null
+    width: dims.width ?? null,
+    height: dims.height ?? null
   });
 
   const cached = cache.get(cacheKey);
@@ -264,8 +270,8 @@ const handleRenderPng = async (req: any, reply: any) => {
     cells: cellsA as any,
     stats: statsA,
     theme,
-    ...(q.width !== undefined ? { width: q.width } : {}),
-    ...(q.height !== undefined ? { height: q.height } : {}),
+    ...(dims.width !== undefined ? { width: dims.width } : {}),
+    ...(dims.height !== undefined ? { height: dims.height } : {}),
     ...(q.vs && cellsB && statsB ? { vs: { user: q.vs, cells: cellsB as any, stats: statsB } } : {})
   });
 
@@ -282,6 +288,7 @@ type RasterFormat = "webp" | "avif";
 const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) => {
   const q = RasterQuerySchema.parse(req.query);
   const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
+  const dims = resolveDims(q);
 
   const [a, b] = await Promise.all([
     getContribCellsSWR(q.user),
@@ -296,8 +303,8 @@ const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) =>
     stampA: a.stamp,
     stampB: b?.stamp ?? null,
     theme: theme.id,
-    width: q.width ?? null,
-    height: q.height ?? null,
+    width: dims.width ?? null,
+    height: dims.height ?? null,
     quality: q.quality ?? null
   });
 
@@ -321,8 +328,8 @@ const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) =>
     cells: cellsA as any,
     stats: statsA,
     theme,
-    ...(q.width !== undefined ? { width: q.width } : {}),
-    ...(q.height !== undefined ? { height: q.height } : {}),
+    ...(dims.width !== undefined ? { width: dims.width } : {}),
+    ...(dims.height !== undefined ? { height: dims.height } : {}),
     ...(q.vs && cellsB && statsB ? { vs: { user: q.vs, cells: cellsB as any, stats: statsB } } : {})
   };
   const encoderOpts = q.quality !== undefined ? { quality: q.quality } : {};
@@ -343,6 +350,7 @@ const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) =>
 const handleRenderGif = async (req: any, reply: any) => {
   const q = GifQuerySchema.parse(req.query);
   const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
+  const dims = resolveDims(q);
 
   const [a, b] = await Promise.all([
     getContribCellsSWR(q.user),
@@ -357,8 +365,8 @@ const handleRenderGif = async (req: any, reply: any) => {
     stampA: a.stamp,
     stampB: b?.stamp ?? null,
     theme: theme.id,
-    width: q.width ?? null,
-    height: q.height ?? null,
+    width: dims.width ?? null,
+    height: dims.height ?? null,
     frames: q.frames ?? null,
     fps: q.fps ?? null
   });
@@ -382,8 +390,8 @@ const handleRenderGif = async (req: any, reply: any) => {
       cells: cellsA as any,
       stats: statsA,
       theme,
-      ...(q.width !== undefined ? { width: q.width } : {}),
-      ...(q.height !== undefined ? { height: q.height } : {}),
+      ...(dims.width !== undefined ? { width: dims.width } : {}),
+      ...(dims.height !== undefined ? { height: dims.height } : {}),
       ...(q.vs && cellsB && statsB ? { vs: { user: q.vs, cells: cellsB as any, stats: statsB } } : {})
     },
     {
@@ -461,6 +469,11 @@ app.get("/v1/themes.json", async (_req, reply) => {
   reply.header("Content-Type", "application/json; charset=utf-8");
   reply.header("Cache-Control", "public, max-age=3600");
   return JSON.stringify({ themes: listThemes() });
+});
+app.get("/v1/presets.json", async (_req, reply) => {
+  reply.header("Content-Type", "application/json; charset=utf-8");
+  reply.header("Cache-Control", "public, max-age=3600");
+  return JSON.stringify({ presets: listPresets() });
 });
 
 // legacy (unversioned) endpoints, kept for compatibility
