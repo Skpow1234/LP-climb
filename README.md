@@ -55,10 +55,18 @@ dist/lp-dark.svg?theme=assassin
 https://<API_HOST>/v1/render.svg?user=octocat&theme=rift&width=900&height=260
 ```
 
-PNG:
+Raster formats (use `quality` to tune size vs. fidelity):
 
 ```text
-https://<API_HOST>/v1/render.png?user=octocat&theme=rift&width=900&height=260
+https://<API_HOST>/v1/render.png?user=octocat&theme=rift
+https://<API_HOST>/v1/render.webp?user=octocat&theme=rift&quality=85
+https://<API_HOST>/v1/render.avif?user=octocat&theme=rift&quality=55
+```
+
+Animated GIF (CPU-heavy; cache it):
+
+```text
+https://<API_HOST>/v1/render.gif?user=octocat&theme=rift&frames=24&fps=12
 ```
 
 ### 3) 1v1 ladder (VS)
@@ -67,20 +75,36 @@ https://<API_HOST>/v1/render.png?user=octocat&theme=rift&width=900&height=260
 https://<API_HOST>/v1/render.svg?user=octocat&vs=torvalds&theme=rift
 ```
 
+### 4) Named size preset
+
+Skip fiddling with `width`/`height` — pass a preset (list at `/v1/presets.json`):
+
+```text
+https://<API_HOST>/v1/render.svg?user=octocat&theme=rift&preset=banner
+```
+
+Explicit `width` / `height` always override the preset's values.
+
 ## API endpoints (hosted render service)
 
 - `GET /v1/render.svg?user=USER&theme=rift` (**recommended**)
   - Legacy alias: `GET /render.svg?...` (deprecated)
   - Optional: `&vs=OTHER_USER` for 1v1 comparison
-  - Optional: `&width=900&height=260`
+  - Optional: `&width=900&height=260` or `&preset=<id>` (see `/v1/presets.json`)
 - `GET /v1/render.png?user=USER&theme=rift`
   - Legacy alias: `GET /render.png?...`
+- `GET /v1/render.webp?user=USER&theme=rift&quality=82` (smaller than PNG)
+- `GET /v1/render.avif?user=USER&theme=rift&quality=55` (smallest; slower encode)
+- `GET /v1/render.gif?user=USER&theme=rift&frames=24&fps=12` (animated; CPU-heavy)
 - `GET /v1/meta.json?user=USER` (**recommended**)
   - Legacy alias: `GET /meta.json?...` (deprecated)
   - Optional: `&vs=OTHER_USER`
 - `GET /v1/themes.json` (theme catalog)
+- `GET /v1/presets.json` (dimension preset catalog)
 - `GET /v1/healthz` (**recommended**)
   - Legacy alias: `GET /healthz`
+
+All render endpoints share the same theme/override/`preset` query params and the same SWR LRU cache (responses include `Cache-Control` and `X-Cache: miss|hit|stale`).
 
 ## GitHub Action (generate SVGs in workflows)
 
@@ -129,10 +153,6 @@ Embed example (dark/light):
 
 This repo includes a static demo site that can be deployed to **GitHub Pages**. The demo site **does not** call GitHub directly; it calls your hosted LP Climb API.
 
-Live demo (GitHub Pages):
-
-- `https://skpow1234.github.io/LP-climb/`
-
 ### Deploy
 
 1) Enable Pages: **Repo Settings → Pages → Source: GitHub Actions**
@@ -173,8 +193,10 @@ npm run dev:npm
 
 Then open:
 
-- `http://localhost:3000/render.svg?user=octocat&theme=rift`
-- `http://localhost:3000/render.svg?user=octocat&vs=torvalds&theme=assassin`
+- `http://localhost:3000/v1/render.svg?user=octocat&theme=rift`
+- `http://localhost:3000/v1/render.svg?user=octocat&vs=torvalds&theme=assassin`
+- `http://localhost:3000/v1/render.gif?user=octocat&theme=rift&frames=18&fps=12`
+- `http://localhost:3000/v1/presets.json`
 
 ### Call the hosted API directly
 
@@ -258,21 +280,6 @@ Example:
 
 ```text
 /v1/render.svg?user=octocat&theme=rift&accent=%23ff00aa&bg=%23000000&tier_challenger=%23ffd36b
-```
-
-### Dark / light pairing (recommended)
-
-Generate 2 outputs and embed with `<picture>`:
-
-- `dist/lp.svg?theme=rift`
-- `dist/lp-dark.svg?theme=assassin`
-
-```html
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/<OWNER>/<REPO>/output/lp-dark.svg" />
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/<OWNER>/<REPO>/output/lp.svg" />
-  <img alt="LP Climb" src="https://raw.githubusercontent.com/<OWNER>/<REPO>/output/lp.svg" />
-</picture>
 ```
 
 ## Troubleshooting
