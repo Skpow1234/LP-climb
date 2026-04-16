@@ -4,10 +4,13 @@ import etag from "@fastify/etag";
 import rateLimit from "@fastify/rate-limit";
 import helmet from "@fastify/helmet";
 import cors from "@fastify/cors";
+import swagger from "@fastify/swagger";
+import swaggerUi from "@fastify/swagger-ui";
 import { z } from "zod";
 import { loadEnv } from "./env.js";
 import { createMemoryCache } from "./cache.js";
 import { listPresets, PRESET_IDS, resolveDims } from "./presets.js";
+import { OPENAPI_INFO, OPENAPI_TAGS, SCHEMAS } from "./openapi.js";
 import {
   httpRequestDurationSeconds,
   httpRequestsTotal,
@@ -94,6 +97,53 @@ await app.register(rateLimit, {
   timeWindow: env.RATE_LIMIT_TIME_WINDOW_SECONDS * 1000
 });
 
+// OpenAPI / Swagger UI.
+//
+// We treat the route `schema` entries as documentation only — Zod remains
+// the single source of truth for runtime request validation. Without this
+// override Fastify would build an Ajv validator from the JSON Schema we
+// pass to each route and reject valid requests (e.g. the Zod `TeamSchema`
+// accepts a comma-separated string and pipes it through to an array, which
+// Ajv can't express cleanly). The Zod `.parse()` calls in each handler
+// catch the same cases with better error messages.
+app.setValidatorCompiler(() => () => true);
+
+await app.register(swagger, {
+  openapi: {
+    openapi: "3.0.3",
+    info: OPENAPI_INFO,
+    servers: [
+      { url: "https://lp-climb.onrender.com", description: "Production (Render)" },
+      { url: "http://localhost:3000", description: "Local development" }
+    ],
+    tags: OPENAPI_TAGS as unknown as Array<{ name: string; description: string }>
+  },
+  // Hide the `/metrics` alias (we document `/v1/metrics` instead) and any
+  // route that didn't opt into a schema — keeps the catalog tight.
+  hideUntagged: true
+});
+
+await app.register(swaggerUi, {
+  routePrefix: "/docs",
+  uiConfig: {
+    docExpansion: "list",
+    deepLinking: true,
+    displayRequestDuration: true,
+    tryItOutEnabled: true
+  },
+  staticCSP: false
+});
+
+// Canonical, stable URL for the raw OpenAPI document. `@fastify/swagger-ui`
+// already serves it at `/docs/json`, but API consumers expect `/openapi.json`
+// and it lets us keep the UI-prefix free to change. Hidden from the catalog
+// itself to avoid a meta entry.
+app.get("/openapi.json", { schema: { hide: true } }, async (_req, reply) => {
+  reply.header("Content-Type", "application/json; charset=utf-8");
+  reply.header("Cache-Control", "public, max-age=300");
+  return app.swagger();
+});
+
 // Echo the request id back to callers for log correlation. Done in onRequest
 // so it's present even on early 4xx / rate-limit responses.
 app.addHook("onRequest", async (req, reply) => {
@@ -147,8 +197,10 @@ app.addHook("onResponse", async (req, reply) => {
   );
 });
 
+// `/healthz` is the legacy alias; keep it undocumented (implicit via
+// `hideUntagged`) so the catalog only surfaces the versioned route.
 app.get("/healthz", async () => ({ ok: true }));
-app.get("/v1/healthz", async () => ({ ok: true, version: "v1" }));
+app.get("/v1/healthz", { schema: SCHEMAS.healthz }, async () => ({ ok: true, version: "v1" }));
 
 const cacheControl = `public, max-age=${env.CACHE_TTL_SECONDS}, stale-while-revalidate=${env.CACHE_STALE_SECONDS}`;
 
@@ -698,13 +750,25 @@ const handleMetaJson = async (
 };
 
 // v1 endpoints
-app.get("/v1/render.svg", (req, reply) => handleRenderSvg(req, reply));
-app.get("/v1/render.png", (req, reply) => handleRenderPng(req, reply));
-app.get("/v1/render.gif", (req, reply) => handleRenderGif(req, reply));
-app.get("/v1/render.webp", (req, reply) => handleRenderRaster(req, reply, "webp"));
-app.get("/v1/render.avif", (req, reply) => handleRenderRaster(req, reply, "avif"));
-app.get("/v1/meta.json", (req, reply) => handleMetaJson(req, reply));
-app.get("/v1/github-contrib/:user", async (req, reply) => {
+app.get("/v1/render.svg", { schema: SCHEMAS.renderSvg }, (req, reply) =>
+  handleRenderSvg(req, reply)
+);
+app.get("/v1/render.png", { schema: SCHEMAS.renderPng }, (req, reply) =>
+  handleRenderPng(req, reply)
+);
+app.get("/v1/render.gif", { schema: SCHEMAS.renderGif }, (req, reply) =>
+  handleRenderGif(req, reply)
+);
+app.get("/v1/render.webp", { schema: SCHEMAS.renderWebp }, (req, reply) =>
+  handleRenderRaster(req, reply, "webp")
+);
+app.get("/v1/render.avif", { schema: SCHEMAS.renderAvif }, (req, reply) =>
+  handleRenderRaster(req, reply, "avif")
+);
+app.get("/v1/meta.json", { schema: SCHEMAS.metaJson }, (req, reply) =>
+  handleMetaJson(req, reply)
+);
+app.get("/v1/github-contrib/:user", { schema: SCHEMAS.githubContrib }, async (req, reply) => {
   // Edge-friendly proxy: returns normalized contribution cells for clients
   // that cannot (or do not want to) call the GitHub GraphQL API themselves.
   // Shares the SWR LRU with the render endpoints, so a request here warms the
@@ -727,12 +791,12 @@ app.get("/v1/github-contrib/:user", async (req, reply) => {
   };
 });
 
-app.get("/v1/themes.json", async (_req, reply) => {
+app.get("/v1/themes.json", { schema: SCHEMAS.themes }, async (_req, reply) => {
   reply.header("Content-Type", "application/json; charset=utf-8");
   reply.header("Cache-Control", "public, max-age=3600");
   return JSON.stringify({ themes: listThemes() });
 });
-app.get("/v1/presets.json", async (_req, reply) => {
+app.get("/v1/presets.json", { schema: SCHEMAS.presets }, async (_req, reply) => {
   reply.header("Content-Type", "application/json; charset=utf-8");
   reply.header("Cache-Control", "public, max-age=3600");
   return JSON.stringify({ presets: listPresets() });
@@ -747,8 +811,11 @@ const metricsHandler = async (_req: any, reply: any) => {
   reply.header("Cache-Control", "no-store");
   return body;
 };
+// `/metrics` is the canonical Prometheus scraper location; we keep it but
+// leave it undocumented (one entry is plenty for the catalog). `/v1/metrics`
+// is the one that appears in /docs.
 app.get("/metrics", metricsHandler);
-app.get("/v1/metrics", metricsHandler);
+app.get("/v1/metrics", { schema: SCHEMAS.metrics }, metricsHandler);
 
 // Legacy (unversioned) endpoints, kept for compatibility. All legacy render /
 // meta routes emit RFC 8594 `Sunset` + `Deprecation` + `Link` headers; see
@@ -763,6 +830,21 @@ app.setErrorHandler((err, _req, reply) => {
     reply.status(err.statusCode).send({
       error: err.code,
       message: err.message
+    });
+    return;
+  }
+
+  // Zod validation failures (thrown from inside handlers as `RenderQuerySchema.parse(...)`)
+  // have no `statusCode`, so they used to fall through to the 500 branch. Surface them
+  // as 400s with the first issue's message — matches what Swagger UI / typical HTTP
+  // clients expect for bad query params.
+  if (err instanceof z.ZodError) {
+    const first = err.issues[0];
+    reply.status(400).send({
+      error: "bad_request",
+      message: first
+        ? `${first.path.length > 0 ? first.path.join(".") + ": " : ""}${first.message}`
+        : "invalid request"
     });
     return;
   }

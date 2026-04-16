@@ -157,6 +157,8 @@
     var apiBaseLabel = qs("apiBaseLabel");
     if (apiBaseLabel) apiBaseLabel.textContent = apiBase;
     qs("healthLink").href = apiBase + "/v1/healthz";
+    var docsLink = qs("docsLink");
+    if (docsLink) docsLink.href = apiBase + "/docs";
 
     var sp = buildQuery();
     var svg = new URL("/v1/render.svg", apiBase);

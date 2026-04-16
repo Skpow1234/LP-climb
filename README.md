@@ -95,6 +95,8 @@ Explicit `width` / `height` always override the preset's values.
 
 ## API endpoints (hosted render service)
 
+> **Interactive docs:** [`/docs`](https://lp-climb.onrender.com/docs) (Swagger UI) — browse every route, schema, and response; "Try it out" works against the live API. The raw OpenAPI 3 document is at [`/openapi.json`](https://lp-climb.onrender.com/openapi.json) for code generation.
+
 - `GET /v1/render.svg?user=USER&theme=rift` (**recommended**)
   - Legacy alias: `GET /render.svg?...` (deprecated)
   - Optional: `&vs=OTHER_USER` for 1v1 comparison
