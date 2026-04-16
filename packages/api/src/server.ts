@@ -301,7 +301,11 @@ const handleRenderSvg = async (
   return svg;
 };
 
-const handleRenderPng = async (req: any, reply: any) => {
+const handleRenderPng = async (
+  req: any,
+  reply: any,
+  opts?: { deprecated?: boolean }
+) => {
   const q = RenderQuerySchema.parse(req.query);
   const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
   const dims = resolveDims(q);
@@ -329,6 +333,11 @@ const handleRenderPng = async (req: any, reply: any) => {
     reply.header("Content-Type", "image/png");
     reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
+    if (opts?.deprecated) {
+      reply.header("Deprecation", "true");
+      reply.header("Sunset", "2026-12-31");
+      reply.header("Link", '</v1/render.png>; rel="successor-version"');
+    }
     return Buffer.from(cached.value, "base64");
   }
   recordCacheEvent("render", "miss");
@@ -353,6 +362,11 @@ const handleRenderPng = async (req: any, reply: any) => {
   reply.header("Content-Type", "image/png");
   reply.header("Cache-Control", cacheControl);
   reply.header("X-Cache", "miss");
+  if (opts?.deprecated) {
+    reply.header("Deprecation", "true");
+    reply.header("Sunset", "2026-12-31");
+    reply.header("Link", '</v1/render.png>; rel="successor-version"');
+  }
   return png;
 };
 
@@ -590,9 +604,11 @@ const metricsHandler = async (_req: any, reply: any) => {
 app.get("/metrics", metricsHandler);
 app.get("/v1/metrics", metricsHandler);
 
-// legacy (unversioned) endpoints, kept for compatibility
+// Legacy (unversioned) endpoints, kept for compatibility. All legacy render /
+// meta routes emit RFC 8594 `Sunset` + `Deprecation` + `Link` headers; see
+// `docs/api-compatibility.md` for the formal policy and sunset calendar.
 app.get("/render.svg", (req, reply) => handleRenderSvg(req, reply, { deprecated: true }));
-app.get("/render.png", (req, reply) => handleRenderPng(req, reply));
+app.get("/render.png", (req, reply) => handleRenderPng(req, reply, { deprecated: true }));
 app.get("/meta.json", (req, reply) => handleMetaJson(req, reply, { deprecated: true }));
 
 app.setErrorHandler((err, _req, reply) => {

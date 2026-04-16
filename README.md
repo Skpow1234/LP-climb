@@ -92,7 +92,7 @@ Explicit `width` / `height` always override the preset's values.
   - Optional: `&vs=OTHER_USER` for 1v1 comparison
   - Optional: `&width=900&height=260` or `&preset=<id>` (see `/v1/presets.json`)
 - `GET /v1/render.png?user=USER&theme=rift`
-  - Legacy alias: `GET /render.png?...`
+  - Legacy alias: `GET /render.png?...` (deprecated)
 - `GET /v1/render.webp?user=USER&theme=rift&quality=82` (smaller than PNG)
 - `GET /v1/render.avif?user=USER&theme=rift&quality=55` (smallest; slower encode)
 - `GET /v1/render.gif?user=USER&theme=rift&frames=24&fps=12` (animated; CPU-heavy)
@@ -284,6 +284,12 @@ Example:
 ```text
 /v1/render.svg?user=octocat&theme=rift&accent=%23ff00aa&bg=%23000000&tier_challenger=%23ffd36b
 ```
+
+## API compatibility
+
+The `/v1/...` namespace is the canonical API. Breaking changes are introduced behind a new URL major (`/v2`, etc.) with at least a **90-day deprecation window**, during which the old route keeps responding and emits RFC 8594 `Deprecation`, `Sunset`, and `Link: ...; rel="successor-version"` headers. The legacy unversioned routes (`/render.svg`, `/render.png`, `/meta.json`) are already deprecated and will sunset on **2026-12-31**; `/healthz` is kept as a permanent alias so external probes don't break.
+
+See [`docs/api-compatibility.md`](./docs/api-compatibility.md) for the full policy, the list of what counts as breaking vs. non-breaking, and the sunset calendar.
 
 ## Observability
 
