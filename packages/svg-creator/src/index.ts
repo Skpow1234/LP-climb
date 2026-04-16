@@ -2,6 +2,7 @@ import type { ContributionCell, ContributionStats, Theme } from "@lp-climb/types
 import { computeLpTimeline, TIERS } from "@lp-climb/core";
 import { Resvg } from "@resvg/resvg-js";
 import { GIFEncoder, quantize, applyPalette } from "gifenc";
+import sharp from "sharp";
 
 export type RenderParams = {
   user: string;
@@ -30,6 +31,11 @@ export type RenderGifOptions = {
   frames?: number;
   /** Frames per second for GIF playback (clamped 4..30). */
   fps?: number;
+};
+
+export type RenderRasterOptions = {
+  /** Encoder quality (0..100). Defaults: webp=82, avif=55. */
+  quality?: number;
 };
 
 function clamp(n: number, a: number, b: number) {
@@ -249,6 +255,53 @@ export function renderRankedClimbPng(p: RenderParams): Buffer {
     background: p.theme.bg
   });
   return resvg.render().asPng();
+}
+
+/**
+ * Rasterize the SVG once via resvg and return its raw RGBA pixel buffer plus
+ * dimensions. Shared helper for WebP / AVIF encoders below.
+ */
+function rasterizeRgba(p: RenderParams): { pixels: Buffer; width: number; height: number } {
+  const svg = renderRankedClimbSvg(p);
+  const rendered = new Resvg(svg, { background: p.theme.bg }).render();
+  // sharp expects a Node Buffer for raw input; resvg returns a Uint8Array.
+  return {
+    pixels: Buffer.from(rendered.pixels),
+    width: rendered.width,
+    height: rendered.height
+  };
+}
+
+/**
+ * Render the ranked climb as a still WebP image. Encodes via `sharp` from the
+ * raw RGBA pixels produced by resvg. CPU cost is similar to the PNG path plus
+ * one WebP encode.
+ */
+export async function renderRankedClimbWebp(
+  p: RenderParams,
+  opts: RenderRasterOptions = {}
+): Promise<Buffer> {
+  const quality = clamp(Math.round(opts.quality ?? 82), 0, 100);
+  const { pixels, width, height } = rasterizeRgba(p);
+  return sharp(pixels, { raw: { width, height, channels: 4 } })
+    .webp({ quality, effort: 4 })
+    .toBuffer();
+}
+
+/**
+ * Render the ranked climb as a still AVIF image. Encodes via `sharp`. AVIF
+ * encode is notably slower than WebP; callers should cache aggressively and
+ * consider a lower `quality` default (55) for reasonable file sizes.
+ */
+export async function renderRankedClimbAvif(
+  p: RenderParams,
+  opts: RenderRasterOptions = {}
+): Promise<Buffer> {
+  const quality = clamp(Math.round(opts.quality ?? 55), 0, 100);
+  const { pixels, width, height } = rasterizeRgba(p);
+  return sharp(pixels, { raw: { width, height, channels: 4 } })
+    .avif({ quality, effort: 4 })
+    .toBuffer();
 }
 
 /**

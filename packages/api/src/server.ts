@@ -9,7 +9,13 @@ import { createMemoryCache } from "./cache.js";
 import { fetchGithubContributionCells, isGithubContribError } from "@lp-climb/github-contrib";
 import { computeStats } from "@lp-climb/core";
 import { getTheme, listThemes } from "@lp-climb/themes";
-import { renderRankedClimbGif, renderRankedClimbPng, renderRankedClimbSvg } from "@lp-climb/svg-creator";
+import {
+  renderRankedClimbAvif,
+  renderRankedClimbGif,
+  renderRankedClimbPng,
+  renderRankedClimbSvg,
+  renderRankedClimbWebp
+} from "@lp-climb/svg-creator";
 
 const env = loadEnv();
 const cache = createMemoryCache({ maxEntries: env.CACHE_MAX_ENTRIES });
@@ -82,6 +88,11 @@ const GifQuerySchema = RenderQuerySchema.extend({
   // render range. These clamps are enforced again inside the encoder.
   frames: z.coerce.number().int().min(6).max(60).optional(),
   fps: z.coerce.number().int().min(4).max(30).optional()
+});
+
+const RasterQuerySchema = RenderQuerySchema.extend({
+  // Shared schema for WebP / AVIF endpoints.
+  quality: z.coerce.number().int().min(1).max(100).optional()
 });
 
 function applyThemeOverrides(base: any, q: any) {
@@ -266,6 +277,69 @@ const handleRenderPng = async (req: any, reply: any) => {
   return png;
 };
 
+type RasterFormat = "webp" | "avif";
+
+const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) => {
+  const q = RasterQuerySchema.parse(req.query);
+  const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
+
+  const [a, b] = await Promise.all([
+    getContribCellsSWR(q.user),
+    q.vs ? getContribCellsSWR(q.vs) : Promise.resolve(null)
+  ]);
+
+  const cacheKey = JSON.stringify({
+    v: 1,
+    route: `v1/render.${format}`,
+    user: q.user,
+    vs: q.vs ?? null,
+    stampA: a.stamp,
+    stampB: b?.stamp ?? null,
+    theme: theme.id,
+    width: q.width ?? null,
+    height: q.height ?? null,
+    quality: q.quality ?? null
+  });
+
+  const contentType = format === "webp" ? "image/webp" : "image/avif";
+
+  const cached = cache.get(cacheKey);
+  if (cached.hit) {
+    reply.header("Content-Type", contentType);
+    reply.header("Cache-Control", cacheControl);
+    reply.header("X-Cache", cached.stale ? "stale" : "hit");
+    return Buffer.from(cached.value, "base64");
+  }
+
+  const cellsA = a.cells as any[];
+  const cellsB = b?.cells ?? null;
+  const statsA = computeStats(cellsA as any);
+  const statsB = cellsB ? computeStats(cellsB as any) : null;
+
+  const params = {
+    user: q.user,
+    cells: cellsA as any,
+    stats: statsA,
+    theme,
+    ...(q.width !== undefined ? { width: q.width } : {}),
+    ...(q.height !== undefined ? { height: q.height } : {}),
+    ...(q.vs && cellsB && statsB ? { vs: { user: q.vs, cells: cellsB as any, stats: statsB } } : {})
+  };
+  const encoderOpts = q.quality !== undefined ? { quality: q.quality } : {};
+
+  const buf =
+    format === "webp"
+      ? await renderRankedClimbWebp(params, encoderOpts)
+      : await renderRankedClimbAvif(params, encoderOpts);
+
+  cache.set(cacheKey, buf.toString("base64"), env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+
+  reply.header("Content-Type", contentType);
+  reply.header("Cache-Control", cacheControl);
+  reply.header("X-Cache", "miss");
+  return buf;
+};
+
 const handleRenderGif = async (req: any, reply: any) => {
   const q = GifQuerySchema.parse(req.query);
   const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
@@ -380,6 +454,8 @@ const handleMetaJson = async (
 app.get("/v1/render.svg", (req, reply) => handleRenderSvg(req, reply));
 app.get("/v1/render.png", (req, reply) => handleRenderPng(req, reply));
 app.get("/v1/render.gif", (req, reply) => handleRenderGif(req, reply));
+app.get("/v1/render.webp", (req, reply) => handleRenderRaster(req, reply, "webp"));
+app.get("/v1/render.avif", (req, reply) => handleRenderRaster(req, reply, "avif"));
 app.get("/v1/meta.json", (req, reply) => handleMetaJson(req, reply));
 app.get("/v1/themes.json", async (_req, reply) => {
   reply.header("Content-Type", "application/json; charset=utf-8");
