@@ -49,7 +49,12 @@ await app.register(etag);
 await app.register(helmet, {
   // We embed SVGs in iframes and GitHub READMEs; avoid overly strict defaults that could break embedding.
   contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false
+  crossOriginEmbedderPolicy: false,
+  // Helmet defaults CORP to `same-origin`, which blocks `<img src="lp-climb...">`
+  // embedded on any other origin (profile READMEs, github.io demo pages). The
+  // render API is explicitly designed to be embedded anywhere, so we relax
+  // CORP to `cross-origin` by default. Configurable via CROSS_ORIGIN_RESOURCE_POLICY.
+  crossOriginResourcePolicy: { policy: env.CROSS_ORIGIN_RESOURCE_POLICY }
 });
 
 // CORS. The public read-only render API is designed to be embeddable from
@@ -93,6 +98,26 @@ await app.register(rateLimit, {
 // so it's present even on early 4xx / rate-limit responses.
 app.addHook("onRequest", async (req, reply) => {
   reply.header("X-Request-Id", req.id);
+});
+
+// Make sure every render / meta response carries the configured CORP header,
+// even if a future plugin overrides helmet's default. Image endpoints are the
+// ones most commonly embedded cross-origin (profile READMEs, github.io).
+app.addHook("onSend", async (req, reply, payload) => {
+  const route =
+    (req as any).routeOptions?.url ||
+    (req as any).routerPath ||
+    req.url.split("?")[0] ||
+    "";
+  if (
+    route.startsWith("/v1/render.") ||
+    route === "/v1/meta.json" ||
+    route.startsWith("/render.") ||
+    route === "/meta.json"
+  ) {
+    reply.header("Cross-Origin-Resource-Policy", env.CROSS_ORIGIN_RESOURCE_POLICY);
+  }
+  return payload;
 });
 
 // Per-route metrics + structured timing log. `routeOptions.url` keeps label
@@ -179,6 +204,10 @@ const RenderQueryObject = z.object({
   // Named dimension preset (e.g. `readme`, `banner`). Explicit width/height
   // always override the preset's values.
   preset: z.enum(PRESET_IDS as [string, ...string[]]).optional(),
+  // Visualization style. `card` (default) renders the profile tier card;
+  // `ladder` renders the legacy horizontal climb ladder. `vs` / `team` modes
+  // require `ladder`; card mode renders the primary user only.
+  style: z.enum(["card", "ladder"]).optional(),
   vs: GithubLoginSchema.optional(),
   // Team mode: comma-separated extra GitHub logins to render on the same
   // ladder as additional climbers. Mutually exclusive with `vs` (see
@@ -356,7 +385,7 @@ async function getContribCellsSWR(user: string): Promise<{
 // the `vs` vs `team` precedence (vs wins when both are set, matching the
 // schema-level refinement which already rejects the combination).
 function buildRenderParams(
-  q: { user: string },
+  q: { user: string; style?: "card" | "ladder" },
   theme: any,
   dims: { width?: number; height?: number },
   climbers: ResolvedClimbers
@@ -375,15 +404,23 @@ function buildRenderParams(
     stats: computeStats(m.cells as any)
   }));
 
+  // Card mode is primary-only: silently ignore `vs` / `team` so the request
+  // doesn't 400 and the renderer output stays clean. Ladder mode forwards
+  // everything.
+  const style: "card" | "ladder" = q.style ?? "card";
+  const forwardVs = style === "ladder" && vs;
+  const forwardTeam = style === "ladder" && team.length > 0;
+
   return {
     user: q.user,
     cells: climbers.primary.cells as any,
     stats: primaryStats,
     theme,
+    style,
     ...(dims.width !== undefined ? { width: dims.width } : {}),
     ...(dims.height !== undefined ? { height: dims.height } : {}),
-    ...(vs ? { vs } : {}),
-    ...(team.length > 0 ? { team } : {})
+    ...(forwardVs ? { vs } : {}),
+    ...(forwardTeam ? { team } : {})
   };
 }
 
@@ -409,7 +446,8 @@ const handleRenderSvg = async (
     stampsTeam: climbers.team.map((t) => t.stamp),
     theme: theme.id,
     width: dims.width ?? null,
-    height: dims.height ?? null
+    height: dims.height ?? null,
+    style: q.style ?? "card"
   });
 
   const cached = cache.get(cacheKey);
@@ -464,7 +502,8 @@ const handleRenderPng = async (
     stampsTeam: climbers.team.map((t) => t.stamp),
     theme: theme.id,
     width: dims.width ?? null,
-    height: dims.height ?? null
+    height: dims.height ?? null,
+    style: q.style ?? "card"
   });
 
   const cached = cache.get(cacheKey);
@@ -518,7 +557,8 @@ const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) =>
     theme: theme.id,
     width: dims.width ?? null,
     height: dims.height ?? null,
-    quality: q.quality ?? null
+    quality: q.quality ?? null,
+    style: q.style ?? "card"
   });
 
   const contentType = format === "webp" ? "image/webp" : "image/avif";
@@ -569,7 +609,8 @@ const handleRenderGif = async (req: any, reply: any) => {
     width: dims.width ?? null,
     height: dims.height ?? null,
     frames: q.frames ?? null,
-    fps: q.fps ?? null
+    fps: q.fps ?? null,
+    style: q.style ?? "card"
   });
 
   const cached = cache.get(cacheKey);

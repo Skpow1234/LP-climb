@@ -6,153 +6,441 @@
     <title>LP Climb — Demo</title>
     <style>
       :root {
-        --bg: #0b0b0d;
-        --panel: #12131a;
-        --text: #f0f0f4;
-        --muted: rgba(255, 255, 255, 0.68);
-        --border: rgba(255, 255, 255, 0.12);
+        --bg: #07090f;
+        --panel: rgba(18, 19, 26, 0.72);
+        --panel-border: rgba(255, 255, 255, 0.08);
+        --panel-border-strong: rgba(255, 255, 255, 0.14);
+        --text: #f0f2f8;
+        --muted: rgba(240, 242, 248, 0.62);
+        --muted-soft: rgba(240, 242, 248, 0.42);
         --accent: #2ae98c;
+        --accent-soft: rgba(42, 233, 140, 0.2);
+        --accent-softer: rgba(42, 233, 140, 0.08);
+        --danger: #ff5970;
+        --info: #6ce1ff;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        min-height: 100%;
       }
       body {
         margin: 0;
-        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-        background: radial-gradient(1200px 600px at 20% 10%, rgba(42, 233, 140, 0.08), transparent 60%),
-          radial-gradient(900px 500px at 80% 30%, rgba(142, 59, 255, 0.08), transparent 55%),
+        font-family:
+          "Inter",
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Arial,
+          sans-serif;
+        background:
+          radial-gradient(1200px 600px at 15% 8%, rgba(42, 233, 140, 0.1), transparent 55%),
+          radial-gradient(900px 500px at 85% 18%, rgba(142, 59, 255, 0.1), transparent 55%),
+          radial-gradient(1100px 600px at 50% 95%, rgba(108, 225, 255, 0.06), transparent 60%),
           var(--bg);
         color: var(--text);
+        -webkit-font-smoothing: antialiased;
       }
-      .wrap {
-        max-width: 1100px;
-        margin: 28px auto;
-        padding: 0 16px;
-        display: grid;
-        grid-template-columns: 360px 1fr;
-        gap: 16px;
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 28px;
+        border-bottom: 1px solid var(--panel-border);
+        backdrop-filter: blur(14px);
+        background: rgba(9, 10, 16, 0.55);
+        position: sticky;
+        top: 0;
+        z-index: 10;
       }
-      .card {
-        background: rgba(18, 19, 26, 0.75);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 14px;
-        backdrop-filter: blur(10px);
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        letter-spacing: 0.3px;
       }
-      h1 {
-        font-size: 18px;
-        margin: 0 0 10px;
-        letter-spacing: 0.4px;
+      .brandDot {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background:
+          radial-gradient(circle at 30% 30%, #5cff9f 0%, #2ae98c 45%, #0b6a3f 100%);
+        box-shadow:
+          0 0 18px rgba(42, 233, 140, 0.45),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.18);
       }
-      .muted {
+      .brand small {
+        color: var(--muted);
+        font-weight: 500;
+        margin-left: 6px;
+      }
+      .topbar nav {
+        display: flex;
+        gap: 14px;
         color: var(--muted);
         font-size: 13px;
       }
+      .topbar nav a {
+        color: inherit;
+        text-decoration: none;
+        padding: 6px 10px;
+        border-radius: 8px;
+      }
+      .topbar nav a:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+      }
+
+      .wrap {
+        max-width: 1200px;
+        margin: 24px auto;
+        padding: 0 20px 64px;
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        gap: 20px;
+      }
+      @media (max-width: 920px) {
+        .wrap {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 18px;
+        padding: 18px;
+        backdrop-filter: blur(14px);
+      }
+      .card h1 {
+        font-size: 16px;
+        margin: 0 0 4px;
+        letter-spacing: 0.2px;
+      }
+      .card .muted {
+        color: var(--muted);
+        font-size: 12.5px;
+        line-height: 1.5;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        background: rgba(255, 255, 255, 0.06);
+        padding: 1px 6px;
+        border-radius: 6px;
+        font-size: 11.5px;
+        color: rgba(240, 242, 248, 0.85);
+      }
+
       label {
         display: block;
-        font-size: 12px;
+        font-size: 11.5px;
         color: var(--muted);
-        margin: 10px 0 6px;
+        margin: 14px 0 6px;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        font-weight: 700;
       }
       input,
       select {
         width: 100%;
-        box-sizing: border-box;
-        padding: 10px 10px;
+        padding: 10px 12px;
         border-radius: 10px;
-        border: 1px solid var(--border);
-        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid var(--panel-border);
+        background: rgba(0, 0, 0, 0.28);
         color: var(--text);
         outline: none;
+        font-size: 13px;
+        transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+      }
+      input:focus,
+      select:focus {
+        border-color: rgba(42, 233, 140, 0.45);
+        box-shadow: 0 0 0 3px rgba(42, 233, 140, 0.12);
+        background: rgba(0, 0, 0, 0.4);
       }
       .row {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
       }
-      button {
-        width: 100%;
-        margin-top: 12px;
-        padding: 10px 12px;
+
+      /* Style pill group */
+      .pills {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        padding: 4px;
+        border: 1px solid var(--panel-border);
+        background: rgba(0, 0, 0, 0.28);
         border-radius: 12px;
-        border: 1px solid rgba(42, 233, 140, 0.35);
-        background: rgba(42, 233, 140, 0.18);
-        color: var(--text);
+      }
+      .pill {
+        padding: 8px 10px;
+        border-radius: 9px;
+        font-size: 12.5px;
         font-weight: 700;
+        color: var(--muted);
+        text-align: center;
         cursor: pointer;
+        border: 1px solid transparent;
+        letter-spacing: 0.3px;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
       }
-      button:hover {
-        background: rgba(42, 233, 140, 0.24);
+      .pill:hover {
+        color: var(--text);
       }
+      .pill[aria-pressed="true"] {
+        background: var(--accent-soft);
+        color: var(--text);
+        border-color: rgba(42, 233, 140, 0.35);
+      }
+
+      /* Theme chip grid */
+      .chips {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+      .chip {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 6px;
+        border-radius: 10px;
+        font-size: 11.5px;
+        font-weight: 700;
+        color: var(--muted);
+        border: 1px solid var(--panel-border);
+        background: rgba(0, 0, 0, 0.28);
+        cursor: pointer;
+        letter-spacing: 0.2px;
+        transition: border-color 0.15s, color 0.15s, background 0.15s;
+      }
+      .chip:hover {
+        color: var(--text);
+      }
+      .chip[aria-pressed="true"] {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.22);
+      }
+      .swatch {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        box-shadow: 0 0 10px currentColor;
+      }
+
+      button.primary {
+        width: 100%;
+        margin-top: 16px;
+        padding: 11px 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(42, 233, 140, 0.4);
+        background:
+          linear-gradient(180deg, rgba(42, 233, 140, 0.28), rgba(42, 233, 140, 0.14));
+        color: var(--text);
+        font-weight: 800;
+        letter-spacing: 0.3px;
+        cursor: pointer;
+        font-size: 13.5px;
+        transition: filter 0.15s, transform 0.05s;
+      }
+      button.primary:hover {
+        filter: brightness(1.15);
+      }
+      button.primary:active {
+        transform: translateY(1px);
+      }
+
       .actions {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
+        gap: 8px;
         margin-top: 10px;
       }
       .actions a {
         display: inline-block;
         text-align: center;
         padding: 10px 12px;
-        border-radius: 12px;
-        border: 1px solid var(--border);
+        border-radius: 10px;
+        border: 1px solid var(--panel-border);
         color: var(--text);
         text-decoration: none;
-        background: rgba(255, 255, 255, 0.04);
+        background: rgba(255, 255, 255, 0.03);
+        font-size: 12.5px;
+        font-weight: 600;
       }
       .actions a:hover {
-        background: rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.07);
+        border-color: var(--panel-border-strong);
       }
-      .preview {
-        min-height: 320px;
+
+      .embedBox {
+        margin-top: 12px;
         display: grid;
-        grid-template-rows: 1fr auto;
-        gap: 10px;
+        grid-template-columns: 1fr auto;
+        gap: 6px;
       }
-      .preview img {
-        width: 100%;
+      .embedBox pre {
+        margin: 0;
+        padding: 10px;
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--panel-border);
+        overflow-x: auto;
+        color: rgba(240, 242, 248, 0.78);
+        font-size: 11.5px;
+        line-height: 1.4;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        white-space: nowrap;
+      }
+      .copyBtn {
+        padding: 0 12px;
+        border-radius: 10px;
+        border: 1px solid var(--panel-border);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0.3px;
+      }
+      .copyBtn:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Preview panel */
+      .preview {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: 12px;
+        min-height: 420px;
+      }
+      .previewHead {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .previewHead h2 {
+        font-size: 14px;
+        margin: 0;
+        letter-spacing: 0.3px;
+      }
+      .previewHead .meta {
+        color: var(--muted);
+        font-size: 12px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+      .previewBadges {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .badge {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--panel-border);
+        color: var(--muted);
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+      .badge.ok {
+        color: #a7f3d0;
+        border-color: rgba(42, 233, 140, 0.35);
+        background: rgba(42, 233, 140, 0.08);
+      }
+      .badge.err {
+        color: #ffb3bf;
+        border-color: rgba(255, 89, 112, 0.4);
+        background: rgba(255, 89, 112, 0.08);
+      }
+      .badge.loading {
+        color: #bfe8ff;
+        border-color: rgba(108, 225, 255, 0.35);
+        background: rgba(108, 225, 255, 0.08);
+      }
+
+      .previewFrame {
+        position: relative;
+        border-radius: 16px;
+        border: 1px solid var(--panel-border-strong);
+        background:
+          radial-gradient(500px 240px at 20% 20%, rgba(42, 233, 140, 0.08), transparent 60%),
+          radial-gradient(500px 240px at 80% 80%, rgba(142, 59, 255, 0.08), transparent 60%),
+          rgba(0, 0, 0, 0.35);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 320px;
+        padding: 18px;
+      }
+      .previewFrame::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(transparent 0, transparent calc(100% - 1px), rgba(255, 255, 255, 0.04) 100%),
+          linear-gradient(90deg, transparent 0, transparent calc(100% - 1px), rgba(255, 255, 255, 0.04) 100%);
+        background-size: 24px 24px;
+        opacity: 0.5;
+        pointer-events: none;
+      }
+      .previewFrame img {
+        max-width: 100%;
         height: auto;
-        min-height: 360px;
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        background: rgba(0, 0, 0, 0.25);
+        display: block;
+        border-radius: 12px;
+        position: relative;
+        z-index: 1;
+        filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.45));
       }
+
       .status {
         font-size: 12px;
         color: var(--muted);
-        padding: 10px;
-        border-radius: 12px;
-        border: 1px solid var(--border);
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--panel-border);
         background: rgba(0, 0, 0, 0.25);
         white-space: pre-wrap;
         word-break: break-word;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        line-height: 1.5;
       }
-      pre {
-        margin: 0;
-        padding: 10px;
-        border-radius: 12px;
-        background: rgba(0, 0, 0, 0.25);
-        border: 1px solid var(--border);
-        overflow: auto;
-        color: rgba(255, 255, 255, 0.78);
-        font-size: 12px;
-        line-height: 1.4;
+      .status.err {
+        color: #ffd3d9;
+        border-color: rgba(255, 89, 112, 0.35);
+        background: rgba(255, 89, 112, 0.06);
       }
 
       /* Toasts */
       .toasts {
         position: fixed;
-        right: 16px;
-        bottom: 16px;
+        right: 18px;
+        bottom: 18px;
         display: grid;
         gap: 10px;
         z-index: 9999;
-        max-width: min(520px, calc(100vw - 32px));
+        max-width: min(520px, calc(100vw - 36px));
       }
       .toast {
-        border: 1px solid var(--border);
-        background: rgba(18, 19, 26, 0.92);
-        backdrop-filter: blur(10px);
+        border: 1px solid var(--panel-border);
+        background: rgba(18, 19, 26, 0.94);
+        backdrop-filter: blur(12px);
         border-radius: 14px;
         padding: 10px 12px;
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
       }
       .toastRow {
         display: flex;
@@ -186,10 +474,10 @@
         color: rgba(255, 255, 255, 0.9);
       }
       .toast.info {
-        border-color: rgba(108, 225, 255, 0.28);
+        border-color: rgba(108, 225, 255, 0.3);
       }
       .toast.success {
-        border-color: rgba(42, 233, 140, 0.35);
+        border-color: rgba(42, 233, 140, 0.4);
       }
       .toast.error {
         border-color: rgba(255, 89, 112, 0.45);
@@ -197,29 +485,39 @@
     </style>
   </head>
   <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brandDot" aria-hidden="true"></span>
+        <span>LP&nbsp;Climb</span>
+        <small>Ranked climb cards for GitHub profiles</small>
+      </div>
+      <nav>
+        <a href="https://github.com/Skpow1234/LP-climb" target="_blank" rel="noreferrer">GitHub</a>
+        <a id="healthLink" href="#" target="_blank" rel="noreferrer">API health</a>
+      </nav>
+    </header>
+
     <div class="wrap">
-      <div class="card">
-        <h1>LP Climb — Demo</h1>
+      <aside class="card">
+        <h1>Generate your card</h1>
         <div class="muted">
-          This is a static demo. It calls the LP Climb API at <code id="apiBaseLabel"></code>.
+          Static demo. It calls the LP Climb API at <code id="apiBaseLabel"></code>.
         </div>
 
-        <label for="user">User</label>
-        <input id="user" value="octocat" />
+        <label for="user">GitHub user</label>
+        <input id="user" value="Skpow1234" autocomplete="off" spellcheck="false" />
 
-        <label for="vs">VS (optional)</label>
-        <input id="vs" placeholder="torvalds" />
+        <label>Style</label>
+        <div class="pills" role="tablist" aria-label="Visualization style">
+          <button type="button" class="pill" data-style="card" aria-pressed="true">Card</button>
+          <button type="button" class="pill" data-style="ladder" aria-pressed="false">Ladder</button>
+        </div>
 
-        <label for="theme">Theme</label>
-        <select id="theme">
-          <option value="rift" selected>rift</option>
-          <option value="assassin">assassin</option>
-          <option value="mage">mage</option>
-          <option value="tank">tank</option>
-          <option value="support">support</option>
-          <option value="marksman">marksman</option>
-          <option value="mono">mono</option>
-        </select>
+        <label for="vs">Opponent (ladder only)</label>
+        <input id="vs" placeholder="torvalds" autocomplete="off" spellcheck="false" />
+
+        <label>Theme</label>
+        <div class="chips" id="themeChips"></div>
 
         <div class="row">
           <div>
@@ -232,7 +530,7 @@
           </div>
         </div>
 
-        <button id="renderBtn">Render</button>
+        <button id="renderBtn" class="primary">Render card</button>
 
         <div class="actions">
           <a id="openSvg" href="#" target="_blank" rel="noreferrer">Open SVG</a>
@@ -240,15 +538,30 @@
         </div>
 
         <label>Embed URL</label>
-        <pre id="embed"></pre>
-      </div>
+        <div class="embedBox">
+          <pre id="embed"></pre>
+          <button id="copyBtn" class="copyBtn" type="button" title="Copy URL">Copy</button>
+        </div>
+      </aside>
 
-      <div class="card">
+      <section class="card">
         <div class="preview">
-          <img id="preview" alt="LP climb ladder preview" />
+          <div class="previewHead">
+            <h2>Preview</h2>
+            <div class="previewBadges">
+              <span id="styleBadge" class="badge">CARD</span>
+              <span id="themeBadge" class="badge">rift</span>
+              <span id="stateBadge" class="badge loading">Loading…</span>
+            </div>
+          </div>
+
+          <div class="previewFrame">
+            <img id="preview" alt="LP climb card preview" />
+          </div>
+
           <div id="status" class="status"></div>
         </div>
-      </div>
+      </section>
     </div>
 
     <div id="toasts" class="toasts" aria-live="polite" aria-relevant="additions removals"></div>
@@ -257,4 +570,3 @@
     <script src="./app.js"></script>
   </body>
 </html>
-

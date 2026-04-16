@@ -6,6 +6,9 @@ import { Resvg } from "@resvg/resvg-js";
 // default (CJS `module.exports`) object and destructure it at module scope.
 import gifenc from "gifenc";
 import sharp from "sharp";
+import { renderProfileCardSvg } from "./card.js";
+
+export { renderProfileCardSvg } from "./card.js";
 
 const { GIFEncoder, quantize, applyPalette } = gifenc;
 
@@ -14,6 +17,16 @@ export type TeamMember = {
   cells: ContributionCell[];
   stats: ContributionStats;
 };
+
+/**
+ * Which visualization to render.
+ *
+ * - `"card"` (default): GitHub-style profile tier card. Hex badge + 5 metric
+ *   bars. Renders the primary user only (ignores `vs` / `team`).
+ * - `"ladder"`: original horizontal ladder climb. Supports `vs` and `team`
+ *   modes. Kept for backwards compatibility and snapshot-test stability.
+ */
+export type RenderStyle = "card" | "ladder";
 
 export type RenderParams = {
   user: string;
@@ -38,6 +51,12 @@ export type RenderParams = {
    * the output is byte-identical to previous snapshot tests.
    */
   staticProgress?: number;
+  /**
+   * Visualization style. Defaults to `"card"`. Use `"ladder"` for the legacy
+   * horizontal climb ladder (and for snapshot tests that pre-date the card
+   * UI).
+   */
+  style?: RenderStyle;
 };
 
 /**
@@ -96,7 +115,19 @@ function formatWeekday(weekday: number) {
   return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][weekday] ?? String(weekday);
 }
 
+/**
+ * Top-level dispatcher. Picks the renderer based on `p.style`. Default is
+ * `"card"`. The ladder path preserves its original output byte-for-byte so
+ * existing snapshot tests (which now pass `style: "ladder"` explicitly) keep
+ * matching.
+ */
 export function renderRankedClimbSvg(p: RenderParams): string {
+  const style: RenderStyle = p.style ?? "card";
+  if (style === "ladder") return renderLadderSvg(p);
+  return renderProfileCardSvg(p);
+}
+
+export function renderLadderSvg(p: RenderParams): string {
   const W = p.width ?? 900;
   const H = p.height ?? 260;
 

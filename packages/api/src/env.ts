@@ -17,7 +17,15 @@ const EnvSchema = z.object({
   CORS_ALLOW_CREDENTIALS: z
     .union([z.boolean(), z.string()])
     .transform((v) => (typeof v === "string" ? v === "true" : v))
-    .default(false)
+    .default(false),
+  // Cross-Origin-Resource-Policy. Defaults to `cross-origin` so the public
+  // read-only image API can be embedded from any third-party origin (profile
+  // READMEs, github.io pages, third-party dashboards). Operators who front
+  // the API with a stricter proxy can tighten this to `same-site` or
+  // `same-origin`.
+  CROSS_ORIGIN_RESOURCE_POLICY: z
+    .enum(["cross-origin", "same-site", "same-origin"])
+    .default("cross-origin")
 });
 
 export type Env = z.infer<typeof EnvSchema>;
