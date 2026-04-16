@@ -102,6 +102,7 @@ Explicit `width` / `height` always override the preset's values.
 - `GET /v1/github-contrib/:user` — normalized `{ x, y, date, count, level }` cells for clients that can't call GitHub GraphQL directly (shares the SWR cache with render endpoints; no token ever leaves the server)
 - `GET /v1/themes.json` (theme catalog)
 - `GET /v1/presets.json` (dimension preset catalog)
+- `GET /v1/metrics` — Prometheus text exposition (alias: `GET /metrics`)
 - `GET /v1/healthz` (**recommended**)
   - Legacy alias: `GET /healthz`
 
@@ -283,6 +284,12 @@ Example:
 ```text
 /v1/render.svg?user=octocat&theme=rift&accent=%23ff00aa&bg=%23000000&tier_challenger=%23ffd36b
 ```
+
+## Observability
+
+- **Request IDs**: every response includes `X-Request-Id`; if your proxy / CDN already sets one, the API honors it. Every log line carries `reqId` plus `method`, `route`, `status`, and `durationMs`.
+- **Metrics**: scrape `GET /metrics` (or `/v1/metrics`). Exposed series include default Node process metrics (`process_cpu_*`, `nodejs_heap_*`, etc.), `http_requests_total{method,route,status}`, `http_request_duration_seconds` histogram, `lp_climb_cache_events_total{kind,source}`, and `lp_climb_github_fetch_total{result}`.
+- **OpenTelemetry** (zero-code opt-in): add `@opentelemetry/auto-instrumentations-node` to your runtime image and start the process with `NODE_OPTIONS="--require @opentelemetry/auto-instrumentations-node/register"`. The Fastify and HTTP auto-instrumentations will capture routes and propagate trace context from the `X-Request-Id` header.
 
 ## Troubleshooting
 

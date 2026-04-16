@@ -7,6 +7,13 @@ import { z } from "zod";
 import { loadEnv } from "./env.js";
 import { createMemoryCache } from "./cache.js";
 import { listPresets, PRESET_IDS, resolveDims } from "./presets.js";
+import {
+  httpRequestDurationSeconds,
+  httpRequestsTotal,
+  recordCacheEvent,
+  recordGithubFetch,
+  renderMetrics
+} from "./metrics.js";
 import { fetchGithubContributionCells, isGithubContribError } from "@lp-climb/github-contrib";
 import { computeStats } from "@lp-climb/core";
 import { getTheme, listThemes } from "@lp-climb/themes";
@@ -24,7 +31,16 @@ const cache = createMemoryCache({ maxEntries: env.CACHE_MAX_ENTRIES });
 const app = Fastify({
   logger: true,
   trustProxy: true,
-  bodyLimit: 1024
+  bodyLimit: 1024,
+  // Request ID correlation: honor an incoming X-Request-Id (typical of
+  // reverse proxies / CDNs), otherwise generate one. Surfaced on every log
+  // line as `reqId` and echoed back as an `X-Request-Id` response header.
+  requestIdHeader: "x-request-id",
+  requestIdLogLabel: "reqId",
+  genReqId: () =>
+    // Small, URL-safe, collision-resistant. Not cryptographically strong —
+    // that's fine for a correlation ID.
+    `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
 });
 
 await app.register(sensible);
@@ -37,6 +53,39 @@ await app.register(helmet, {
 await app.register(rateLimit, {
   max: env.RATE_LIMIT_MAX,
   timeWindow: env.RATE_LIMIT_TIME_WINDOW_SECONDS * 1000
+});
+
+// Echo the request id back to callers for log correlation. Done in onRequest
+// so it's present even on early 4xx / rate-limit responses.
+app.addHook("onRequest", async (req, reply) => {
+  reply.header("X-Request-Id", req.id);
+});
+
+// Per-route metrics + structured timing log. `routeOptions.url` keeps label
+// cardinality bounded (e.g. `/v1/github-contrib/:user` rather than each user).
+app.addHook("onResponse", async (req, reply) => {
+  const route =
+    (req as any).routeOptions?.url ||
+    (req as any).routerPath ||
+    req.url.split("?")[0] ||
+    "unknown";
+  const method = req.method;
+  const status = String(reply.statusCode);
+  const durationSeconds = reply.elapsedTime / 1000;
+
+  httpRequestsTotal.labels(method, route, status).inc();
+  httpRequestDurationSeconds.labels(method, route, status).observe(durationSeconds);
+
+  req.log.info(
+    {
+      reqId: req.id,
+      method,
+      route,
+      status: reply.statusCode,
+      durationMs: Math.round(reply.elapsedTime * 100) / 100
+    },
+    "request completed"
+  );
 });
 
 app.get("/healthz", async () => ({ ok: true }));
@@ -139,6 +188,7 @@ async function getContribCellsSWR(user: string): Promise<{
   const hit = cache.get(key);
 
   if (hit.hit && !hit.stale) {
+    recordCacheEvent("contrib", "hit");
     return {
       cells: JSON.parse(hit.value) as unknown[],
       stamp: hit.storedAtMs,
@@ -148,13 +198,16 @@ async function getContribCellsSWR(user: string): Promise<{
   }
 
   if (hit.hit && hit.stale) {
+    recordCacheEvent("contrib", "stale");
     // Serve stale immediately, refresh in background.
     void (async () => {
       try {
         const fresh = await fetchGithubContributionCells({ user, githubToken: env.GITHUB_TOKEN });
+        recordGithubFetch("success");
         cache.set(key, JSON.stringify(fresh), env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
       } catch (e) {
         // Keep stale.
+        recordGithubFetch("error");
         app.log.warn({ err: e }, "contrib refresh failed (serving stale)");
       }
     })();
@@ -167,9 +220,16 @@ async function getContribCellsSWR(user: string): Promise<{
     };
   }
 
-  const fresh = await fetchGithubContributionCells({ user, githubToken: env.GITHUB_TOKEN });
-  cache.set(key, JSON.stringify(fresh), env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
-  return { cells: fresh as unknown[], stamp: Date.now(), stale: false, source: "miss" };
+  recordCacheEvent("contrib", "miss");
+  try {
+    const fresh = await fetchGithubContributionCells({ user, githubToken: env.GITHUB_TOKEN });
+    recordGithubFetch("success");
+    cache.set(key, JSON.stringify(fresh), env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+    return { cells: fresh as unknown[], stamp: Date.now(), stale: false, source: "miss" };
+  } catch (e) {
+    recordGithubFetch("error");
+    throw e;
+  }
 }
 
 const handleRenderSvg = async (
@@ -200,6 +260,7 @@ const handleRenderSvg = async (
 
   const cached = cache.get(cacheKey);
   if (cached.hit) {
+    recordCacheEvent("render", cached.stale ? "stale" : "hit");
     reply.header("Content-Type", "image/svg+xml; charset=utf-8");
     reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
@@ -210,6 +271,7 @@ const handleRenderSvg = async (
     }
     return cached.value;
   }
+  recordCacheEvent("render", "miss");
 
   const cellsA = a.cells as any[];
   const cellsB = b?.cells ?? null;
@@ -263,11 +325,13 @@ const handleRenderPng = async (req: any, reply: any) => {
 
   const cached = cache.get(cacheKey);
   if (cached.hit) {
+    recordCacheEvent("render", cached.stale ? "stale" : "hit");
     reply.header("Content-Type", "image/png");
     reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
     return Buffer.from(cached.value, "base64");
   }
+  recordCacheEvent("render", "miss");
 
   const cellsA = a.cells as any[];
   const cellsB = b?.cells ?? null;
@@ -321,11 +385,13 @@ const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) =>
 
   const cached = cache.get(cacheKey);
   if (cached.hit) {
+    recordCacheEvent("render", cached.stale ? "stale" : "hit");
     reply.header("Content-Type", contentType);
     reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
     return Buffer.from(cached.value, "base64");
   }
+  recordCacheEvent("render", "miss");
 
   const cellsA = a.cells as any[];
   const cellsB = b?.cells ?? null;
@@ -382,11 +448,13 @@ const handleRenderGif = async (req: any, reply: any) => {
 
   const cached = cache.get(cacheKey);
   if (cached.hit) {
+    recordCacheEvent("render", cached.stale ? "stale" : "hit");
     reply.header("Content-Type", "image/gif");
     reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
     return Buffer.from(cached.value, "base64");
   }
+  recordCacheEvent("render", "miss");
 
   const cellsA = a.cells as any[];
   const cellsB = b?.cells ?? null;
@@ -438,6 +506,7 @@ const handleMetaJson = async (
   });
   const cached = cache.get(cacheKey);
   if (cached.hit) {
+    recordCacheEvent("render", cached.stale ? "stale" : "hit");
     reply.header("Content-Type", "application/json; charset=utf-8");
     reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
@@ -448,6 +517,7 @@ const handleMetaJson = async (
     }
     return cached.value;
   }
+  recordCacheEvent("render", "miss");
 
   const body = JSON.stringify({
     user: q.user,
@@ -507,6 +577,18 @@ app.get("/v1/presets.json", async (_req, reply) => {
   reply.header("Cache-Control", "public, max-age=3600");
   return JSON.stringify({ presets: listPresets() });
 });
+
+// Prometheus text exposition. `/v1/metrics` is the canonical location; the
+// unversioned `/metrics` alias exists because most scraper configs expect it
+// and it avoids leaking a route name into scrape config templates.
+const metricsHandler = async (_req: any, reply: any) => {
+  const { body, contentType } = await renderMetrics();
+  reply.header("Content-Type", contentType);
+  reply.header("Cache-Control", "no-store");
+  return body;
+};
+app.get("/metrics", metricsHandler);
+app.get("/v1/metrics", metricsHandler);
 
 // legacy (unversioned) endpoints, kept for compatibility
 app.get("/render.svg", (req, reply) => handleRenderSvg(req, reply, { deprecated: true }));
