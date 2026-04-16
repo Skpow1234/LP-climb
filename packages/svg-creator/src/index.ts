@@ -1,8 +1,13 @@
 import type { ContributionCell, ContributionStats, Theme } from "@lp-climb/types";
 import { computeLpTimeline, TIERS } from "@lp-climb/core";
 import { Resvg } from "@resvg/resvg-js";
-import { GIFEncoder, quantize, applyPalette } from "gifenc";
+// `gifenc` ships as CommonJS (no `exports` ESM condition) so Node's native
+// ESM loader cannot reliably extract named bindings at runtime. We import the
+// default (CJS `module.exports`) object and destructure it at module scope.
+import gifenc from "gifenc";
 import sharp from "sharp";
+
+const { GIFEncoder, quantize, applyPalette } = gifenc;
 
 export type RenderParams = {
   user: string;
