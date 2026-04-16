@@ -99,6 +99,7 @@ Explicit `width` / `height` always override the preset's values.
 - `GET /v1/meta.json?user=USER` (**recommended**)
   - Legacy alias: `GET /meta.json?...` (deprecated)
   - Optional: `&vs=OTHER_USER`
+- `GET /v1/github-contrib/:user` — normalized `{ x, y, date, count, level }` cells for clients that can't call GitHub GraphQL directly (shares the SWR cache with render endpoints; no token ever leaves the server)
 - `GET /v1/themes.json` (theme catalog)
 - `GET /v1/presets.json` (dimension preset catalog)
 - `GET /v1/healthz` (**recommended**)
@@ -197,6 +198,7 @@ Then open:
 - `http://localhost:3000/v1/render.svg?user=octocat&vs=torvalds&theme=assassin`
 - `http://localhost:3000/v1/render.gif?user=octocat&theme=rift&frames=18&fps=12`
 - `http://localhost:3000/v1/presets.json`
+- `http://localhost:3000/v1/github-contrib/octocat`
 
 ### Call the hosted API directly
 

@@ -127,7 +127,14 @@ function applyThemeOverrides(base: any, q: any) {
   return out;
 }
 
-async function getContribCellsSWR(user: string) {
+type ContribCacheSource = "hit" | "stale" | "miss";
+
+async function getContribCellsSWR(user: string): Promise<{
+  cells: unknown[];
+  stamp: number;
+  stale: boolean;
+  source: ContribCacheSource;
+}> {
   const key = JSON.stringify({ v: 1, kind: "contrib", user });
   const hit = cache.get(key);
 
@@ -135,7 +142,8 @@ async function getContribCellsSWR(user: string) {
     return {
       cells: JSON.parse(hit.value) as unknown[],
       stamp: hit.storedAtMs,
-      stale: false
+      stale: false,
+      source: "hit"
     };
   }
 
@@ -154,13 +162,14 @@ async function getContribCellsSWR(user: string) {
     return {
       cells: JSON.parse(hit.value) as unknown[],
       stamp: hit.storedAtMs,
-      stale: true
+      stale: true,
+      source: "stale"
     };
   }
 
   const fresh = await fetchGithubContributionCells({ user, githubToken: env.GITHUB_TOKEN });
   cache.set(key, JSON.stringify(fresh), env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
-  return { cells: fresh as unknown[], stamp: Date.now(), stale: false };
+  return { cells: fresh as unknown[], stamp: Date.now(), stale: false, source: "miss" };
 }
 
 const handleRenderSvg = async (
@@ -465,6 +474,29 @@ app.get("/v1/render.gif", (req, reply) => handleRenderGif(req, reply));
 app.get("/v1/render.webp", (req, reply) => handleRenderRaster(req, reply, "webp"));
 app.get("/v1/render.avif", (req, reply) => handleRenderRaster(req, reply, "avif"));
 app.get("/v1/meta.json", (req, reply) => handleMetaJson(req, reply));
+app.get("/v1/github-contrib/:user", async (req, reply) => {
+  // Edge-friendly proxy: returns normalized contribution cells for clients
+  // that cannot (or do not want to) call the GitHub GraphQL API themselves.
+  // Shares the SWR LRU with the render endpoints, so a request here warms the
+  // cache for subsequent render calls (and vice versa).
+  const params = z
+    .object({ user: GithubLoginSchema })
+    .parse((req as any).params);
+  const result = await getContribCellsSWR(params.user);
+
+  reply.header("Content-Type", "application/json; charset=utf-8");
+  reply.header("Cache-Control", cacheControl);
+  reply.header("X-Cache", result.source);
+
+  return {
+    user: params.user,
+    fetchedAt: new Date(result.stamp).toISOString(),
+    stale: result.stale,
+    days: (result.cells as unknown[]).length,
+    cells: result.cells
+  };
+});
+
 app.get("/v1/themes.json", async (_req, reply) => {
   reply.header("Content-Type", "application/json; charset=utf-8");
   reply.header("Cache-Control", "public, max-age=3600");
