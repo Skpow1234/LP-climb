@@ -1158,8 +1158,8 @@ exports[`renderRankedClimbSvg determinism > renders stable output for each theme
 99.7% { transform: translate(0px, 0px); }
 100% { transform: translate(0px, 0px); } }
     @keyframes climb2 {  }
-    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
-    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear forwards; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear forwards; }
     @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
   ]]></style>
 
@@ -1647,8 +1647,8 @@ exports[`renderRankedClimbSvg determinism > renders stable output for each theme
 99.7% { transform: translate(0px, 0px); }
 100% { transform: translate(0px, 0px); } }
     @keyframes climb2 {  }
-    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
-    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear forwards; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear forwards; }
     @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
   ]]></style>
 
@@ -2136,8 +2136,8 @@ exports[`renderRankedClimbSvg determinism > renders stable output for each theme
 99.7% { transform: translate(0px, 0px); }
 100% { transform: translate(0px, 0px); } }
     @keyframes climb2 {  }
-    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
-    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear forwards; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear forwards; }
     @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
   ]]></style>
 
@@ -2625,8 +2625,8 @@ exports[`renderRankedClimbSvg determinism > renders stable output for each theme
 99.7% { transform: translate(0px, 0px); }
 100% { transform: translate(0px, 0px); } }
     @keyframes climb2 {  }
-    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
-    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear forwards; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear forwards; }
     @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
   ]]></style>
 
@@ -3114,8 +3114,8 @@ exports[`renderRankedClimbSvg determinism > renders stable output for each theme
 99.7% { transform: translate(0px, 0px); }
 100% { transform: translate(0px, 0px); } }
     @keyframes climb2 {  }
-    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
-    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear forwards; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear forwards; }
     @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
   ]]></style>
 
@@ -3603,8 +3603,8 @@ exports[`renderRankedClimbSvg determinism > renders stable output for each theme
 99.7% { transform: translate(0px, 0px); }
 100% { transform: translate(0px, 0px); } }
     @keyframes climb2 {  }
-    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
-    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear forwards; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear forwards; }
     @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
   ]]></style>
 
@@ -4092,8 +4092,8 @@ exports[`renderRankedClimbSvg determinism > renders stable output for each theme
 99.7% { transform: translate(0px, 0px); }
 100% { transform: translate(0px, 0px); } }
     @keyframes climb2 {  }
-    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
-    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear forwards; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear forwards; }
     @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
   ]]></style>
 

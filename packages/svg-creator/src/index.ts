@@ -152,13 +152,29 @@ export function renderLadderSvg(p: RenderParams): string {
   const head = t0.at(-1);
   const head2 = t1?.at(-1);
 
+  // The marker's SVG transform is its *current-LP position*, and the CSS
+  // keyframe animation is expressed as offsets from that resting position.
+  // Doing it this way means:
+  //   1. Rasterizers that don't run CSS (resvg → PNG/WebP/AVIF) draw the
+  //      marker at the correct current-LP Y — previously they drew it at
+  //      `ladderTop` (Challenger) because the offset only lived in CSS.
+  //   2. When the animation finishes (`forwards` below), the marker lands
+  //      right where its SVG transform already places it, so there's no
+  //      visible snap between "animation done" and "resting".
+  const finalY0 = head ? roundPx(lpToY(head.lp, ladderTop, ladderBottom)) : ladderTop;
+  const finalY1 = head2 ? roundPx(lpToY(head2.lp, ladderTop, ladderBottom)) : ladderTop;
+  const finalYTeam = teamTimelines.map((tl) => {
+    const h = tl.at(-1);
+    return h ? roundPx(lpToY(h.lp, ladderTop, ladderBottom)) : ladderTop;
+  });
+
   const keyframes = (() => {
     if (t0.length === 0) return "";
     const n = t0.length;
     const pts = t0.map((d, i) => {
       const k = Math.round((i / Math.max(1, n - 1)) * 1000) / 10;
       const y = lpToY(d.lp, ladderTop, ladderBottom);
-      return `${k}% { transform: translate(0px, ${roundPx(y - ladderTop)}px); }`;
+      return `${k}% { transform: translate(0px, ${roundPx(y - finalY0)}px); }`;
     });
     return pts.join("\n");
   })();
@@ -169,7 +185,7 @@ export function renderLadderSvg(p: RenderParams): string {
     const pts = t1.map((d, i) => {
       const k = Math.round((i / Math.max(1, n - 1)) * 1000) / 10;
       const y = lpToY(d.lp, ladderTop, ladderBottom);
-      return `${k}% { transform: translate(0px, ${roundPx(y - ladderTop)}px); }`;
+      return `${k}% { transform: translate(0px, ${roundPx(y - finalY1)}px); }`;
     });
     return pts.join("\n");
   })();
@@ -179,11 +195,12 @@ export function renderLadderSvg(p: RenderParams): string {
       if (tl.length === 0) return "";
       const n = tl.length;
       const name = `climbT${idx}`;
+      const base = finalYTeam[idx]!;
       const pts = tl
         .map((d, i) => {
           const k = Math.round((i / Math.max(1, n - 1)) * 1000) / 10;
           const y = lpToY(d.lp, ladderTop, ladderBottom);
-          return `${k}% { transform: translate(0px, ${roundPx(y - ladderTop)}px); }`;
+          return `${k}% { transform: translate(0px, ${roundPx(y - base)}px); }`;
         })
         .join("\n");
       return `@keyframes ${name} { ${pts} }`;
@@ -194,7 +211,9 @@ export function renderLadderSvg(p: RenderParams): string {
   const teamCss = teamMembers
     .map((_, idx) => {
       const color = TEAM_MARKER_COLORS[idx % TEAM_MARKER_COLORS.length]!;
-      return `.markerT${idx} .markerCore { fill: ${color}; } .markerT${idx} { filter: drop-shadow(0 0 10px ${color}); } .animT${idx} { transform-origin: 0px 0px; animation: climbT${idx} 12s linear infinite; }`;
+      // `forwards` holds the final keyframe so the marker rests at the
+      // current-LP offset (0px from its SVG transform) once the climb plays.
+      return `.markerT${idx} .markerCore { fill: ${color}; } .markerT${idx} { filter: drop-shadow(0 0 10px ${color}); } .animT${idx} { transform-origin: 0px 0px; animation: climbT${idx} 12s linear forwards; }`;
     })
     .join("\n");
 
@@ -251,8 +270,8 @@ export function renderLadderSvg(p: RenderParams): string {
 
     @keyframes climb { ${keyframes} }
     @keyframes climb2 { ${keyframes2} }
-    .anim { transform-origin: 0px 0px; animation: climb 12s linear infinite; }
-    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear infinite; }
+    .anim { transform-origin: 0px 0px; animation: climb 12s linear forwards; }
+    .anim2 { transform-origin: 0px 0px; animation: climb2 12s linear forwards; }
     @media (prefers-reduced-motion: reduce) { .anim, .anim2 { animation: none; } }
   `;
 
@@ -276,19 +295,23 @@ export function renderLadderSvg(p: RenderParams): string {
   const hasStatic = typeof p.staticProgress === "number";
   const staticFrac = hasStatic ? clamp(p.staticProgress as number, 0, 1) : 0;
   const staticYA = (() => {
-    if (!hasStatic || t0.length === 0) return ladderTop;
+    if (!hasStatic || t0.length === 0) return finalY0;
     const idx = Math.round(staticFrac * (t0.length - 1));
     return roundPx(lpToY(t0[idx]!.lp, ladderTop, ladderBottom));
   })();
   const staticYB = (() => {
-    if (!hasStatic || !t1 || t1.length === 0) return ladderTop;
+    if (!hasStatic || !t1 || t1.length === 0) return finalY1;
     const idx = Math.round(staticFrac * (t1.length - 1));
     return roundPx(lpToY(t1[idx]!.lp, ladderTop, ladderBottom));
   })();
   const markerClassA = hasStatic ? "marker" : "marker anim";
   const markerClassB = hasStatic ? "marker marker2" : "marker marker2 anim2";
-  const markerYA = hasStatic ? staticYA : ladderTop;
-  const markerYB = hasStatic ? staticYB : ladderTop;
+  // For animated output the base Y is the *current-LP position* (not
+  // `ladderTop`). See the `finalY0` / `finalY1` comment above for the full
+  // rationale. For GIF frames (`hasStatic`) the static helpers already
+  // compute the correct per-frame position.
+  const markerYA = hasStatic ? staticYA : finalY0;
+  const markerYB = hasStatic ? staticYB : finalY1;
 
   // Compact team badges, stacked under the primary LP badge. Uses height 30
   // with a 4 px gap so up to ~6 members fit inside a 400 px SVG.
@@ -310,16 +333,20 @@ export function renderLadderSvg(p: RenderParams): string {
     .join("\n  ");
 
   // Team markers, staggered 16 px left of the primary so they don't overlap.
+  // Base Y matches the animated case's resting position (the member's
+  // current LP) so static renders (resvg → PNG/WebP/AVIF) draw each team
+  // marker at the right ladder height instead of bunched at Challenger.
   const teamMarkersSvg = teamMembers
     .map((_m, idx) => {
       const tl = teamTimelines[idx]!;
+      const baseY = finalYTeam[idx]!;
       const mx = markerX - (idx + 1) * 16;
       const staticY = (() => {
-        if (!hasStatic || tl.length === 0) return ladderTop;
+        if (!hasStatic || tl.length === 0) return baseY;
         const i = Math.round(staticFrac * (tl.length - 1));
         return roundPx(lpToY(tl[i]!.lp, ladderTop, ladderBottom));
       })();
-      const my = hasStatic ? staticY : ladderTop;
+      const my = hasStatic ? staticY : baseY;
       const cls = hasStatic ? `marker markerT${idx}` : `marker markerT${idx} animT${idx}`;
       return `<g transform="translate(${mx}, ${my})" class="${cls}">
     <circle cx="0" cy="0" r="6.5" class="markerCore"/>

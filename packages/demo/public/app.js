@@ -116,6 +116,9 @@
           b.setAttribute("aria-pressed", String(b === btn));
         });
         var vs = qs("vs");
+        // Card mode is primary-only; drop any previously-entered opponent so
+        // the embed URL + status stay in sync with the visible form state.
+        if (state.style !== "ladder") vs.value = "";
         vs.disabled = state.style !== "ladder";
         vs.placeholder = state.style === "ladder" ? "torvalds" : "switch to Ladder to use vs";
         qs("renderBtn").textContent = state.style === "ladder" ? "Render ladder" : "Render card";
@@ -148,7 +151,11 @@
 
   function update() {
     var apiBase = getApiBase();
-    qs("apiBaseLabel").textContent = apiBase;
+    // `apiBaseLabel` was removed from the form when we dropped the "Static
+    // demo…" blurb. Guard the lookup so legacy markup (or future tweaks that
+    // reintroduce the element) still works without throwing.
+    var apiBaseLabel = qs("apiBaseLabel");
+    if (apiBaseLabel) apiBaseLabel.textContent = apiBase;
     qs("healthLink").href = apiBase + "/v1/healthz";
 
     var sp = buildQuery();

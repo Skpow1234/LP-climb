@@ -186,8 +186,13 @@
         color: var(--muted);
         text-align: center;
         cursor: pointer;
+        /* `background: transparent` is required because browsers default
+           <button> to a light gray/white fill. Without it, the unselected
+           pill looks white against the dark panel. */
+        background: transparent;
         border: 1px solid transparent;
         letter-spacing: 0.3px;
+        font-family: inherit;
         transition: background 0.15s, color 0.15s, border-color 0.15s;
       }
       .pill:hover {
@@ -500,9 +505,6 @@
     <div class="wrap">
       <aside class="card">
         <h1>Generate your card</h1>
-        <div class="muted">
-          Static demo. It calls the LP Climb API at <code id="apiBaseLabel"></code>.
-        </div>
 
         <label for="user">GitHub user</label>
         <input id="user" value="Skpow1234" autocomplete="off" spellcheck="false" />
