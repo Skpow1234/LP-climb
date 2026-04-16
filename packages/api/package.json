@@ -12,6 +12,7 @@
     "format": "prettier -w ."
   },
   "dependencies": {
+    "@fastify/cors": "^11.2.0",
     "@fastify/etag": "^6.1.0",
     "@fastify/helmet": "^13.0.2",
     "@fastify/rate-limit": "^10.2.0",
@@ -35,4 +36,3 @@
     "typescript-eslint": "^8.41.0"
   }
 }
-

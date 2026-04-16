@@ -3,6 +3,7 @@ import sensible from "@fastify/sensible";
 import etag from "@fastify/etag";
 import rateLimit from "@fastify/rate-limit";
 import helmet from "@fastify/helmet";
+import cors from "@fastify/cors";
 import { z } from "zod";
 import { loadEnv } from "./env.js";
 import { createMemoryCache } from "./cache.js";
@@ -50,6 +51,39 @@ await app.register(helmet, {
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false
 });
+
+// CORS. The public read-only render API is designed to be embeddable from
+// anywhere (profile READMEs, third-party dashboards, etc.), so the default
+// allow-list is `*`. Operators can lock it down to an allow-list by setting
+// `CORS_ALLOW_ORIGINS=https://a.example.com,https://b.example.com`, or
+// disable CORS entirely (no `Access-Control-*` headers) with an empty value.
+const corsAllowOrigins = env.CORS_ALLOW_ORIGINS.trim();
+if (corsAllowOrigins.length > 0) {
+  const parsedOrigins = corsAllowOrigins
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+  const origin: boolean | string[] = parsedOrigins.includes("*") ? true : parsedOrigins;
+  await app.register(cors, {
+    origin,
+    credentials: env.CORS_ALLOW_CREDENTIALS,
+    methods: ["GET", "HEAD", "OPTIONS"],
+    // Headers we emit that a browser-side client may want to inspect.
+    exposedHeaders: [
+      "X-Cache",
+      "X-Request-Id",
+      "Deprecation",
+      "Sunset",
+      "Link",
+      "RateLimit-Limit",
+      "RateLimit-Remaining",
+      "RateLimit-Reset",
+      "Retry-After"
+    ],
+    maxAge: 86400
+  });
+}
+
 await app.register(rateLimit, {
   max: env.RATE_LIMIT_MAX,
   timeWindow: env.RATE_LIMIT_TIME_WINDOW_SECONDS * 1000

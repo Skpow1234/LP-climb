@@ -209,7 +209,7 @@ Example URLs:
 - `/v1/render.svg?user=octocat&theme=rift&vs=torvalds`
 - `/v1/meta.json?user=octocat`
 
-Tip: SVG is easiest to use via `<img src="...">` (no CORS needed). If you `fetch()` JSON (`meta.json`) from a browser demo, you may want to enable CORS on the API.
+Tip: SVG is easiest to use via `<img src="...">` (no CORS needed). For `fetch()` from browser clients (e.g. `meta.json`, `themes.json`, `presets.json`, `github-contrib/:user`), **CORS is on by default** — the API registers `@fastify/cors` with `Access-Control-Allow-Origin: *`, `GET`/`HEAD`/`OPTIONS`, and exposes `X-Cache`, `X-Request-Id`, `Deprecation`, `Sunset`, `Link`, and the `RateLimit-*` headers. Lock it down to specific origins with `CORS_ALLOW_ORIGINS=https://a.example.com,https://b.example.com`, or disable it entirely by setting `CORS_ALLOW_ORIGINS=` (empty).
 
 ## Demo playground (local dev server)
 
