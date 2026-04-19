@@ -1,6 +1,9 @@
 FROM oven/bun:1 AS deps
 WORKDIR /app
-COPY package.json bun.lockb* ./
+# Bun 1.x emits a text `bun.lock`; older builds wrote `bun.lockb` (binary).
+# Glob both so this image works regardless of which lockfile the contributor
+# committed.
+COPY package.json bun.lock* bun.lockb* ./
 COPY packages ./packages
 RUN bun install --frozen-lockfile || bun install
 
