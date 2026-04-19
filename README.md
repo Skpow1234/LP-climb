@@ -143,7 +143,7 @@ Example:
       dist/lp-vs.svg?theme=rift&vs=torvalds
 ```
 
-### Publish to an `output` branch (snk-style)
+### Publish to an `output` branch
 
 This is the simplest way to embed SVGs into a profile README: generate to `dist/`, then push `dist/` to an `output` branch.
 
