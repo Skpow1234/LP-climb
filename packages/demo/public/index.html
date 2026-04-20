@@ -429,6 +429,184 @@
         background: rgba(255, 89, 112, 0.06);
       }
 
+      /* Preview states: skeleton shimmer while loading, rich error panel on
+         failure. Both replace the fallback <img> broken-glyph that browsers
+         render on <img> load failures. */
+      .previewFrame[data-state="loading"] .skeleton {
+        display: block;
+      }
+      .skeleton {
+        display: none;
+        position: absolute;
+        inset: 16px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.02) 0%,
+          rgba(255, 255, 255, 0.06) 40%,
+          rgba(255, 255, 255, 0.02) 80%
+        );
+        background-size: 300% 100%;
+        animation: skeletonShimmer 1.4s ease-in-out infinite;
+        z-index: 2;
+      }
+      @keyframes skeletonShimmer {
+        0% {
+          background-position: 100% 0;
+        }
+        100% {
+          background-position: -100% 0;
+        }
+      }
+      .previewFrame[data-state="error"] img,
+      .previewFrame[data-state="loading"] img {
+        opacity: 0;
+      }
+      .previewFrame img {
+        transition: opacity 180ms ease-out;
+      }
+
+      .errorPanel {
+        display: none;
+        position: absolute;
+        inset: 16px;
+        z-index: 3;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 89, 112, 0.35);
+        background:
+          radial-gradient(600px 200px at 10% 0%, rgba(255, 89, 112, 0.12), transparent 60%),
+          rgba(16, 8, 12, 0.85);
+        padding: 22px 22px 20px;
+        flex-direction: column;
+        gap: 14px;
+        color: var(--text);
+        overflow: auto;
+      }
+      .previewFrame[data-state="error"] .errorPanel {
+        display: flex;
+      }
+      .errorHead {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .errorIcon {
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: rgba(255, 89, 112, 0.16);
+        border: 1px solid rgba(255, 89, 112, 0.4);
+        display: grid;
+        place-items: center;
+        color: #ffb3bf;
+        font-weight: 900;
+        font-size: 15px;
+      }
+      .errorTitle {
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: 0.1px;
+        color: #ffe4e8;
+      }
+      .errorChips {
+        display: flex;
+        gap: 6px;
+        margin-left: auto;
+        flex-wrap: wrap;
+      }
+      .errorChip {
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 89, 112, 0.4);
+        color: #ffb3bf;
+        background: rgba(255, 89, 112, 0.08);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        letter-spacing: 0.4px;
+      }
+      .errorChip.http {
+        border-color: rgba(108, 225, 255, 0.4);
+        color: #bfe8ff;
+        background: rgba(108, 225, 255, 0.08);
+      }
+      .errorMessage {
+        font-size: 14px;
+        line-height: 1.55;
+        color: #ffd3d9;
+      }
+      .errorHint {
+        font-size: 13px;
+        line-height: 1.55;
+        color: rgba(255, 255, 255, 0.66);
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--panel-border);
+        background: rgba(0, 0, 0, 0.32);
+      }
+      .errorHint strong {
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .errorActions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: auto;
+      }
+      .errorActions button,
+      .errorActions a {
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 8px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--panel-border-strong);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        text-decoration: none;
+        cursor: pointer;
+        transition:
+          background 120ms ease,
+          border-color 120ms ease;
+      }
+      .errorActions button:hover,
+      .errorActions a:hover {
+        background: rgba(255, 255, 255, 0.07);
+        border-color: var(--panel-border-strong);
+      }
+      .errorActions .primary {
+        background: rgba(255, 89, 112, 0.18);
+        border-color: rgba(255, 89, 112, 0.45);
+        color: #ffe4e8;
+      }
+      .errorActions .primary:hover {
+        background: rgba(255, 89, 112, 0.28);
+      }
+      .errorDetails {
+        font-size: 11px;
+        color: var(--muted-soft);
+      }
+      .errorDetails summary {
+        cursor: pointer;
+        user-select: none;
+        padding: 4px 0;
+      }
+      .errorDetails pre {
+        margin: 6px 0 0;
+        padding: 10px;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--panel-border);
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        color: rgba(255, 255, 255, 0.72);
+        max-height: 180px;
+        overflow: auto;
+      }
+
       /* Toasts */
       .toasts {
         position: fixed;
@@ -554,12 +732,40 @@
             <div class="previewBadges">
               <span id="styleBadge" class="badge">CARD</span>
               <span id="themeBadge" class="badge">rift</span>
-              <span id="stateBadge" class="badge loading">Loading…</span>
+              <span id="stateBadge" class="badge loading" role="status" aria-live="polite">Loading…</span>
             </div>
           </div>
 
-          <div class="previewFrame">
+          <div id="previewFrame" class="previewFrame" data-state="loading">
+            <div class="skeleton" aria-hidden="true"></div>
             <img id="preview" alt="LP climb card preview" />
+            <div
+              id="errorPanel"
+              class="errorPanel"
+              role="alert"
+              aria-live="assertive"
+              hidden
+            >
+              <div class="errorHead">
+                <div class="errorIcon" aria-hidden="true">!</div>
+                <div class="errorTitle" id="errorTitle">Render failed</div>
+                <div class="errorChips">
+                  <span id="errorHttpChip" class="errorChip http" hidden></span>
+                  <span id="errorCodeChip" class="errorChip" hidden></span>
+                </div>
+              </div>
+              <div class="errorMessage" id="errorMessage"></div>
+              <div class="errorHint" id="errorHint" hidden></div>
+              <div class="errorActions">
+                <button type="button" id="retryBtn" class="primary">Retry</button>
+                <a id="openRaw" href="#" target="_blank" rel="noreferrer">Open raw response</a>
+                <button type="button" id="copyErrorUrl">Copy URL</button>
+              </div>
+              <details class="errorDetails">
+                <summary>Request details</summary>
+                <pre id="errorUrlPre"></pre>
+              </details>
+            </div>
           </div>
 
           <div id="status" class="status"></div>
