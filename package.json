@@ -24,7 +24,7 @@
     "format:npm": "npm --workspace packages/api run format"
     ,
     "theme-previews": "node scripts/generate-theme-previews.mjs",
-    "test": "npm --workspace packages/svg-creator run test"
+    "test": "npm --workspace packages/core run test && npm --workspace packages/svg-creator run test && npm --workspace packages/api run test && npm --workspace packages/action run test"
   },
   "devDependencies": {
     "@types/node": "^22.18.0",

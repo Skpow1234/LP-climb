@@ -292,7 +292,16 @@ The composite action runs as a Docker container (`Dockerfile.action`) and writes
 | --- | --- | --- | --- |
 | `github_user_name` | yes | — | GitHub login to render. |
 | `github_token` | no | `${{ github.token }}` | Used for the GraphQL contribution query. Read-only — `${{ github.token }}` is sufficient. |
-| `outputs` | no | `dist/lp.svg?theme=rift` | Multiline list. Each line is `path/to/file.{svg,png}?theme=…&width=…&height=…&vs=…`. |
+| `outputs` | no | `dist/lp.svg?theme=rift` | Multiline list. Each line is `path/to/file.{svg,png,webp,avif,gif}?<query>`. |
+
+### Supported query parameters
+
+The output parser now accepts the same surface as the hosted API:
+
+- **Theme + dims:** `theme`, `preset` *(hosted API only — parse locally via `width`/`height`)*, `width`, `height`
+- **Style / climbers:** `style=card|ladder`, `vs=login`, `team=a,b,c` (comma-separated; max 5; ladder only)
+- **Color overrides:** `bg`, `frame`, `text`, `accent`, `glow`, `tier_iron` … `tier_challenger` (`#rrggbb`, URL-encode `#` as `%23`)
+- **Encoder tuning:** `quality` (webp/avif, 0–100), `frames` (gif, 6–60), `fps` (gif, 4–30)
 
 ### Example
 
@@ -303,19 +312,14 @@ The composite action runs as a Docker container (`Dockerfile.action`) and writes
     outputs: |
       dist/lp.svg?theme=rift&width=900&height=260
       dist/lp-dark.svg?theme=assassin&width=900&height=260
-      dist/lp-vs.svg?theme=rift&vs=torvalds
+      dist/lp-ladder.svg?style=ladder&theme=rift&vs=torvalds&width=1200&height=300
+      dist/lp-team.svg?style=ladder&theme=rift&team=torvalds,gaearon,tj&width=1200&height=300
+      dist/lp-champion.svg?theme=rift&accent=%23ff2d55&bg=%23120015&width=900&height=260
+      dist/lp.webp?theme=rift&quality=90&width=900&height=260
+      dist/lp.gif?style=ladder&theme=rift&frames=24&fps=12&width=1200&height=300
 ```
 
-### Limitations vs the hosted API
-
-The action's output parser currently only reads `theme`, `width`, `height`, and `vs`. It always emits **card** style (silently ignoring `vs` for that style — `vs` only takes effect in ladder mode). For animated ladders, GIF output, color overrides, or team mode, hit the hosted API in your workflow and write the response to `dist/` instead:
-
-```yaml
-- name: Generate animated ladder
-  run: |
-    curl -fSL "https://lp-climb.onrender.com/v1/render.svg?user=${{ github.repository_owner }}&style=ladder&theme=rift&preset=banner" \
-      -o dist/lp-ladder.svg
-```
+`vs` and `team` are mutually exclusive. In `style=card` the action silently ignores both (matching the hosted API), so reach for `style=ladder` when you want side-by-side or team output.
 
 ### Push the result to an `output` branch
 
@@ -413,7 +417,7 @@ All read by `packages/api/src/env.ts` (see [`.env.example`](.env.example) for a 
 | `GITHUB_TOKEN` | _(required)_ | Token for GitHub GraphQL contribution queries. Needs no scopes (public data). |
 | `CACHE_TTL_SECONDS` | `21600` (6 h) | Fresh window for the SWR LRU. |
 | `CACHE_STALE_SECONDS` | `86400` (24 h) | Extra stale window — entries are served + refreshed in background. |
-| `CACHE_MAX_ENTRIES` | `5000` | LRU capacity (per cache: contributions + each render route). |
+| `CACHE_MAX_ENTRIES` | `5000` | LRU capacity — shared across the contribution cache and all render/meta outputs. Heavy GIF/AVIF traffic will evict contribution entries, so size with both in mind. |
 | `RATE_LIMIT_MAX` | `120` | Requests per IP per window. |
 | `RATE_LIMIT_TIME_WINDOW_SECONDS` | `60` | Rate-limit window. |
 | `CORS_ALLOW_ORIGINS` | `*` | Comma-separated list, `*` for any, **empty string disables CORS**. |
@@ -430,9 +434,10 @@ SVGs are easiest to use via `<img src>` (no preflight, no CORS). For `fetch()` f
 - **Metrics.** Scrape `GET /v1/metrics` (alias `/metrics`). Series include default Node process metrics (`process_cpu_*`, `nodejs_heap_*`, …) plus:
   - `http_requests_total{method,route,status}`
   - `http_request_duration_seconds` (histogram)
-  - `lp_climb_cache_events_total{kind,source}` — `kind` ∈ `hit|stale|miss`, `source` ∈ `contrib|render|…`
-  - `lp_climb_github_fetch_total{result}` — `result` ∈ `ok|error`
+  - `lp_climb_cache_events_total{kind,source}` — `kind` ∈ `contrib|render`, `source` ∈ `hit|stale|miss`
+  - `lp_climb_github_fetch_total{result}` — `result` ∈ `success|error`
 - **OpenTelemetry (zero-code opt-in).** Add `@opentelemetry/auto-instrumentations-node` to your runtime image and start with `NODE_OPTIONS="--require @opentelemetry/auto-instrumentations-node/register"`. The Fastify + HTTP instrumentations capture routes and propagate trace context automatically.
+- **`/metrics` is unauthenticated.** The metrics endpoint does not reveal secrets, but it does expose process health (RSS, event-loop lag, throughput) and cache-hit rates that most operators prefer to keep internal. If you expose the API on the public internet, firewall `/metrics` + `/v1/metrics` to your scrape network — e.g. a Render private service, a Fly internal IPv6, a Cloudflare Access policy, or a reverse-proxy rule that restricts the path to your Prometheus subnet.
 
 ## API compatibility & deprecation
 
@@ -479,9 +484,9 @@ npm run build:npm                         # or: bun run build
 # Run the API in dev (watch mode)
 bun run dev                                # or: npm run dev:npm
 
-# Run only the SVG snapshot tests
-npm test                                   # vitest in packages/svg-creator
-npx vitest run -u                          # update snapshots
+# Run all package tests (core stats/LP, API cache + coalescer, Action parser, SVG snapshots)
+npm test                                   # vitest across packages/{core,svg-creator,api,action}
+npm --workspace packages/svg-creator test -- -u  # update SVG snapshots only
 
 # Lint the API package (eslint v9 flat config; only @lp-climb/api has lint wired up)
 npm run lint:npm                           # or: bun run lint
