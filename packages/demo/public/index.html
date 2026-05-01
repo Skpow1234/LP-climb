@@ -117,9 +117,86 @@
         backdrop-filter: blur(14px);
       }
       .card h1 {
-        font-size: 16px;
-        margin: 0 0 4px;
+        font-size: 17px;
+        margin: 0 0 6px;
         letter-spacing: 0.2px;
+      }
+      .panelSection {
+        margin-top: 20px;
+        padding-top: 18px;
+        border-top: 1px solid var(--panel-border);
+      }
+      .panelSection:first-of-type {
+        margin-top: 14px;
+        padding-top: 0;
+        border-top: 0;
+      }
+      .panelSectionTitle {
+        font-size: 10.5px;
+        font-weight: 800;
+        letter-spacing: 0.55px;
+        text-transform: uppercase;
+        color: rgba(240, 242, 248, 0.5);
+        margin: 0 0 12px;
+        line-height: 1.3;
+      }
+      .panelSectionTitle + label,
+      .panelSectionTitle + .controlLabel,
+      .panelSectionTitle + .pills,
+      .panelSectionTitle + .chips,
+      .panelSectionTitle + .fieldGroup,
+      .panelSectionTitle + details,
+      .panelSectionTitle + .row {
+        margin-top: 4px;
+      }
+      .panelSection label {
+        margin-top: 12px;
+      }
+      .panelSection .fieldGroup label {
+        margin-top: 12px;
+      }
+      .panelSection .fieldGroup label:first-of-type {
+        margin-top: 0;
+      }
+      .controlLabel {
+        display: block;
+        font-size: 11.5px;
+        color: var(--muted);
+        margin: 12px 0 6px;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+      .panelSectionTitle + .controlLabel {
+        margin-top: 4px;
+      }
+      .panelSection > button.primary {
+        margin-top: 8px;
+      }
+      .cardLead {
+        margin: 0 0 6px;
+        max-width: 22rem;
+      }
+      .panelSummary {
+        cursor: pointer;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+        list-style: none;
+      }
+      .panelSummary::-webkit-details-marker {
+        display: none;
+      }
+      .panelSummary::before {
+        content: "▸ ";
+        opacity: 0.55;
+      }
+      details[open] > .panelSummary::before {
+        content: "▾ ";
+      }
+      .panelSection details.fieldGroup .row:first-of-type {
+        margin-top: 8px;
       }
       .card .muted {
         color: var(--muted);
@@ -171,7 +248,7 @@
         display: none !important;
       }
       .fieldGroup {
-        margin-top: 2px;
+        margin-top: 10px;
       }
       .groupLabel {
         display: block;
@@ -181,6 +258,10 @@
         letter-spacing: 0.3px;
         text-transform: uppercase;
         font-weight: 700;
+      }
+      .panelSection .groupLabel {
+        margin-top: 14px;
+        margin-bottom: 8px;
       }
       .fieldHint {
         margin: 8px 0 0;
@@ -757,36 +838,40 @@
     <div class="wrap">
       <aside class="card">
         <h1>Generate your card</h1>
+        <p class="muted cardLead">Pick a GitHub login, tune the look, then copy an embed-ready URL or snippet.</p>
 
-        <label for="user">GitHub user</label>
-        <input id="user" value="Skpow1234" autocomplete="off" spellcheck="false" />
+        <section class="panelSection" aria-labelledby="panelSecSubject">
+          <h2 id="panelSecSubject" class="panelSectionTitle">Profile &amp; mode</h2>
+          <label for="user">GitHub user</label>
+          <input id="user" value="Skpow1234" autocomplete="off" spellcheck="false" />
 
-        <label>Style</label>
-        <div class="pills" role="tablist" aria-label="Visualization style">
-          <button type="button" class="pill" data-style="card" aria-pressed="true">Card</button>
-          <button type="button" class="pill" data-style="ladder" aria-pressed="false">Ladder</button>
-        </div>
+          <label>Style</label>
+          <div class="pills" role="tablist" aria-label="Visualization style">
+            <button type="button" class="pill" data-style="card" aria-pressed="true">Card</button>
+            <button type="button" class="pill" data-style="ladder" aria-pressed="false">Ladder</button>
+          </div>
 
-        <div id="ladderOnlyBlock" class="fieldGroup" hidden>
-          <label for="vs">Opponent</label>
-          <input id="vs" placeholder="torvalds" autocomplete="off" spellcheck="false" />
+          <div id="ladderOnlyBlock" class="fieldGroup" hidden>
+            <label for="vs">Opponent</label>
+            <input id="vs" placeholder="torvalds" autocomplete="off" spellcheck="false" />
 
-          <label for="team">Team</label>
-          <input
-            id="team"
-            placeholder="torvalds,gaearon,sindresorhus"
-            autocomplete="off"
-            spellcheck="false"
-          />
-        </div>
+            <label for="team">Team</label>
+            <input
+              id="team"
+              placeholder="torvalds,gaearon,sindresorhus"
+              autocomplete="off"
+              spellcheck="false"
+            />
+          </div>
+        </section>
 
-        <label>Theme</label>
-        <div class="chips" id="themeChips"></div>
+        <section class="panelSection" aria-labelledby="panelSecTheme">
+          <h2 id="panelSecTheme" class="panelSectionTitle">Theme</h2>
+          <div class="controlLabel" id="themeChipsLabel">Color preset</div>
+          <div class="chips" id="themeChips" role="group" aria-labelledby="themeChipsLabel"></div>
 
-        <details id="themeOverrides" style="margin-top: 10px">
-          <summary style="cursor: pointer; color: var(--muted); font-size: 12.5px; font-weight: 700">
-            Theme overrides (optional)
-          </summary>
+          <details id="themeOverrides" class="fieldGroup">
+            <summary class="panelSummary">Custom colors (optional)</summary>
           <div class="row">
             <div>
               <label for="bg">BG</label>
@@ -814,113 +899,122 @@
             </div>
             <div></div>
           </div>
-        </details>
+          </details>
+        </section>
 
-        <div id="outputFormatsBlock" class="fieldGroup">
-          <div class="groupLabel">Preview &amp; export</div>
+        <section class="panelSection" aria-labelledby="panelSecFormats">
+          <h2 id="panelSecFormats" class="panelSectionTitle">Formats &amp; encoding</h2>
+          <div id="outputFormatsBlock" class="fieldGroup">
+            <div class="row">
+              <div>
+                <label for="previewFormat">Preview format</label>
+                <select id="previewFormat">
+                  <option value="svg" selected>SVG</option>
+                  <option value="png">PNG</option>
+                  <option value="webp">WebP</option>
+                  <option value="avif">AVIF</option>
+                  <option value="gif">GIF</option>
+                </select>
+              </div>
+              <div>
+                <label for="exportFormat">Embed / export format</label>
+                <select id="exportFormat">
+                  <option value="svg" selected>SVG</option>
+                  <option value="png">PNG</option>
+                  <option value="webp">WebP</option>
+                  <option value="avif">AVIF</option>
+                  <option value="gif">GIF</option>
+                </select>
+              </div>
+            </div>
+            <p id="hintRasterDims" class="fieldHint" hidden>
+              Raster formats (PNG, WebP, AVIF, GIF) are generated from the SVG — cost grows with
+              <strong style="color: rgba(240, 242, 248, 0.85)">width × height</strong>. Very wide presets
+              (for example Banner) produce larger files and slower responses.
+            </p>
+          </div>
+
+          <div id="exportQualityRow" class="row fieldGroup" hidden>
+            <div>
+              <label for="quality">Quality (export WebP / AVIF)</label>
+              <input id="quality" type="number" value="" min="1" max="100" placeholder="1–100" />
+            </div>
+            <div></div>
+          </div>
+          <p id="hintAvifEncode" class="fieldHint" hidden>
+            AVIF is the smallest raster option for many images, but it is slower to encode than WebP or PNG.
+            First requests can take noticeably longer; caches make repeats fast. Smaller dimensions help a lot.
+          </p>
+          <p id="hintWebpQuality" class="fieldHint" hidden>
+            WebP defaults around quality 80–85 are usually plenty for README-style embeds — higher values mean
+            larger files with diminishing visual return.
+          </p>
+
+          <div id="gifTimingRow" class="row fieldGroup" hidden>
+            <div>
+              <label for="frames">Frames (GIF)</label>
+              <input id="frames" type="number" value="" min="6" max="60" placeholder="6–60" />
+            </div>
+            <div>
+              <label for="fps">FPS (GIF)</label>
+              <input id="fps" type="number" value="" min="4" max="30" placeholder="4–30" />
+            </div>
+          </div>
+          <p id="hintGifCost" class="fieldHint" hidden>
+            GIF is the slowest and heaviest option: each frame is a full SVG → raster pass. Prefer
+            <strong style="color: rgba(240, 242, 248, 0.85)">smaller width/height</strong>, fewer frames, or
+            lower FPS when you can; use SVG or WebP for static previews when possible.
+          </p>
+        </section>
+
+        <section class="panelSection" aria-labelledby="panelSecSize">
+          <h2 id="panelSecSize" class="panelSectionTitle">Dimensions</h2>
+          <label for="preset">Preset</label>
+          <select id="preset">
+            <option value="readme" selected>README</option>
+            <option value="readme-wide">README (wide)</option>
+            <option value="readme-compact">README (compact)</option>
+            <option value="profile">Profile card</option>
+            <option value="banner">Banner</option>
+            <option value="badge">Badge</option>
+          </select>
+
           <div class="row">
             <div>
-              <label for="previewFormat">Preview format</label>
-              <select id="previewFormat">
-                <option value="svg" selected>SVG</option>
-                <option value="png">PNG</option>
-                <option value="webp">WebP</option>
-                <option value="avif">AVIF</option>
-                <option value="gif">GIF</option>
-              </select>
+              <label for="width">Width</label>
+              <input id="width" type="number" value="900" min="500" max="2000" />
             </div>
             <div>
-              <label for="exportFormat">Embed / export format</label>
-              <select id="exportFormat">
-                <option value="svg" selected>SVG</option>
-                <option value="png">PNG</option>
-                <option value="webp">WebP</option>
-                <option value="avif">AVIF</option>
-                <option value="gif">GIF</option>
-              </select>
+              <label for="height">Height</label>
+              <input id="height" type="number" value="260" min="180" max="900" />
             </div>
           </div>
-          <p id="hintRasterDims" class="fieldHint" hidden>
-            Raster formats (PNG, WebP, AVIF, GIF) are generated from the SVG — cost grows with
-            <strong style="color: rgba(240, 242, 248, 0.85)">width × height</strong>. Very wide presets
-            (for example Banner) produce larger files and slower responses.
-          </p>
-        </div>
+        </section>
 
-        <div id="exportQualityRow" class="row fieldGroup" hidden>
-          <div>
-            <label for="quality">Quality (export WebP / AVIF)</label>
-            <input id="quality" type="number" value="" min="1" max="100" placeholder="1–100" />
+        <section class="panelSection" aria-labelledby="panelSecShare">
+          <h2 id="panelSecShare" class="panelSectionTitle">Generate &amp; share</h2>
+          <button id="renderBtn" class="primary">Render card</button>
+
+          <div class="actions">
+            <a id="openSvg" href="#" target="_blank" rel="noreferrer">Open export</a>
+            <a id="openPreview" href="#" target="_blank" rel="noreferrer">Open preview</a>
+            <a id="openMeta" href="#" target="_blank" rel="noreferrer">Open meta.json</a>
           </div>
-          <div></div>
-        </div>
-        <p id="hintAvifEncode" class="fieldHint" hidden>
-          AVIF is the smallest raster option for many images, but it is slower to encode than WebP or PNG.
-          First requests can take noticeably longer; caches make repeats fast. Smaller dimensions help a lot.
-        </p>
-        <p id="hintWebpQuality" class="fieldHint" hidden>
-          WebP defaults around quality 80–85 are usually plenty for README-style embeds — higher values mean
-          larger files with diminishing visual return.
-        </p>
 
-        <div id="gifTimingRow" class="row fieldGroup" hidden>
-          <div>
-            <label for="frames">Frames (GIF)</label>
-            <input id="frames" type="number" value="" min="6" max="60" placeholder="6–60" />
+          <div class="controlLabel">Embed URL</div>
+          <div class="embedBox">
+            <pre id="embed"></pre>
+            <button id="copyBtn" class="copyBtn" type="button" title="Copy URL">Copy</button>
           </div>
-          <div>
-            <label for="fps">FPS (GIF)</label>
-            <input id="fps" type="number" value="" min="4" max="30" placeholder="4–30" />
+
+          <div class="controlLabel" id="copyAsLabel">Copy as</div>
+          <div class="copyAsGrid" role="group" aria-labelledby="copyAsLabel">
+            <button type="button" class="copyAsBtn" id="copyAsImageUrl">Image URL</button>
+            <button type="button" class="copyAsBtn" id="copyAsMarkdown">Markdown img</button>
+            <button type="button" class="copyAsBtn" id="copyAsPicture">Picture</button>
+            <button type="button" class="copyAsBtn" id="copyAsMetaJson">Meta JSON URL</button>
           </div>
-        </div>
-        <p id="hintGifCost" class="fieldHint" hidden>
-          GIF is the slowest and heaviest option: each frame is a full SVG → raster pass. Prefer
-          <strong style="color: rgba(240, 242, 248, 0.85)">smaller width/height</strong>, fewer frames, or
-          lower FPS when you can; use SVG or WebP for static previews when possible.
-        </p>
-
-        <label for="preset">Preset</label>
-        <select id="preset">
-          <option value="readme" selected>README</option>
-          <option value="readme-wide">README (wide)</option>
-          <option value="readme-compact">README (compact)</option>
-          <option value="profile">Profile card</option>
-          <option value="banner">Banner</option>
-          <option value="badge">Badge</option>
-        </select>
-
-        <div class="row">
-          <div>
-            <label for="width">Width</label>
-            <input id="width" type="number" value="900" min="500" max="2000" />
-          </div>
-          <div>
-            <label for="height">Height</label>
-            <input id="height" type="number" value="260" min="180" max="900" />
-          </div>
-        </div>
-
-        <button id="renderBtn" class="primary">Render card</button>
-
-        <div class="actions">
-          <a id="openSvg" href="#" target="_blank" rel="noreferrer">Open export</a>
-          <a id="openPreview" href="#" target="_blank" rel="noreferrer">Open preview</a>
-          <a id="openMeta" href="#" target="_blank" rel="noreferrer">Open meta.json</a>
-        </div>
-
-        <label>Embed URL</label>
-        <div class="embedBox">
-          <pre id="embed"></pre>
-          <button id="copyBtn" class="copyBtn" type="button" title="Copy URL">Copy</button>
-        </div>
-
-        <label>Copy as</label>
-        <div class="copyAsGrid" role="group" aria-label="Copy embed snippets">
-          <button type="button" class="copyAsBtn" id="copyAsImageUrl">Image URL</button>
-          <button type="button" class="copyAsBtn" id="copyAsMarkdown">Markdown img</button>
-          <button type="button" class="copyAsBtn" id="copyAsPicture">Picture</button>
-          <button type="button" class="copyAsBtn" id="copyAsMetaJson">Meta JSON URL</button>
-        </div>
+        </section>
       </aside>
 
       <section class="card">
