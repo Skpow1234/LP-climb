@@ -407,6 +407,7 @@
     var metaParams = new URLSearchParams({ user: user || "" });
     if (vs) metaParams.set("vs", vs);
     meta.search = metaParams.toString();
+    var embedUrl = svg.toString();
 
     // Cache-bust both requests so the preview never gets stuck on a prior
     // error response (e.g. a 404 while the user fixes a typo'd username).
@@ -426,7 +427,7 @@
 
     qs("openSvg").href = svgUrl;
     qs("openMeta").href = metaUrl;
-    qs("embed").textContent = svgUrl;
+    qs("embed").textContent = embedUrl;
 
     // Client-side validation first. Short-circuits the network round-trip
     // for the common case of a typo in the user / vs field.

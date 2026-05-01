@@ -7,6 +7,7 @@ import cors from "@fastify/cors";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import { z } from "zod";
+import type { ContributionCell, ContributionStats } from "@lp-climb/types";
 import { loadEnv } from "./env.js";
 import { createCoalescer, createMemoryCache } from "./cache.js";
 import { listPresets, PRESET_IDS, resolveDims } from "./presets.js";
@@ -32,23 +33,26 @@ import {
 
 const env = loadEnv();
 
-// Two LRUs, one per value-shape:
-//   - `textCache` holds SVG, JSON, Prometheus text — anything naturally a
-//     string.
-//   - `binaryCache` holds raw `Buffer`s for PNG / WebP / AVIF / GIF. We used
-//     to base64-encode binary outputs to fit a string-only cache, which cost
-//     ~33 % heap overhead and an encode/decode round-trip on every hit.
+// Three LRUs, one per hot value-shape:
+//   - `contribCache` holds typed contribution cells + precomputed stats.
+//   - `textCache` holds SVG / JSON / Prometheus text.
+//   - `binaryCache` holds raw `Buffer`s for PNG / WebP / AVIF / GIF.
 //
-// Both share `CACHE_MAX_ENTRIES`. The text cache is where contribution
-// payloads live; the binary cache is where rendered images live. Separating
-// them stops a burst of large GIFs from evicting the (much smaller, much
-// hotter) contribution entries.
+// Keeping contribution payloads as structured objects avoids a JSON
+// stringify/parse round-trip on every hit and lets us reuse `computeStats()`
+// across render + meta handlers.
+const contribCache = createMemoryCache<ContribData>({ maxEntries: env.CACHE_MAX_ENTRIES });
 const textCache = createMemoryCache<string>({ maxEntries: env.CACHE_MAX_ENTRIES });
 const binaryCache = createMemoryCache<Buffer>({ maxEntries: env.CACHE_MAX_ENTRIES });
 
+type ContribData = {
+  cells: ContributionCell[];
+  stats: ContributionStats;
+};
+
 type ContribCacheSource = "hit" | "stale" | "miss";
 type ContribFetchResult = {
-  cells: unknown[];
+  data: ContribData;
   stamp: number;
   stale: boolean;
   source: ContribCacheSource;
@@ -375,9 +379,9 @@ function applyThemeOverrides(base: any, q: any) {
 }
 
 type ResolvedClimbers = {
-  primary: { cells: unknown[]; stamp: number };
-  vs: { user: string; cells: unknown[]; stamp: number } | null;
-  team: Array<{ user: string; cells: unknown[]; stamp: number }>;
+  primary: { user: string; data: ContribData; stamp: number };
+  vs: { user: string; data: ContribData; stamp: number } | null;
+  team: Array<{ user: string; data: ContribData; stamp: number }>;
 };
 
 // Shared fan-out for primary + optional vs + optional team. Team entries
@@ -387,35 +391,52 @@ async function resolveClimbers(q: {
   user: string;
   vs?: string | undefined;
   team?: string[] | undefined;
-}): Promise<ResolvedClimbers> {
+}, opts?: { allowStale?: boolean | undefined }): Promise<ResolvedClimbers> {
+  const allowStale = opts?.allowStale ?? true;
   const teamLogins = (q.team ?? []).filter((t) => t.toLowerCase() !== q.user.toLowerCase());
 
   const [primary, vs, ...teamResults] = await Promise.all([
-    getContribCellsSWR(q.user),
-    q.vs ? getContribCellsSWR(q.vs) : Promise.resolve(null),
-    ...teamLogins.map((t) => getContribCellsSWR(t))
+    getContribCellsSWR(q.user, { allowStale }),
+    q.vs ? getContribCellsSWR(q.vs, { allowStale }) : Promise.resolve(null),
+    ...teamLogins.map((t) => getContribCellsSWR(t, { allowStale }))
   ]);
 
   return {
-    primary: { cells: primary.cells, stamp: primary.stamp },
-    vs: q.vs && vs ? { user: q.vs, cells: vs.cells, stamp: vs.stamp } : null,
+    primary: { user: q.user, data: primary.data, stamp: primary.stamp },
+    vs: q.vs && vs ? { user: q.vs, data: vs.data, stamp: vs.stamp } : null,
     team: teamLogins.map((user, i) => ({
       user,
-      cells: teamResults[i]!.cells,
+      data: teamResults[i]!.data,
       stamp: teamResults[i]!.stamp
     }))
   };
 }
 
-async function getContribCellsSWR(user: string): Promise<ContribFetchResult> {
+async function refreshContrib(user: string): Promise<ContribFetchResult> {
   const key = JSON.stringify({ v: 1, kind: "contrib", user });
-  const hit = textCache.get(key);
+  const freshCells = await fetchGithubContributionCells({ user, githubToken: env.GITHUB_TOKEN });
+  recordGithubFetch("success");
+  const data: ContribData = {
+    cells: freshCells,
+    stats: computeStats(freshCells)
+  };
+  contribCache.set(key, data, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+  return { data, stamp: Date.now(), stale: false, source: "miss" };
+}
+
+async function getContribCellsSWR(
+  user: string,
+  opts?: { allowStale?: boolean | undefined }
+): Promise<ContribFetchResult> {
+  const key = JSON.stringify({ v: 1, kind: "contrib", user });
+  const hit = contribCache.get(key);
+  const allowStale = opts?.allowStale ?? true;
 
   // Fresh hit: no upstream call, no coalescing needed.
   if (hit.hit && !hit.stale) {
     recordCacheEvent("contrib", "hit");
     return {
-      cells: JSON.parse(hit.value) as unknown[],
+      data: hit.value,
       stamp: hit.storedAtMs,
       stale: false,
       source: "hit"
@@ -427,27 +448,44 @@ async function getContribCellsSWR(user: string): Promise<ContribFetchResult> {
   // observe the same in-flight refresh instead of each spawning their own.
   if (hit.hit && hit.stale) {
     recordCacheEvent("contrib", "stale");
-    void contribCoalesce(key, async () => {
+    if (allowStale) {
+      void contribCoalesce(key, async () => {
+        try {
+          return await refreshContrib(user);
+        } catch (e) {
+          recordGithubFetch("error");
+          app.log.warn({ err: e, user }, "contrib refresh failed (serving stale)");
+          throw e;
+        }
+      }).catch(() => {
+        /* already logged; stale entry stays in cache */
+      });
+
+      return {
+        data: hit.value,
+        stamp: hit.storedAtMs,
+        stale: true,
+        source: "stale"
+      };
+    }
+
+    return contribCoalesce(key, async () => {
+      const raced = contribCache.get(key);
+      if (raced.hit && !raced.stale) {
+        return {
+          data: raced.value,
+          stamp: raced.storedAtMs,
+          stale: false,
+          source: "hit"
+        };
+      }
       try {
-        const fresh = await fetchGithubContributionCells({ user, githubToken: env.GITHUB_TOKEN });
-        recordGithubFetch("success");
-        textCache.set(key, JSON.stringify(fresh), env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
-        return { cells: fresh as unknown[], stamp: Date.now(), stale: false, source: "miss" };
+        return await refreshContrib(user);
       } catch (e) {
         recordGithubFetch("error");
-        app.log.warn({ err: e }, "contrib refresh failed (serving stale)");
         throw e;
       }
-    }).catch(() => {
-      /* already logged; stale entry stays in cache */
     });
-
-    return {
-      cells: JSON.parse(hit.value) as unknown[],
-      stamp: hit.storedAtMs,
-      stale: true,
-      source: "stale"
-    };
   }
 
   // Cold miss: coalesce concurrent callers onto one GitHub fetch.
@@ -455,20 +493,17 @@ async function getContribCellsSWR(user: string): Promise<ContribFetchResult> {
   return contribCoalesce(key, async () => {
     // Re-check the cache under the coalescer: a sibling request that won the
     // race may have just populated it, turning this into a fresh hit.
-    const raced = textCache.get(key);
+    const raced = contribCache.get(key);
     if (raced.hit && !raced.stale) {
       return {
-        cells: JSON.parse(raced.value) as unknown[],
+        data: raced.value,
         stamp: raced.storedAtMs,
         stale: false,
         source: "hit"
       };
     }
     try {
-      const fresh = await fetchGithubContributionCells({ user, githubToken: env.GITHUB_TOKEN });
-      recordGithubFetch("success");
-      textCache.set(key, JSON.stringify(fresh), env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
-      return { cells: fresh as unknown[], stamp: Date.now(), stale: false, source: "miss" };
+      return await refreshContrib(user);
     } catch (e) {
       recordGithubFetch("error");
       throw e;
@@ -489,18 +524,17 @@ function buildRenderParams(
   dims: { width?: number | undefined; height?: number | undefined },
   climbers: ResolvedClimbers
 ) {
-  const primaryStats = computeStats(climbers.primary.cells as any);
   const vs = climbers.vs
     ? {
         user: climbers.vs.user,
-        cells: climbers.vs.cells as any,
-        stats: computeStats(climbers.vs.cells as any)
+        cells: climbers.vs.data.cells,
+        stats: climbers.vs.data.stats
       }
     : null;
   const team = climbers.team.map((m) => ({
     user: m.user,
-    cells: m.cells as any,
-    stats: computeStats(m.cells as any)
+    cells: m.data.cells,
+    stats: m.data.stats
   }));
 
   // Card mode is primary-only: silently ignore `vs` / `team` so the request
@@ -512,8 +546,8 @@ function buildRenderParams(
 
   return {
     user: q.user,
-    cells: climbers.primary.cells as any,
-    stats: primaryStats,
+    cells: climbers.primary.data.cells,
+    stats: climbers.primary.data.stats,
     theme,
     style,
     ...(dims.width !== undefined ? { width: dims.width } : {}),
@@ -521,6 +555,36 @@ function buildRenderParams(
     ...(forwardVs ? { vs } : {}),
     ...(forwardTeam ? { team } : {})
   };
+}
+
+function refreshTextCacheInBackground(cacheKey: string, route: string, run: () => Promise<string>) {
+  void renderTextCoalesce(cacheKey, async () => {
+    try {
+      const out = await run();
+      textCache.set(cacheKey, out, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+      return out;
+    } catch (err) {
+      app.log.warn({ err, route }, "background text cache refresh failed");
+      throw err;
+    }
+  }).catch(() => {
+    /* already logged; stale entry stays in cache */
+  });
+}
+
+function refreshBinaryCacheInBackground(cacheKey: string, route: string, run: () => Promise<Buffer>) {
+  void renderBinaryCoalesce(cacheKey, async () => {
+    try {
+      const out = await run();
+      binaryCache.set(cacheKey, out, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+      return out;
+    } catch (err) {
+      app.log.warn({ err, route }, "background binary cache refresh failed");
+      throw err;
+    }
+  }).catch(() => {
+    /* already logged; stale entry stays in cache */
+  });
 }
 
 const handleRenderSvg = async (
@@ -552,6 +616,12 @@ const handleRenderSvg = async (
   const cached = textCache.get(cacheKey);
   if (cached.hit) {
     recordCacheEvent("render", cached.stale ? "stale" : "hit");
+    if (cached.stale) {
+      refreshTextCacheInBackground(cacheKey, "v1/render.svg", async () => {
+        const freshClimbers = await resolveClimbers(q, { allowStale: false });
+        return renderRankedClimbSvg(buildRenderParams(q, theme, dims, freshClimbers));
+      });
+    }
     reply.header("Content-Type", "image/svg+xml; charset=utf-8");
     reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
@@ -614,6 +684,12 @@ const handleRenderPng = async (
   const cached = binaryCache.get(cacheKey);
   if (cached.hit) {
     recordCacheEvent("render", cached.stale ? "stale" : "hit");
+    if (cached.stale) {
+      refreshBinaryCacheInBackground(cacheKey, "v1/render.png", async () => {
+        const freshClimbers = await resolveClimbers(q, { allowStale: false });
+        return renderRankedClimbPng(buildRenderParams(q, theme, dims, freshClimbers));
+      });
+    }
     reply.header("Content-Type", "image/png");
     reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
@@ -675,6 +751,16 @@ const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) =>
   const cached = binaryCache.get(cacheKey);
   if (cached.hit) {
     recordCacheEvent("render", cached.stale ? "stale" : "hit");
+    if (cached.stale) {
+      refreshBinaryCacheInBackground(cacheKey, `v1/render.${format}`, async () => {
+        const freshClimbers = await resolveClimbers(q, { allowStale: false });
+        const params = buildRenderParams(q, theme, dims, freshClimbers);
+        const encoderOpts = q.quality !== undefined ? { quality: q.quality } : {};
+        return format === "webp"
+          ? await renderRankedClimbWebp(params, encoderOpts)
+          : await renderRankedClimbAvif(params, encoderOpts);
+      });
+    }
     reply.header("Content-Type", contentType);
     reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
@@ -728,6 +814,15 @@ const handleRenderGif = async (req: any, reply: any) => {
   const cached = binaryCache.get(cacheKey);
   if (cached.hit) {
     recordCacheEvent("render", cached.stale ? "stale" : "hit");
+    if (cached.stale) {
+      refreshBinaryCacheInBackground(cacheKey, "v1/render.gif", async () => {
+        const freshClimbers = await resolveClimbers(q, { allowStale: false });
+        return renderRankedClimbGif(buildRenderParams(q, theme, dims, freshClimbers), {
+          ...(q.frames !== undefined ? { frames: q.frames } : {}),
+          ...(q.fps !== undefined ? { fps: q.fps } : {})
+        });
+      });
+    }
     reply.header("Content-Type", "image/gif");
     reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
@@ -778,6 +873,19 @@ const handleMetaJson = async (
   const cached = textCache.get(cacheKey);
   if (cached.hit) {
     recordCacheEvent("render", cached.stale ? "stale" : "hit");
+    if (cached.stale) {
+      refreshTextCacheInBackground(cacheKey, "v1/meta.json", async () => {
+        const freshClimbers = await resolveClimbers(q, { allowStale: false });
+        return JSON.stringify({
+          user: q.user,
+          stats: freshClimbers.primary.data.stats,
+          vs: freshClimbers.vs
+            ? { user: freshClimbers.vs.user, stats: freshClimbers.vs.data.stats }
+            : null,
+          team: freshClimbers.team.map((m) => ({ user: m.user, stats: m.data.stats }))
+        });
+      });
+    }
     reply.header("Content-Type", "application/json; charset=utf-8");
     reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
@@ -795,11 +903,11 @@ const handleMetaJson = async (
     if (raced.hit && !raced.stale) return raced.value;
     const out = JSON.stringify({
       user: q.user,
-      stats: computeStats(climbers.primary.cells as any),
+      stats: climbers.primary.data.stats,
       vs: climbers.vs
-        ? { user: climbers.vs.user, stats: computeStats(climbers.vs.cells as any) }
+        ? { user: climbers.vs.user, stats: climbers.vs.data.stats }
         : null,
-      team: climbers.team.map((m) => ({ user: m.user, stats: computeStats(m.cells as any) }))
+      team: climbers.team.map((m) => ({ user: m.user, stats: m.data.stats }))
     });
     textCache.set(cacheKey, out, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
     return out;
@@ -853,8 +961,8 @@ app.get("/v1/github-contrib/:user", { schema: SCHEMAS.githubContrib }, async (re
     user: params.user,
     fetchedAt: new Date(result.stamp).toISOString(),
     stale: result.stale,
-    days: (result.cells as unknown[]).length,
-    cells: result.cells
+    days: result.data.cells.length,
+    cells: result.data.cells
   };
 });
 
@@ -953,4 +1061,3 @@ process.on("SIGTERM", () => void gracefulShutdown("SIGTERM"));
 process.on("SIGINT", () => void gracefulShutdown("SIGINT"));
 
 app.listen({ port: env.PORT, host: env.HOST });
-
