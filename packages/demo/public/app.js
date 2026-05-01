@@ -493,6 +493,126 @@
     return sp;
   }
 
+  // Demo page URL ↔ form sync (`?user=…&preview=webp&export=avif` …). Uses
+  // `history.replaceState` so shares/debug links don't spam the back stack.
+  var DEMO_PAGE_FORMAT_KEYS = ["svg", "png", "webp", "avif", "gif"];
+  var urlSyncDebounceTimer = null;
+
+  function normalizeDemoFormat(v, fallback) {
+    var s = String(v || "").toLowerCase();
+    return DEMO_PAGE_FORMAT_KEYS.indexOf(s) >= 0 ? s : fallback;
+  }
+
+  function buildDemoPageSearchParams() {
+    var common = buildCommonQuery();
+    var out = new URLSearchParams(common.toString());
+    var previewFormat = state.previewFormat || "svg";
+    var exportFormat = state.exportFormat || "svg";
+    if (previewFormat !== "svg") out.set("preview", previewFormat);
+    if (exportFormat !== "svg") out.set("export", exportFormat);
+
+    var q = normalizeMaybeNumber(qs("quality").value);
+    if (q != null) out.set("quality", String(Math.round(q)));
+    var frames = normalizeMaybeNumber(qs("frames").value);
+    var fps = normalizeMaybeNumber(qs("fps").value);
+    if (frames != null) out.set("frames", String(Math.round(frames)));
+    if (fps != null) out.set("fps", String(Math.round(fps)));
+
+    if (state.style === "card") out.delete("style");
+    if (state.theme === "rift") out.delete("theme");
+    if (state.preset === "readme") out.delete("preset");
+    if (previewFormat === "svg") out.delete("preview");
+    if (exportFormat === "svg") out.delete("export");
+
+    if (!String(out.get("user") || "").trim()) out.delete("user");
+
+    return out;
+  }
+
+  function syncDemoPageUrl(opts) {
+    var immediate = opts && opts.immediate;
+    var run = function () {
+      urlSyncDebounceTimer = null;
+      var sp = buildDemoPageSearchParams();
+      var next = sp.toString();
+      var cur = String(window.location.search || "").replace(/^\?/, "");
+      if (next === cur) return;
+      var url = window.location.pathname + (next ? "?" + next : "") + window.location.hash;
+      try {
+        history.replaceState(null, "", url);
+      } catch (_) {}
+    };
+
+    if (immediate) {
+      if (urlSyncDebounceTimer) clearTimeout(urlSyncDebounceTimer);
+      urlSyncDebounceTimer = null;
+      run();
+      return;
+    }
+    if (urlSyncDebounceTimer) clearTimeout(urlSyncDebounceTimer);
+    urlSyncDebounceTimer = setTimeout(run, 380);
+  }
+
+  function applyDemoPageFromSearch(sp) {
+    if (!sp || typeof sp.get !== "function") return;
+
+    var u = sp.get("user");
+    if (u != null && qs("user")) qs("user").value = u;
+
+    var st = sp.get("style");
+    if (st === "ladder" || st === "card") {
+      state.style = st;
+      var pills = document.querySelectorAll(".pill[data-style]");
+      Array.prototype.forEach.call(pills, function (b) {
+        b.setAttribute("aria-pressed", String(b.dataset.style === state.style));
+      });
+    }
+
+    var th = sp.get("theme");
+    if (th) {
+      var okTheme = THEMES.some(function (t) {
+        return t.id === th;
+      });
+      if (okTheme) state.theme = th;
+    }
+
+    var pr = sp.get("preset");
+    if (pr && getPreset(pr)) {
+      state.preset = pr;
+      var presetEl = qs("preset");
+      if (presetEl) presetEl.value = pr;
+      var selected = getPreset(pr);
+      if (selected && qs("width") && qs("height")) {
+        qs("width").value = String(selected.width);
+        qs("height").value = String(selected.height);
+      }
+    }
+
+    if (sp.get("width") && qs("width")) qs("width").value = sp.get("width");
+    if (sp.get("height") && qs("height")) qs("height").value = sp.get("height");
+
+    if (state.style === "ladder") {
+      if (sp.get("vs") != null && qs("vs")) qs("vs").value = sp.get("vs");
+      if (sp.get("team") != null && qs("team")) qs("team").value = sp.get("team");
+    }
+
+    ["quality", "frames", "fps", "bg", "frame", "text", "accent", "glow"].forEach(function (key) {
+      var v = sp.get(key);
+      var el = qs(key);
+      if (el && v != null) el.value = v;
+    });
+
+    state.previewFormat = normalizeDemoFormat(sp.get("preview"), "svg");
+    state.exportFormat = normalizeDemoFormat(sp.get("export"), "svg");
+
+    var previewSel = qs("previewFormat");
+    var exportSel = qs("exportFormat");
+    if (previewSel) previewSel.value = state.previewFormat;
+    if (exportSel) exportSel.value = state.exportFormat;
+
+    syncThemeChips();
+  }
+
   // Parse a response body into the same shape the API emits on errors.
   // Never throws — falls back to a synthetic shape if the body isn't JSON.
   function parseErrorBody(text) {
@@ -603,6 +723,8 @@
     if (openPreview) openPreview.href = renderUrl;
     qs("openMeta").href = metaUrl;
     qs("embed").textContent = embedUrl;
+
+    syncDemoPageUrl({ immediate: true });
 
     // Client-side validation first. Short-circuits the network round-trip
     // for the common case of a typo in the user / vs field.
@@ -725,7 +847,7 @@
 
     var contentType = String(res.headers.get("content-type") || "");
 
-    if (format === "svg") {
+    if (previewFormat === "svg") {
       var svgText;
       try {
         svgText = await res.text();
@@ -767,7 +889,16 @@
         setPreviewState("ok");
         setStateBadge("ok", "Ready");
         setStatus(
-          "Loaded · " + format.toUpperCase() + " · " + (svgText.length / 1024).toFixed(1) + " KB · " + renderUrl,
+          "Loaded · " +
+            previewFormat.toUpperCase() +
+            " · " +
+            (svgText.length / 1024).toFixed(1) +
+            " KB · " +
+            renderUrl +
+            "\nExport: " +
+            exportFormat.toUpperCase() +
+            " · " +
+            exportUrl,
           false
         );
       };
@@ -791,7 +922,7 @@
       } catch (_) {}
       showErrorPanel({
         code: "UPSTREAM_BAD_RESPONSE",
-        message: "The API returned 200 OK but not an image payload for " + format.toUpperCase() + ".",
+        message: "The API returned 200 OK but not an image payload for " + previewFormat.toUpperCase() + ".",
         url: renderUrl,
         status: res.status,
         rawBody: unexpectedBody.slice(0, 2000)
@@ -824,14 +955,23 @@
       setPreviewState("ok");
       setStateBadge("ok", "Ready");
       setStatus(
-        "Loaded · " + format.toUpperCase() + " · " + (blob.size / 1024).toFixed(1) + " KB · " + renderUrl,
+        "Loaded · " +
+          previewFormat.toUpperCase() +
+          " · " +
+          (blob.size / 1024).toFixed(1) +
+          " KB · " +
+          renderUrl +
+          "\nExport: " +
+          exportFormat.toUpperCase() +
+          " · " +
+          exportUrl,
         false
       );
     };
     img.onerror = function () {
       showErrorPanel({
         code: "UPSTREAM_BAD_RESPONSE",
-        message: "The browser rejected the " + format.toUpperCase() + " image payload.",
+        message: "The browser rejected the " + previewFormat.toUpperCase() + " image payload.",
         url: renderUrl,
         status: res.status
       });
@@ -899,6 +1039,10 @@
 
   function init() {
     renderThemeChips();
+    try {
+      applyDemoPageFromSearch(new URLSearchParams(window.location.search));
+    } catch (_) {}
+
     wireStylePills();
     wireFormatSelects();
     wirePresetSelect();
@@ -912,11 +1056,22 @@
       el.addEventListener("keydown", function (e) {
         if (e.key === "Enter") update();
       });
+      el.addEventListener("input", function () {
+        syncDemoPageUrl({ immediate: false });
+      });
       el.addEventListener("change", update);
     });
 
     qs("renderBtn").addEventListener("click", update);
     syncAdvancedControls();
+
+    window.addEventListener("popstate", function () {
+      try {
+        applyDemoPageFromSearch(new URLSearchParams(window.location.search));
+      } catch (_) {}
+      syncAdvancedControls();
+      update();
+    });
 
     update();
   }
