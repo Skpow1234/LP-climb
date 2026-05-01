@@ -14,6 +14,15 @@
     { id: "mono", label: "Mono", accent: "#FFFFFF" }
   ];
 
+  var PRESETS = {
+    readme: { id: "readme", label: "README", width: 900, height: 260 },
+    "readme-wide": { id: "readme-wide", label: "README (wide)", width: 1100, height: 280 },
+    "readme-compact": { id: "readme-compact", label: "README (compact)", width: 720, height: 200 },
+    profile: { id: "profile", label: "Profile card", width: 600, height: 240 },
+    banner: { id: "banner", label: "Banner", width: 1200, height: 300 },
+    badge: { id: "badge", label: "Badge", width: 500, height: 180 }
+  };
+
   // Human-facing presentation for every error code the API (and the demo
   // itself) can surface. `title` is the panel headline, `hint` is an
   // actionable one-liner, and `retryable` drives whether a "Retry" primary
@@ -160,7 +169,8 @@
   var state = {
     style: "card",
     theme: "rift",
-    format: "svg"
+    format: "svg",
+    preset: "readme"
   };
 
   // Request lifecycle:
@@ -197,6 +207,10 @@
       default:
         return "image/svg+xml";
     }
+  }
+
+  function getPreset(id) {
+    return PRESETS[id] || null;
   }
 
   function setStatus(text, isError) {
@@ -342,17 +356,34 @@
     });
   }
 
+  function wirePresetSelect() {
+    var preset = qs("preset");
+    if (!preset) return;
+    preset.addEventListener("change", function () {
+      state.preset = preset.value || "";
+      var selected = getPreset(state.preset);
+      if (selected) {
+        qs("width").value = String(selected.width);
+        qs("height").value = String(selected.height);
+      }
+      update();
+    });
+  }
+
   function buildQuery() {
     var sp = new URLSearchParams();
     var user = qs("user").value.trim();
     var width = qs("width").value.trim();
     var height = qs("height").value.trim();
+    var preset = state.preset || "";
+    var selectedPreset = getPreset(preset);
 
     sp.set("user", user);
     sp.set("style", state.style);
     sp.set("theme", state.theme);
-    if (width) sp.set("width", width);
-    if (height) sp.set("height", height);
+    if (preset) sp.set("preset", preset);
+    if (width && (!selectedPreset || Number(width) !== selectedPreset.width)) sp.set("width", width);
+    if (height && (!selectedPreset || Number(height) !== selectedPreset.height)) sp.set("height", height);
 
     // `vs` only applies to the ladder — silently ignored server-side when in
     // card mode, but we also skip it here so the embed URL stays clean.
@@ -763,6 +794,7 @@
     renderThemeChips();
     wireStylePills();
     wireFormatSelect();
+    wirePresetSelect();
     wireCopy();
     wireErrorPanel();
 
