@@ -158,6 +158,59 @@
     if (ms > 0) setTimeout(close, ms);
   }
 
+  function setActivePreviewTab(tab) {
+    var tabs = document.querySelectorAll(".previewTab[data-tab]");
+    Array.prototype.forEach.call(tabs, function (b) {
+      var on = b.dataset.tab === tab;
+      b.setAttribute("aria-selected", String(on));
+    });
+    var panels = [
+      { id: "panelPreview", tab: "preview" },
+      { id: "panelUrl", tab: "url" },
+      { id: "panelMeta", tab: "meta" }
+    ];
+    panels.forEach(function (p) {
+      var el = qs(p.id);
+      if (!el) return;
+      if (p.tab === tab) el.removeAttribute("hidden");
+      else el.setAttribute("hidden", "");
+    });
+  }
+
+  function wirePreviewTabs() {
+    var tabs = document.querySelectorAll(".previewTab[data-tab]");
+    Array.prototype.forEach.call(tabs, function (b) {
+      b.addEventListener("click", function () {
+        setActivePreviewTab(b.dataset.tab || "preview");
+      });
+    });
+    setActivePreviewTab("preview");
+  }
+
+  function setUrlPanels(previewUrl, exportUrl, metaUrl) {
+    var p = qs("previewUrlPre");
+    var e = qs("exportUrlPre");
+    var m = qs("metaUrlPre");
+    if (p) p.textContent = String(previewUrl || "");
+    if (e) e.textContent = String(exportUrl || "");
+    if (m) m.textContent = String(metaUrl || "");
+  }
+
+  function wireUrlTabCopyButtons() {
+    var cp = qs("copyPreviewUrlBtn");
+    if (cp) {
+      cp.addEventListener("click", function () {
+        copyText(String((qs("previewUrlPre") && qs("previewUrlPre").textContent) || "").trim(), cp);
+      });
+    }
+    var ce = qs("copyExportUrlBtn");
+    if (ce) {
+      ce.addEventListener("click", function () {
+        copyText(String((qs("exportUrlPre") && qs("exportUrlPre").textContent) || "").trim(), ce);
+      });
+    }
+  }
+
   function getApiBase() {
     var cfg = (window.LP_CLIMB_DEMO && window.LP_CLIMB_DEMO.apiBase) || "";
     return String(cfg || "http://localhost:3000").replace(/\/+$/, "");
@@ -839,6 +892,7 @@
     qs("openMeta").href = metaUrl;
     qs("embed").textContent = embedUrl;
     if (!getSnippetPanelText()) setSnippetPanel("Image URL", embedUrl);
+    setUrlPanels(renderUrl, exportUrl, metaUrl);
 
     syncDemoPageUrl({ immediate: true });
 
@@ -1326,11 +1380,13 @@
     } catch (_) {}
 
     wireStylePills();
+    wirePreviewTabs();
     wireFormatSelects();
     wirePresetSelect();
     wireCopy();
     wireCopyAs();
     wireSnippetCopy();
+    wireUrlTabCopyButtons();
     wireErrorPanel();
 
     ["user", "vs", "team", "width", "height", "quality", "frames", "fps", "bg", "frame", "text", "accent", "glow"].forEach(

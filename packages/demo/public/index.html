@@ -561,6 +561,76 @@
         gap: 6px;
         flex-wrap: wrap;
       }
+      .previewTabs {
+        display: flex;
+        gap: 6px;
+        padding: 4px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(0, 0, 0, 0.24);
+      }
+      .previewTab {
+        padding: 7px 10px;
+        border-radius: 9px;
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid transparent;
+        cursor: pointer;
+        letter-spacing: 0.2px;
+        font-family: inherit;
+        transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+      }
+      .previewTab:hover {
+        color: var(--text);
+      }
+      .previewTab[aria-selected="true"] {
+        color: var(--text);
+        background: rgba(142, 59, 255, 0.14);
+        border-color: rgba(142, 59, 255, 0.26);
+      }
+      .previewPanel[hidden] {
+        display: none !important;
+      }
+
+      .urlPanel {
+        border-radius: 16px;
+        border: 1px solid rgba(142, 59, 255, 0.2);
+        background: rgba(0, 0, 0, 0.22);
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+      }
+      .urlRow {
+        display: grid;
+        gap: 6px;
+      }
+      .urlLabel {
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.45px;
+        text-transform: uppercase;
+        color: rgba(240, 242, 248, 0.62);
+      }
+      .urlPre {
+        margin: 0;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(0, 0, 0, 0.32);
+        color: rgba(240, 242, 248, 0.78);
+        font-size: 11.5px;
+        line-height: 1.45;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .urlActions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
       .badge {
         font-size: 11px;
         padding: 4px 8px;
@@ -1179,8 +1249,45 @@
       <section class="card cardPreview">
         <div class="preview">
           <div class="previewHead">
-            <h2>Preview</h2>
-            <div class="previewBadges">
+            <div style="display: grid; gap: 8px">
+              <h2 style="margin: 0">Playground</h2>
+              <div class="previewTabs" role="tablist" aria-label="Preview tabs">
+                <button
+                  type="button"
+                  class="previewTab"
+                  role="tab"
+                  id="tabPreview"
+                  data-tab="preview"
+                  aria-selected="true"
+                  aria-controls="panelPreview"
+                >
+                  Preview
+                </button>
+                <button
+                  type="button"
+                  class="previewTab"
+                  role="tab"
+                  id="tabUrl"
+                  data-tab="url"
+                  aria-selected="false"
+                  aria-controls="panelUrl"
+                >
+                  URL
+                </button>
+                <button
+                  type="button"
+                  class="previewTab"
+                  role="tab"
+                  id="tabMeta"
+                  data-tab="meta"
+                  aria-selected="false"
+                  aria-controls="panelMeta"
+                >
+                  Metadata
+                </button>
+              </div>
+            </div>
+            <div class="previewBadges" aria-label="Preview badges">
               <span id="styleBadge" class="badge">CARD</span>
               <span id="themeBadge" class="badge">rift</span>
               <span id="formatBadge" class="badge">SVG</span>
@@ -1188,57 +1295,81 @@
             </div>
           </div>
 
-          <div id="previewFrame" class="previewFrame" data-state="loading">
-            <div class="skeleton" aria-hidden="true"></div>
-            <img id="preview" alt="LP climb card preview" />
-            <div class="previewLoadingPanel" aria-live="polite">
-              <p class="previewLoadingTitle">Rendering preview</p>
-              <p id="previewLoadingDetail" class="previewLoadingDetail"></p>
-              <p class="previewLoadingHint">
-                Requesting the live API. Cold starts or large GIF/AVIF renders can take a while — this panel
-                times out after 25s with a retry option.
-              </p>
-            </div>
-            <div
-              id="errorPanel"
-              class="errorPanel"
-              role="alert"
-              aria-live="assertive"
-              hidden
-            >
-              <div class="errorHead">
-                <div class="errorIcon" aria-hidden="true">!</div>
-                <div class="errorTitle" id="errorTitle">Render failed</div>
-                <div class="errorChips">
-                  <span id="errorHttpChip" class="errorChip http" hidden></span>
-                  <span id="errorCodeChip" class="errorChip" hidden></span>
+          <div id="panelPreview" class="previewPanel" role="tabpanel" aria-labelledby="tabPreview">
+            <div id="previewFrame" class="previewFrame" data-state="loading">
+              <div class="skeleton" aria-hidden="true"></div>
+              <img id="preview" alt="LP climb card preview" />
+              <div class="previewLoadingPanel" aria-live="polite">
+                <p class="previewLoadingTitle">Rendering preview</p>
+                <p id="previewLoadingDetail" class="previewLoadingDetail"></p>
+                <p class="previewLoadingHint">
+                  Requesting the live API. Cold starts or large GIF/AVIF renders can take a while — this panel
+                  times out after 25s with a retry option.
+                </p>
+              </div>
+              <div
+                id="errorPanel"
+                class="errorPanel"
+                role="alert"
+                aria-live="assertive"
+                hidden
+              >
+                <div class="errorHead">
+                  <div class="errorIcon" aria-hidden="true">!</div>
+                  <div class="errorTitle" id="errorTitle">Render failed</div>
+                  <div class="errorChips">
+                    <span id="errorHttpChip" class="errorChip http" hidden></span>
+                    <span id="errorCodeChip" class="errorChip" hidden></span>
+                  </div>
                 </div>
+                <div class="errorMessage" id="errorMessage"></div>
+                <div class="errorHint" id="errorHint" hidden></div>
+                <div class="errorActions">
+                  <button type="button" id="retryBtn" class="primary">Retry</button>
+                  <a id="openRaw" href="#" target="_blank" rel="noreferrer">Open raw response</a>
+                  <button type="button" id="copyErrorUrl">Copy URL</button>
+                </div>
+                <details class="errorDetails">
+                  <summary>Request details</summary>
+                  <pre id="errorUrlPre"></pre>
+                </details>
               </div>
-              <div class="errorMessage" id="errorMessage"></div>
-              <div class="errorHint" id="errorHint" hidden></div>
-              <div class="errorActions">
-                <button type="button" id="retryBtn" class="primary">Retry</button>
-                <a id="openRaw" href="#" target="_blank" rel="noreferrer">Open raw response</a>
-                <button type="button" id="copyErrorUrl">Copy URL</button>
-              </div>
-              <details class="errorDetails">
-                <summary>Request details</summary>
-                <pre id="errorUrlPre"></pre>
-              </details>
             </div>
           </div>
 
-          <div class="previewDock">
-            <div
-              id="previewMeta"
-              class="previewMeta previewMeta--pending"
-              role="region"
-              aria-label="Preview response metadata"
-            >
-              Awaiting preview response…
+          <div id="panelUrl" class="previewPanel" role="tabpanel" aria-labelledby="tabUrl" hidden>
+            <div class="urlPanel">
+              <div class="urlRow">
+                <div class="urlLabel">Preview URL (cache-busted)</div>
+                <pre id="previewUrlPre" class="urlPre"></pre>
+              </div>
+              <div class="urlRow">
+                <div class="urlLabel">Export URL (embed-safe)</div>
+                <pre id="exportUrlPre" class="urlPre"></pre>
+              </div>
+              <div class="urlRow">
+                <div class="urlLabel">Meta JSON</div>
+                <pre id="metaUrlPre" class="urlPre"></pre>
+              </div>
+              <div class="urlActions">
+                <button type="button" class="copyAsBtn" id="copyPreviewUrlBtn">Copy preview URL</button>
+                <button type="button" class="copyAsBtn" id="copyExportUrlBtn">Copy export URL</button>
+              </div>
+              <div id="status" class="status"></div>
             </div>
+          </div>
 
-            <div id="status" class="status"></div>
+          <div id="panelMeta" class="previewPanel" role="tabpanel" aria-labelledby="tabMeta" hidden>
+            <div class="previewDock">
+              <div
+                id="previewMeta"
+                class="previewMeta previewMeta--pending"
+                role="region"
+                aria-label="Preview response metadata"
+              >
+                Awaiting preview response…
+              </div>
+            </div>
           </div>
         </div>
       </section>
