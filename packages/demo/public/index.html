@@ -1208,7 +1208,29 @@
         <section class="panelSection" aria-labelledby="panelSecSubject">
           <h2 id="panelSecSubject" class="panelSectionTitle">Profile &amp; mode</h2>
           <label for="user">GitHub user</label>
-          <input id="user" value="Skpow1234" autocomplete="off" spellcheck="false" />
+          <div class="row">
+            <div>
+              <input id="user" value="Skpow1234" list="userExamples" autocomplete="off" spellcheck="false" />
+              <datalist id="userExamples">
+                <option value="Skpow1234"></option>
+                <option value="torvalds"></option>
+                <option value="gaearon"></option>
+                <option value="sindresorhus"></option>
+                <option value="octocat"></option>
+              </datalist>
+            </div>
+            <div>
+              <label for="userQuick" style="margin-top: 0">Try a user</label>
+              <select id="userQuick">
+                <option value="" selected>—</option>
+                <option value="Skpow1234">Skpow1234</option>
+                <option value="torvalds">torvalds</option>
+                <option value="gaearon">gaearon</option>
+                <option value="sindresorhus">sindresorhus</option>
+                <option value="octocat">octocat</option>
+              </select>
+            </div>
+          </div>
 
           <label>Style</label>
           <div class="pills" role="tablist" aria-label="Visualization style">

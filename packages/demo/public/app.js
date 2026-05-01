@@ -312,6 +312,19 @@
     });
   }
 
+  function wireQuickUserSelect() {
+    var sel = qs("userQuick");
+    if (!sel) return;
+    sel.addEventListener("change", function () {
+      var v = String(sel.value || "").trim();
+      if (!v) return;
+      if (qs("user")) qs("user").value = v;
+      sel.value = "";
+      syncDemoPageUrl({ immediate: true });
+      update();
+    });
+  }
+
   function getApiBase() {
     var cfg = (window.LP_CLIMB_DEMO && window.LP_CLIMB_DEMO.apiBase) || "";
     return String(cfg || "http://localhost:3000").replace(/\/+$/, "");
@@ -1565,6 +1578,7 @@
     wirePreviewBackground();
     wirePreviewZoom();
     wireExamples();
+    wireQuickUserSelect();
     wireFormatSelects();
     wirePresetSelect();
     wireCopy();
