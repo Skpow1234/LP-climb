@@ -8,6 +8,7 @@ import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import { z } from "zod";
 import type { ContributionCell, ContributionStats } from "@lp-climb/types";
+import type { LpTimelinePoint } from "@lp-climb/core";
 import { loadEnv } from "./env.js";
 import { createCoalescer, createMemoryCache } from "./cache.js";
 import { listPresets, PRESET_IDS, resolveDims } from "./presets.js";
@@ -21,7 +22,7 @@ import {
   renderMetrics
 } from "./metrics.js";
 import { fetchGithubContributionCells, isGithubContribError } from "@lp-climb/github-contrib";
-import { computeStats } from "@lp-climb/core";
+import { computeLpTimeline, computeStats } from "@lp-climb/core";
 import { getTheme, listThemes } from "@lp-climb/themes";
 import {
   renderRankedClimbAvif,
@@ -36,6 +37,7 @@ const env = loadEnv();
 type ContribData = {
   cells: ContributionCell[];
   stats: ContributionStats;
+  timeline: LpTimelinePoint[];
 };
 
 function estimateTextBytes(value: string, key: string) {
@@ -52,7 +54,8 @@ function estimateContribBytes(value: ContribData, key: string) {
   // out a disproportionate amount of binary render data.
   const cellsBytes = value.cells.length * 40;
   const statsBytes = 128;
-  return Buffer.byteLength(key, "utf8") + cellsBytes + statsBytes;
+  const timelineBytes = value.timeline.length * 24;
+  return Buffer.byteLength(key, "utf8") + cellsBytes + statsBytes + timelineBytes;
 }
 
 // Three LRUs, one per hot value-shape:
@@ -447,7 +450,8 @@ async function refreshContrib(user: string): Promise<ContribFetchResult> {
   recordGithubFetch("success");
   const data: ContribData = {
     cells: freshCells,
-    stats: computeStats(freshCells)
+    stats: computeStats(freshCells),
+    timeline: computeLpTimeline(freshCells)
   };
   contribCache.set(key, data, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
   return { data, stamp: Date.now(), stale: false, source: "miss" };
@@ -557,13 +561,15 @@ function buildRenderParams(
     ? {
         user: climbers.vs.user,
         cells: climbers.vs.data.cells,
-        stats: climbers.vs.data.stats
+        stats: climbers.vs.data.stats,
+        timeline: climbers.vs.data.timeline
       }
     : null;
   const team = climbers.team.map((m) => ({
     user: m.user,
     cells: m.data.cells,
-    stats: m.data.stats
+    stats: m.data.stats,
+    timeline: m.data.timeline
   }));
 
   // Card mode is primary-only: silently ignore `vs` / `team` so the request
@@ -577,6 +583,7 @@ function buildRenderParams(
     user: q.user,
     cells: climbers.primary.data.cells,
     stats: climbers.primary.data.stats,
+    timeline: climbers.primary.data.timeline,
     theme,
     style,
     ...(dims.width !== undefined ? { width: dims.width } : {}),

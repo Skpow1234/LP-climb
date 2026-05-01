@@ -178,7 +178,7 @@ export function renderProfileCardSvg(p: RenderParams): string {
   const innerW = W - padding * 2;
   const innerH = H - padding * 2;
 
-  const timeline = computeLpTimeline(p.cells);
+  const timeline = p.timeline ?? computeLpTimeline(p.cells);
   const headLp = timeline.at(-1)?.lp ?? TIERS[0]!.lpMin;
   const prog = tierProgress(headLp, p.theme);
   const metrics = computeMetricRows(p.stats);

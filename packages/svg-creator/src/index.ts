@@ -1,5 +1,6 @@
 import type { ContributionCell, ContributionStats, Theme } from "@lp-climb/types";
 import { computeLpTimeline, TIERS } from "@lp-climb/core";
+import type { LpTimelinePoint } from "@lp-climb/core";
 import { Resvg } from "@resvg/resvg-js";
 // `gifenc` ships as CommonJS (no `exports` ESM condition) so Node's native
 // ESM loader cannot reliably extract named bindings at runtime. We import the
@@ -16,6 +17,7 @@ export type TeamMember = {
   user: string;
   cells: ContributionCell[];
   stats: ContributionStats;
+  timeline?: LpTimelinePoint[];
 };
 
 /**
@@ -32,6 +34,7 @@ export type RenderParams = {
   user: string;
   cells: ContributionCell[];
   stats: ContributionStats;
+  timeline?: LpTimelinePoint[];
   theme: Theme;
   width?: number;
   height?: number;
@@ -140,14 +143,14 @@ export function renderLadderSvg(p: RenderParams): string {
   const ladderTop = padding + headerH;
   const ladderBottom = H - padding - footerH;
 
-  const t0 = computeLpTimeline(p.cells);
-  const t1 = p.vs ? computeLpTimeline(p.vs.cells) : null;
+  const t0 = p.timeline ?? computeLpTimeline(p.cells);
+  const t1 = p.vs ? (p.vs.timeline ?? computeLpTimeline(p.vs.cells)) : null;
 
   // Team members are only rendered when `vs` is not set. API enforces this;
   // the renderer defensively ignores `team` when `vs` is set so output for
   // vs-mode stays byte-identical to the existing snapshot tests.
   const teamMembers = !p.vs && p.team && p.team.length > 0 ? p.team : [];
-  const teamTimelines = teamMembers.map((m) => computeLpTimeline(m.cells));
+  const teamTimelines = teamMembers.map((m) => m.timeline ?? computeLpTimeline(m.cells));
 
   const head = t0.at(-1);
   const head2 = t1?.at(-1);
@@ -513,4 +516,3 @@ export function renderRankedClimbGif(p: RenderParams, opts: RenderGifOptions = {
   }
   return Buffer.from(gif.bytes());
 }
-

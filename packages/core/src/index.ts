@@ -113,9 +113,15 @@ export function lpDeltaFromCount(count: number) {
   return 50;
 }
 
+export type LpTimelinePoint = {
+  date: string;
+  lp: number;
+  delta: number;
+};
+
 export function computeLpTimeline(cells: ContributionCell[]) {
   const sorted = [...cells].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
-  const out: { date: string; lp: number; delta: number }[] = [];
+  const out: LpTimelinePoint[] = [];
   let lp = 800;
   for (const c of sorted) {
     const delta = lpDeltaFromCount(c.count);
