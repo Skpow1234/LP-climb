@@ -644,8 +644,66 @@
       /* Preview states: skeleton shimmer while loading, rich error panel on
          failure. Both replace the fallback <img> broken-glyph that browsers
          render on <img> load failures. */
+      .previewFrame[data-state="loading"] {
+        animation: previewFrameLoadingPulse 2.6s ease-in-out infinite;
+      }
+      @keyframes previewFrameLoadingPulse {
+        0%,
+        100% {
+          box-shadow:
+            0 0 0 1px rgba(0, 0, 0, 0.35) inset,
+            0 0 0 0 rgba(108, 225, 255, 0);
+        }
+        50% {
+          box-shadow:
+            0 0 0 1px rgba(0, 0, 0, 0.35) inset,
+            0 0 36px 0 rgba(108, 225, 255, 0.14);
+        }
+      }
       .previewFrame[data-state="loading"] .skeleton {
         display: block;
+      }
+      .previewLoadingPanel {
+        display: none;
+        position: absolute;
+        left: 14px;
+        right: 14px;
+        bottom: 14px;
+        z-index: 4;
+        padding: 12px 14px 13px;
+        border-radius: 11px;
+        background: rgba(9, 10, 16, 0.88);
+        border: 1px solid rgba(108, 225, 255, 0.28);
+        backdrop-filter: blur(10px);
+        pointer-events: none;
+        text-align: center;
+      }
+      .previewFrame[data-state="loading"] .previewLoadingPanel {
+        display: block;
+      }
+      .previewLoadingTitle {
+        margin: 0 0 6px;
+        font-size: 12.5px;
+        font-weight: 800;
+        letter-spacing: 0.35px;
+        text-transform: uppercase;
+        color: rgba(240, 242, 248, 0.92);
+      }
+      .previewLoadingDetail {
+        margin: 0;
+        font-size: 11.5px;
+        color: var(--muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        line-height: 1.45;
+        word-break: break-word;
+      }
+      .previewLoadingHint {
+        margin: 10px 0 0;
+        padding-top: 10px;
+        border-top: 1px solid var(--panel-border);
+        font-size: 11px;
+        line-height: 1.45;
+        color: var(--muted-soft);
       }
       .skeleton {
         display: none;
@@ -1090,6 +1148,14 @@
           <div id="previewFrame" class="previewFrame" data-state="loading">
             <div class="skeleton" aria-hidden="true"></div>
             <img id="preview" alt="LP climb card preview" />
+            <div class="previewLoadingPanel" aria-live="polite">
+              <p class="previewLoadingTitle">Rendering preview</p>
+              <p id="previewLoadingDetail" class="previewLoadingDetail"></p>
+              <p class="previewLoadingHint">
+                Requesting the live API. Cold starts or large GIF/AVIF renders can take a while — this panel
+                times out after 25s with a retry option.
+              </p>
+            </div>
             <div
               id="errorPanel"
               class="errorPanel"

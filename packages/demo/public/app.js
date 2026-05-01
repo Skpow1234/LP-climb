@@ -379,7 +379,16 @@
 
   function setPreviewState(kind) {
     var frame = qs("previewFrame");
-    if (frame) frame.dataset.state = kind;
+    if (!frame) return;
+    frame.dataset.state = kind;
+    if (kind === "loading") frame.setAttribute("aria-busy", "true");
+    else frame.removeAttribute("aria-busy");
+    if (kind === "ok" || kind === "error") setPreviewLoadingDetail("");
+  }
+
+  function setPreviewLoadingDetail(text) {
+    var el = qs("previewLoadingDetail");
+    if (el) el.textContent = String(text || "");
   }
 
   function clearErrorPanel() {
@@ -861,8 +870,22 @@
     clearErrorPanel();
     setPreviewState("loading");
     setStateBadge("loading", "Loading…");
-    previewMetaSetPending("Fetching preview…");
-    setStatus("GET " + renderUrl, false);
+    previewMetaSetPending("Waiting for response headers…");
+    var dimW = qs("width") ? String(qs("width").value || "").trim() : "";
+    var dimH = qs("height") ? String(qs("height").value || "").trim() : "";
+    var loadingDetail =
+      (user || "—") +
+      " · " +
+      state.theme +
+      " · " +
+      state.style +
+      " · preview " +
+      previewFormat.toUpperCase() +
+      " · export " +
+      exportFormat.toUpperCase() +
+      (dimW && dimH ? "\n" + dimW + "×" + dimH + " px" : "");
+    setPreviewLoadingDetail(loadingDetail);
+    setStatus("GET " + renderUrl + "\n\nTip: first request after an API cold start can take ~15–25s.", false);
 
     toast(
       "info",
@@ -1264,6 +1287,7 @@
   }
 
   function init() {
+    setPreviewState("loading");
     renderThemeChips();
     try {
       applyDemoPageFromSearch(new URLSearchParams(window.location.search));
