@@ -6,6 +6,16 @@ const EnvSchema = z.object({
   GITHUB_TOKEN: z.string().min(1),
   CACHE_TTL_SECONDS: z.coerce.number().int().min(10).max(86400).default(21600),
   CACHE_STALE_SECONDS: z.coerce.number().int().min(0).max(604800).default(86400),
+  CACHE_CONTRIB_TTL_SECONDS: z.coerce.number().int().min(10).max(86400).optional(),
+  CACHE_CONTRIB_STALE_SECONDS: z.coerce.number().int().min(0).max(604800).optional(),
+  CACHE_SVG_TTL_SECONDS: z.coerce.number().int().min(10).max(86400).optional(),
+  CACHE_SVG_STALE_SECONDS: z.coerce.number().int().min(0).max(604800).optional(),
+  CACHE_META_TTL_SECONDS: z.coerce.number().int().min(10).max(86400).optional(),
+  CACHE_META_STALE_SECONDS: z.coerce.number().int().min(0).max(604800).optional(),
+  CACHE_RASTER_TTL_SECONDS: z.coerce.number().int().min(10).max(604800).optional(),
+  CACHE_RASTER_STALE_SECONDS: z.coerce.number().int().min(0).max(604800).optional(),
+  CACHE_GIF_TTL_SECONDS: z.coerce.number().int().min(10).max(604800).optional(),
+  CACHE_GIF_STALE_SECONDS: z.coerce.number().int().min(0).max(604800).optional(),
   CACHE_MAX_ENTRIES: z.coerce.number().int().min(100).max(50000).default(5000),
   CACHE_CONTRIB_MAX_BYTES: z.coerce.number().int().min(1024).max(1024 * 1024 * 1024).default(16 * 1024 * 1024),
   CACHE_TEXT_MAX_BYTES: z.coerce.number().int().min(1024).max(1024 * 1024 * 1024).default(64 * 1024 * 1024),
@@ -29,7 +39,19 @@ const EnvSchema = z.object({
   CROSS_ORIGIN_RESOURCE_POLICY: z
     .enum(["cross-origin", "same-site", "same-origin"])
     .default("cross-origin")
-});
+}).transform((env) => ({
+  ...env,
+  CACHE_CONTRIB_TTL_SECONDS: env.CACHE_CONTRIB_TTL_SECONDS ?? env.CACHE_TTL_SECONDS,
+  CACHE_CONTRIB_STALE_SECONDS: env.CACHE_CONTRIB_STALE_SECONDS ?? env.CACHE_STALE_SECONDS,
+  CACHE_SVG_TTL_SECONDS: env.CACHE_SVG_TTL_SECONDS ?? env.CACHE_TTL_SECONDS,
+  CACHE_SVG_STALE_SECONDS: env.CACHE_SVG_STALE_SECONDS ?? env.CACHE_STALE_SECONDS,
+  CACHE_META_TTL_SECONDS: env.CACHE_META_TTL_SECONDS ?? 7200,
+  CACHE_META_STALE_SECONDS: env.CACHE_META_STALE_SECONDS ?? 21600,
+  CACHE_RASTER_TTL_SECONDS: env.CACHE_RASTER_TTL_SECONDS ?? 43200,
+  CACHE_RASTER_STALE_SECONDS: env.CACHE_RASTER_STALE_SECONDS ?? 172800,
+  CACHE_GIF_TTL_SECONDS: env.CACHE_GIF_TTL_SECONDS ?? 86400,
+  CACHE_GIF_STALE_SECONDS: env.CACHE_GIF_STALE_SECONDS ?? 259200
+}));
 
 export type Env = z.infer<typeof EnvSchema>;
 

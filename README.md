@@ -416,8 +416,18 @@ All read by `packages/api/src/env.ts` (see [`.env.example`](.env.example) for a 
 | `PORT` | `3000` | HTTP listen port. |
 | `HOST` | `0.0.0.0` | Bind address. |
 | `GITHUB_TOKEN` | _(required)_ | Token for GitHub GraphQL contribution queries. Needs no scopes (public data). |
-| `CACHE_TTL_SECONDS` | `21600` (6 h) | Fresh window for the SWR LRU. |
-| `CACHE_STALE_SECONDS` | `86400` (24 h) | Extra stale window — entries are served + refreshed in background. |
+| `CACHE_TTL_SECONDS` | `21600` (6 h) | Legacy fallback fresh window. Used when a per-route TTL below is not set. |
+| `CACHE_STALE_SECONDS` | `86400` (24 h) | Legacy fallback stale window. Used when a per-route stale window below is not set. |
+| `CACHE_CONTRIB_TTL_SECONDS` | `21600` (6 h) | Fresh window for cached GitHub contribution payloads. Defaults to `CACHE_TTL_SECONDS`. |
+| `CACHE_CONTRIB_STALE_SECONDS` | `86400` (24 h) | Stale window for cached GitHub contribution payloads. Defaults to `CACHE_STALE_SECONDS`. |
+| `CACHE_SVG_TTL_SECONDS` | `21600` (6 h) | Fresh window for SVG renders. Defaults to `CACHE_TTL_SECONDS`. |
+| `CACHE_SVG_STALE_SECONDS` | `86400` (24 h) | Stale window for SVG renders. Defaults to `CACHE_STALE_SECONDS`. |
+| `CACHE_META_TTL_SECONDS` | `7200` (2 h) | Fresh window for `meta.json` responses. Shorter because they are cheap to recompute and more likely to be consumed programmatically. |
+| `CACHE_META_STALE_SECONDS` | `21600` (6 h) | Stale window for `meta.json` responses. |
+| `CACHE_RASTER_TTL_SECONDS` | `43200` (12 h) | Fresh window for PNG / WebP / AVIF renders. Longer because rasterization is more expensive. |
+| `CACHE_RASTER_STALE_SECONDS` | `172800` (48 h) | Stale window for PNG / WebP / AVIF renders. |
+| `CACHE_GIF_TTL_SECONDS` | `86400` (24 h) | Fresh window for GIF renders. Longest by default because GIF generation is the most CPU-expensive path. |
+| `CACHE_GIF_STALE_SECONDS` | `259200` (72 h) | Stale window for GIF renders. |
 | `CACHE_MAX_ENTRIES` | `5000` | Per-cache entry cap. Acts as a secondary guardrail alongside the byte budgets below. |
 | `CACHE_CONTRIB_MAX_BYTES` | `16777216` (16 MiB) | Approximate byte budget for cached GitHub contribution payloads + precomputed stats. |
 | `CACHE_TEXT_MAX_BYTES` | `67108864` (64 MiB) | Approximate byte budget for cached SVG / JSON / Prometheus text responses. |

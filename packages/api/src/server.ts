@@ -269,7 +269,27 @@ app.addHook("onResponse", async (req, reply) => {
 app.get("/healthz", async () => ({ ok: true }));
 app.get("/v1/healthz", { schema: SCHEMAS.healthz }, async () => ({ ok: true, version: "v1" }));
 
-const cacheControl = `public, max-age=${env.CACHE_TTL_SECONDS}, stale-while-revalidate=${env.CACHE_STALE_SECONDS}`;
+type CachePolicy = {
+  ttlSeconds: number;
+  staleSeconds: number;
+  cacheControl: string;
+};
+
+function makeCachePolicy(ttlSeconds: number, staleSeconds: number): CachePolicy {
+  return {
+    ttlSeconds,
+    staleSeconds,
+    cacheControl: `public, max-age=${ttlSeconds}, stale-while-revalidate=${staleSeconds}`
+  };
+}
+
+const cachePolicies = {
+  contrib: makeCachePolicy(env.CACHE_CONTRIB_TTL_SECONDS, env.CACHE_CONTRIB_STALE_SECONDS),
+  svg: makeCachePolicy(env.CACHE_SVG_TTL_SECONDS, env.CACHE_SVG_STALE_SECONDS),
+  meta: makeCachePolicy(env.CACHE_META_TTL_SECONDS, env.CACHE_META_STALE_SECONDS),
+  raster: makeCachePolicy(env.CACHE_RASTER_TTL_SECONDS, env.CACHE_RASTER_STALE_SECONDS),
+  gif: makeCachePolicy(env.CACHE_GIF_TTL_SECONDS, env.CACHE_GIF_STALE_SECONDS)
+} as const;
 
 const ColorSchema = z
   .string()
@@ -454,7 +474,12 @@ async function refreshContrib(user: string): Promise<ContribFetchResult> {
     stats: computeStats(freshCells),
     timeline: computeLpTimeline(freshCells)
   };
-  contribCache.set(key, data, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+  contribCache.set(
+    key,
+    data,
+    cachePolicies.contrib.ttlSeconds,
+    cachePolicies.contrib.staleSeconds
+  );
   return { data, stamp: Date.now(), stale: false, source: "miss" };
 }
 
@@ -594,11 +619,16 @@ function buildRenderParams(
   };
 }
 
-function refreshTextCacheInBackground(cacheKey: string, route: string, run: () => Promise<string>) {
+function refreshTextCacheInBackground(
+  cacheKey: string,
+  route: string,
+  policy: CachePolicy,
+  run: () => Promise<string>
+) {
   void renderTextCoalesce(cacheKey, async () => {
     try {
       const out = await run();
-      textCache.set(cacheKey, out, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+      textCache.set(cacheKey, out, policy.ttlSeconds, policy.staleSeconds);
       return out;
     } catch (err) {
       app.log.warn({ err, route }, "background text cache refresh failed");
@@ -609,11 +639,16 @@ function refreshTextCacheInBackground(cacheKey: string, route: string, run: () =
   });
 }
 
-function refreshBinaryCacheInBackground(cacheKey: string, route: string, run: () => Promise<Buffer>) {
+function refreshBinaryCacheInBackground(
+  cacheKey: string,
+  route: string,
+  policy: CachePolicy,
+  run: () => Promise<Buffer>
+) {
   void renderBinaryCoalesce(cacheKey, async () => {
     try {
       const out = await run();
-      binaryCache.set(cacheKey, out, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+      binaryCache.set(cacheKey, out, policy.ttlSeconds, policy.staleSeconds);
       return out;
     } catch (err) {
       app.log.warn({ err, route }, "background binary cache refresh failed");
@@ -632,6 +667,7 @@ const handleRenderSvg = async (
   const q = RenderQuerySchema.parse(req.query);
   const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
   const dims = resolveDims(q);
+  const policy = cachePolicies.svg;
 
   const climbers = await resolveClimbers(q);
 
@@ -653,7 +689,7 @@ const handleRenderSvg = async (
 
   const cached = textCache.get(cacheKey);
   reply.header("ETag", etag);
-  reply.header("Cache-Control", cacheControl);
+  reply.header("Cache-Control", policy.cacheControl);
   if (opts?.deprecated) {
     reply.header("Deprecation", "true");
     reply.header("Sunset", "2026-12-31");
@@ -667,7 +703,7 @@ const handleRenderSvg = async (
   if (cached.hit) {
     recordCacheEvent("render", cached.stale ? "stale" : "hit");
     if (cached.stale) {
-      refreshTextCacheInBackground(cacheKey, "v1/render.svg", async () => {
+      refreshTextCacheInBackground(cacheKey, "v1/render.svg", policy, async () => {
         const freshClimbers = await resolveClimbers(q, { allowStale: false });
         return renderRankedClimbSvg(buildRenderParams(q, theme, dims, freshClimbers));
       });
@@ -684,7 +720,7 @@ const handleRenderSvg = async (
     const raced = textCache.get(cacheKey);
     if (raced.hit && !raced.stale) return raced.value;
     const out = renderRankedClimbSvg(buildRenderParams(q, theme, dims, climbers));
-    textCache.set(cacheKey, out, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+    textCache.set(cacheKey, out, policy.ttlSeconds, policy.staleSeconds);
     return out;
   });
 
@@ -701,6 +737,7 @@ const handleRenderPng = async (
   const q = RenderQuerySchema.parse(req.query);
   const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
   const dims = resolveDims(q);
+  const policy = cachePolicies.raster;
 
   const climbers = await resolveClimbers(q);
 
@@ -722,7 +759,7 @@ const handleRenderPng = async (
 
   const cached = binaryCache.get(cacheKey);
   reply.header("ETag", etag);
-  reply.header("Cache-Control", cacheControl);
+  reply.header("Cache-Control", policy.cacheControl);
   if (opts?.deprecated) {
     reply.header("Deprecation", "true");
     reply.header("Sunset", "2026-12-31");
@@ -736,7 +773,7 @@ const handleRenderPng = async (
   if (cached.hit) {
     recordCacheEvent("render", cached.stale ? "stale" : "hit");
     if (cached.stale) {
-      refreshBinaryCacheInBackground(cacheKey, "v1/render.png", async () => {
+      refreshBinaryCacheInBackground(cacheKey, "v1/render.png", policy, async () => {
         const freshClimbers = await resolveClimbers(q, { allowStale: false });
         return renderRankedClimbPng(buildRenderParams(q, theme, dims, freshClimbers));
       });
@@ -751,7 +788,7 @@ const handleRenderPng = async (
     const raced = binaryCache.get(cacheKey);
     if (raced.hit && !raced.stale) return raced.value;
     const out = renderRankedClimbPng(buildRenderParams(q, theme, dims, climbers));
-    binaryCache.set(cacheKey, out, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+    binaryCache.set(cacheKey, out, policy.ttlSeconds, policy.staleSeconds);
     return out;
   });
 
@@ -766,6 +803,7 @@ const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) =>
   const q = RasterQuerySchema.parse(req.query);
   const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
   const dims = resolveDims(q);
+  const policy = cachePolicies.raster;
 
   const climbers = await resolveClimbers(q);
 
@@ -790,7 +828,7 @@ const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) =>
 
   const cached = binaryCache.get(cacheKey);
   reply.header("ETag", etag);
-  reply.header("Cache-Control", cacheControl);
+  reply.header("Cache-Control", policy.cacheControl);
   if (ifNoneMatchMatches(req.headers["if-none-match"], etag)) {
     reply.header("X-Cache", cached.hit ? (cached.stale ? "stale" : "hit") : "miss");
     reply.code(304);
@@ -799,7 +837,7 @@ const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) =>
   if (cached.hit) {
     recordCacheEvent("render", cached.stale ? "stale" : "hit");
     if (cached.stale) {
-      refreshBinaryCacheInBackground(cacheKey, `v1/render.${format}`, async () => {
+      refreshBinaryCacheInBackground(cacheKey, `v1/render.${format}`, policy, async () => {
         const freshClimbers = await resolveClimbers(q, { allowStale: false });
         const params = buildRenderParams(q, theme, dims, freshClimbers);
         const encoderOpts = q.quality !== undefined ? { quality: q.quality } : {};
@@ -823,7 +861,7 @@ const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) =>
       format === "webp"
         ? await renderRankedClimbWebp(params, encoderOpts)
         : await renderRankedClimbAvif(params, encoderOpts);
-    binaryCache.set(cacheKey, out, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+    binaryCache.set(cacheKey, out, policy.ttlSeconds, policy.staleSeconds);
     return out;
   });
 
@@ -836,6 +874,7 @@ const handleRenderGif = async (req: any, reply: any) => {
   const q = GifQuerySchema.parse(req.query);
   const theme = applyThemeOverrides(getTheme(q.theme ?? null), q);
   const dims = resolveDims(q);
+  const policy = cachePolicies.gif;
 
   const climbers = await resolveClimbers(q);
 
@@ -859,7 +898,7 @@ const handleRenderGif = async (req: any, reply: any) => {
 
   const cached = binaryCache.get(cacheKey);
   reply.header("ETag", etag);
-  reply.header("Cache-Control", cacheControl);
+  reply.header("Cache-Control", policy.cacheControl);
   if (ifNoneMatchMatches(req.headers["if-none-match"], etag)) {
     reply.header("X-Cache", cached.hit ? (cached.stale ? "stale" : "hit") : "miss");
     reply.code(304);
@@ -868,7 +907,7 @@ const handleRenderGif = async (req: any, reply: any) => {
   if (cached.hit) {
     recordCacheEvent("render", cached.stale ? "stale" : "hit");
     if (cached.stale) {
-      refreshBinaryCacheInBackground(cacheKey, "v1/render.gif", async () => {
+      refreshBinaryCacheInBackground(cacheKey, "v1/render.gif", policy, async () => {
         const freshClimbers = await resolveClimbers(q, { allowStale: false });
         return renderRankedClimbGif(buildRenderParams(q, theme, dims, freshClimbers), {
           ...(q.frames !== undefined ? { frames: q.frames } : {}),
@@ -889,7 +928,7 @@ const handleRenderGif = async (req: any, reply: any) => {
       ...(q.frames !== undefined ? { frames: q.frames } : {}),
       ...(q.fps !== undefined ? { fps: q.fps } : {})
     });
-    binaryCache.set(cacheKey, out, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+    binaryCache.set(cacheKey, out, policy.ttlSeconds, policy.staleSeconds);
     return out;
   });
 
@@ -909,6 +948,7 @@ const handleMetaJson = async (
       path: vsTeamRefinement.path
     })
     .parse(req.query);
+  const policy = cachePolicies.meta;
   const climbers = await resolveClimbers(q);
 
   const cacheKey = JSON.stringify({
@@ -924,7 +964,7 @@ const handleMetaJson = async (
   const etag = buildDeterministicEtag(cacheKey);
   const cached = textCache.get(cacheKey);
   reply.header("ETag", etag);
-  reply.header("Cache-Control", cacheControl);
+  reply.header("Cache-Control", policy.cacheControl);
   if (opts?.deprecated) {
     reply.header("Deprecation", "true");
     reply.header("Sunset", "2026-12-31");
@@ -938,7 +978,7 @@ const handleMetaJson = async (
   if (cached.hit) {
     recordCacheEvent("render", cached.stale ? "stale" : "hit");
     if (cached.stale) {
-      refreshTextCacheInBackground(cacheKey, "v1/meta.json", async () => {
+      refreshTextCacheInBackground(cacheKey, "v1/meta.json", policy, async () => {
         const freshClimbers = await resolveClimbers(q, { allowStale: false });
         return JSON.stringify({
           user: q.user,
@@ -967,7 +1007,7 @@ const handleMetaJson = async (
         : null,
       team: climbers.team.map((m) => ({ user: m.user, stats: m.data.stats }))
     });
-    textCache.set(cacheKey, out, env.CACHE_TTL_SECONDS, env.CACHE_STALE_SECONDS);
+    textCache.set(cacheKey, out, policy.ttlSeconds, policy.staleSeconds);
     return out;
   });
 
@@ -1016,7 +1056,7 @@ app.get("/v1/github-contrib/:user", { schema: SCHEMAS.githubContrib }, async (re
 
   reply.header("ETag", etag);
   reply.header("Content-Type", "application/json; charset=utf-8");
-  reply.header("Cache-Control", cacheControl);
+  reply.header("Cache-Control", cachePolicies.contrib.cacheControl);
   reply.header("X-Cache", result.source);
   if (ifNoneMatchMatches(req.headers["if-none-match"], etag)) {
     reply.code(304);
