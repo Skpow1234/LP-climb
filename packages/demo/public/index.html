@@ -101,7 +101,7 @@
         padding: 0 20px 64px;
         display: grid;
         grid-template-columns: 380px 1fr;
-        gap: 20px;
+        gap: 24px;
       }
       @media (max-width: 920px) {
         .wrap {
@@ -115,6 +115,45 @@
         border-radius: 18px;
         padding: 18px;
         backdrop-filter: blur(14px);
+      }
+      /* Input (left) vs preview (right) vs export (share block): distinct surfaces */
+      .cardInput {
+        border-color: rgba(108, 225, 255, 0.14);
+        background:
+          linear-gradient(165deg, rgba(108, 225, 255, 0.06) 0%, transparent 38%),
+          var(--panel);
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.35) inset,
+          0 20px 50px rgba(0, 0, 0, 0.25);
+      }
+      .cardPreview {
+        border-color: rgba(142, 59, 255, 0.16);
+        background:
+          linear-gradient(195deg, rgba(142, 59, 255, 0.07) 0%, transparent 42%),
+          var(--panel);
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.35) inset,
+          0 24px 56px rgba(0, 0, 0, 0.28);
+      }
+      .panelSection.panelSectionExport {
+        margin-top: 22px;
+        padding: 16px 14px 18px;
+        border-top: none;
+        border-radius: 14px;
+        border: 1px solid rgba(42, 233, 140, 0.28);
+        background: linear-gradient(155deg, rgba(42, 233, 140, 0.1), rgba(0, 0, 0, 0.22));
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.28) inset;
+      }
+      .panelSection.panelSectionExport .panelSectionTitle {
+        color: rgba(186, 255, 220, 0.78);
+      }
+      .panelSection.panelSectionExport .embedBox pre {
+        border-color: rgba(42, 233, 140, 0.2);
+        background: rgba(0, 0, 0, 0.38);
+      }
+      .panelSection.panelSectionExport .copyBtn,
+      .panelSection.panelSectionExport .copyAsBtn {
+        border-color: rgba(42, 233, 140, 0.22);
       }
       .card h1 {
         font-size: 17px;
@@ -465,6 +504,12 @@
         align-items: center;
         justify-content: space-between;
         gap: 12px;
+        padding: 10px 12px;
+        margin: -2px -2px 4px;
+        border-radius: 12px;
+        border: 1px solid rgba(142, 59, 255, 0.22);
+        border-left: 3px solid #8e3bff;
+        background: rgba(0, 0, 0, 0.28);
       }
       .previewHead h2 {
         font-size: 14px;
@@ -511,10 +556,11 @@
       .previewFrame {
         position: relative;
         border-radius: 16px;
-        border: 1px solid var(--panel-border-strong);
+        border: 1px solid rgba(142, 59, 255, 0.28);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35) inset;
         background:
           radial-gradient(500px 240px at 20% 20%, rgba(42, 233, 140, 0.08), transparent 60%),
-          radial-gradient(500px 240px at 80% 80%, rgba(142, 59, 255, 0.08), transparent 60%),
+          radial-gradient(500px 240px at 80% 80%, rgba(142, 59, 255, 0.12), transparent 60%),
           rgba(0, 0, 0, 0.35);
         overflow: hidden;
         display: flex;
@@ -562,6 +608,18 @@
         background: rgba(255, 89, 112, 0.06);
       }
 
+      .previewDock {
+        display: grid;
+        gap: 10px;
+        padding: 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(142, 59, 255, 0.14);
+        background: rgba(0, 0, 0, 0.22);
+      }
+      .previewDock .status {
+        border-color: rgba(142, 59, 255, 0.12);
+        background: rgba(0, 0, 0, 0.3);
+      }
       .previewMeta {
         font-size: 11.5px;
         color: var(--muted);
@@ -836,7 +894,7 @@
     </header>
 
     <div class="wrap">
-      <aside class="card">
+      <aside class="card cardInput">
         <h1>Generate your card</h1>
         <p class="muted cardLead">Pick a GitHub login, tune the look, then copy an embed-ready URL or snippet.</p>
 
@@ -991,7 +1049,7 @@
           </div>
         </section>
 
-        <section class="panelSection" aria-labelledby="panelSecShare">
+        <section class="panelSection panelSectionExport" aria-labelledby="panelSecShare">
           <h2 id="panelSecShare" class="panelSectionTitle">Generate &amp; share</h2>
           <button id="renderBtn" class="primary">Render card</button>
 
@@ -1017,7 +1075,7 @@
         </section>
       </aside>
 
-      <section class="card">
+      <section class="card cardPreview">
         <div class="preview">
           <div class="previewHead">
             <h2>Preview</h2>
@@ -1061,16 +1119,18 @@
             </div>
           </div>
 
-          <div
-            id="previewMeta"
-            class="previewMeta previewMeta--pending"
-            role="region"
-            aria-label="Preview response metadata"
-          >
-            Awaiting preview response…
-          </div>
+          <div class="previewDock">
+            <div
+              id="previewMeta"
+              class="previewMeta previewMeta--pending"
+              role="region"
+              aria-label="Preview response metadata"
+            >
+              Awaiting preview response…
+            </div>
 
-          <div id="status" class="status"></div>
+            <div id="status" class="status"></div>
+          </div>
         </div>
       </section>
     </div>
