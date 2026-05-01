@@ -348,6 +348,30 @@
         background: rgba(255, 255, 255, 0.1);
       }
 
+      .copyAsGrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .copyAsBtn {
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid var(--panel-border);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 12px;
+        letter-spacing: 0.2px;
+        font-family: inherit;
+        text-align: center;
+      }
+      .copyAsBtn:hover {
+        background: rgba(255, 255, 255, 0.09);
+        border-color: var(--panel-border-strong);
+      }
+
       /* Preview panel */
       .preview {
         display: grid;
@@ -867,6 +891,14 @@
         <div class="embedBox">
           <pre id="embed"></pre>
           <button id="copyBtn" class="copyBtn" type="button" title="Copy URL">Copy</button>
+        </div>
+
+        <label>Copy as</label>
+        <div class="copyAsGrid" role="group" aria-label="Copy embed snippets">
+          <button type="button" class="copyAsBtn" id="copyAsImageUrl">Image URL</button>
+          <button type="button" class="copyAsBtn" id="copyAsMarkdown">Markdown img</button>
+          <button type="button" class="copyAsBtn" id="copyAsPicture">Picture</button>
+          <button type="button" class="copyAsBtn" id="copyAsMetaJson">Meta JSON URL</button>
         </div>
       </aside>
 

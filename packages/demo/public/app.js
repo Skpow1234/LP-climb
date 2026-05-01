@@ -738,6 +738,8 @@
     var meta = new URL("/v1/meta.json", apiBase);
     var metaParams = new URLSearchParams({ user: user || "" });
     if (vs) metaParams.set("vs", vs);
+    var team = common.get("team");
+    if (team) metaParams.set("team", team);
     meta.search = metaParams.toString();
     var embedUrl = exportUrlObj.toString();
 
@@ -1034,6 +1036,115 @@
     });
   }
 
+  function getEmbedImageUrl() {
+    return String(qs("embed").textContent || "").trim();
+  }
+
+  function escapeHtmlAttr(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function embedAltText() {
+    var common = buildCommonQuery();
+    var user = common.get("user") || "user";
+    var parts = ["LP Climb", state.style, "for", user];
+    if (common.get("vs")) parts.push("vs " + common.get("vs"));
+    if (common.get("team")) parts.push("team " + common.get("team"));
+    return parts.join(" ");
+  }
+
+  function buildMarkdownImgSnippet() {
+    var url = getEmbedImageUrl();
+    if (!url) return "";
+    var alt = embedAltText().replace(/\]/g, "\\]");
+    return "![" + alt + "](" + url + ")";
+  }
+
+  function swapRenderExtension(absoluteUrl, ext) {
+    var u = new URL(absoluteUrl);
+    u.pathname = u.pathname.replace(/(\/v1\/render)\.[a-z0-9]+$/i, "$1." + ext);
+    return u.toString();
+  }
+
+  function buildPictureSnippet() {
+    var url = getEmbedImageUrl();
+    if (!url) return "";
+    var u = new URL(url);
+    var m = u.pathname.match(/\.([a-z0-9]+)$/i);
+    var fmt = m ? m[1].toLowerCase() : "svg";
+    var alt = escapeHtmlAttr(embedAltText());
+    var w = String(qs("width").value || "").trim();
+    var h = String(qs("height").value || "").trim();
+    var wh = w && h ? ' width="' + escapeHtmlAttr(w) + '" height="' + escapeHtmlAttr(h) + '"' : "";
+
+    if (fmt === "svg" || fmt === "gif") {
+      return (
+        '<img src="' +
+        escapeHtmlAttr(url) +
+        '" alt="' +
+        alt +
+        '"' +
+        wh +
+        ' decoding="async" />'
+      );
+    }
+
+    var avif = swapRenderExtension(url, "avif");
+    var webp = swapRenderExtension(url, "webp");
+    var png = swapRenderExtension(url, "png");
+    return (
+      "<picture>\n" +
+      '  <source srcset="' +
+      escapeHtmlAttr(avif) +
+      '" type="image/avif" />\n' +
+      '  <source srcset="' +
+      escapeHtmlAttr(webp) +
+      '" type="image/webp" />\n' +
+      '  <img src="' +
+      escapeHtmlAttr(png) +
+      '" alt="' +
+      alt +
+      '"' +
+      wh +
+      ' decoding="async" />\n' +
+      "</picture>"
+    );
+  }
+
+  function buildMetaJsonUrl() {
+    var apiBase = getApiBase();
+    var common = buildCommonQuery();
+    var mp = new URLSearchParams({ user: common.get("user") || "" });
+    if (common.get("vs")) mp.set("vs", common.get("vs"));
+    if (common.get("team")) mp.set("team", common.get("team"));
+    var u = new URL("/v1/meta.json", apiBase);
+    u.search = mp.toString();
+    return u.toString();
+  }
+
+  function wireCopyAs() {
+    var bind = function (id, getText) {
+      var b = qs(id);
+      if (!b) return;
+      b.addEventListener("click", function () {
+        var text = getText();
+        if (!text) {
+          toast("error", "Nothing to copy", "Run a successful render first so the embed URL is filled in.");
+          return;
+        }
+        copyText(text, b);
+      });
+    };
+    bind("copyAsImageUrl", getEmbedImageUrl);
+    bind("copyAsMarkdown", buildMarkdownImgSnippet);
+    bind("copyAsPicture", buildPictureSnippet);
+    bind("copyAsMetaJson", buildMetaJsonUrl);
+  }
+
   function copyText(url, btn) {
     if (!url) return;
     var done = function () {
@@ -1094,6 +1205,7 @@
     wireFormatSelects();
     wirePresetSelect();
     wireCopy();
+    wireCopyAs();
     wireErrorPanel();
 
     ["user", "vs", "team", "width", "height", "quality", "frames", "fps", "bg", "frame", "text", "accent", "glow"].forEach(
