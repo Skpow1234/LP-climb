@@ -491,6 +491,41 @@
         background: rgba(255, 255, 255, 0.09);
         border-color: var(--panel-border-strong);
       }
+      .snippetPanel {
+        margin-top: 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(42, 233, 140, 0.22);
+        background: rgba(0, 0, 0, 0.22);
+        overflow: hidden;
+      }
+      .snippetHead {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(0, 0, 0, 0.24);
+      }
+      .snippetTitle {
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.45px;
+        text-transform: uppercase;
+        color: rgba(186, 255, 220, 0.78);
+      }
+      .snippetPre {
+        margin: 0;
+        padding: 12px;
+        font-size: 11.5px;
+        line-height: 1.45;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        color: rgba(240, 242, 248, 0.82);
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-height: 220px;
+        overflow: auto;
+      }
 
       /* Preview panel */
       .preview {
@@ -1129,6 +1164,14 @@
             <button type="button" class="copyAsBtn" id="copyAsMarkdown">Markdown img</button>
             <button type="button" class="copyAsBtn" id="copyAsPicture">Picture</button>
             <button type="button" class="copyAsBtn" id="copyAsMetaJson">Meta JSON URL</button>
+          </div>
+
+          <div class="snippetPanel" aria-label="Generated snippet">
+            <div class="snippetHead">
+              <div class="snippetTitle" id="snippetTitle">Generated snippet</div>
+              <button id="copySnippetBtn" class="copyBtn" type="button" title="Copy snippet">Copy</button>
+            </div>
+            <pre id="snippetPre" class="snippetPre"></pre>
           </div>
         </section>
       </aside>

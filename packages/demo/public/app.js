@@ -838,6 +838,7 @@
     if (openPreview) openPreview.href = renderUrl;
     qs("openMeta").href = metaUrl;
     qs("embed").textContent = embedUrl;
+    if (!getSnippetPanelText()) setSnippetPanel("Image URL", embedUrl);
 
     syncDemoPageUrl({ immediate: true });
 
@@ -1217,6 +1218,31 @@
     return u.toString();
   }
 
+  function setSnippetPanel(title, text) {
+    var pre = qs("snippetPre");
+    var t = qs("snippetTitle");
+    if (t) t.textContent = title || "Generated snippet";
+    if (pre) pre.textContent = String(text || "");
+  }
+
+  function getSnippetPanelText() {
+    var pre = qs("snippetPre");
+    return String((pre && pre.textContent) || "").trim();
+  }
+
+  function wireSnippetCopy() {
+    var btn = qs("copySnippetBtn");
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      var text = getSnippetPanelText();
+      if (!text) {
+        toast("error", "Nothing to copy", "Generate a snippet first (or render to populate the embed URL).");
+        return;
+      }
+      copyText(text, btn);
+    });
+  }
+
   function wireCopyAs() {
     var bind = function (id, getText) {
       var b = qs(id);
@@ -1227,6 +1253,12 @@
           toast("error", "Nothing to copy", "Run a successful render first so the embed URL is filled in.");
           return;
         }
+        var title = "Generated snippet";
+        if (id === "copyAsImageUrl") title = "Image URL";
+        if (id === "copyAsMarkdown") title = "Markdown <img>";
+        if (id === "copyAsPicture") title = "<picture> snippet";
+        if (id === "copyAsMetaJson") title = "Meta JSON URL";
+        setSnippetPanel(title, text);
         copyText(text, b);
       });
     };
@@ -1298,6 +1330,7 @@
     wirePresetSelect();
     wireCopy();
     wireCopyAs();
+    wireSnippetCopy();
     wireErrorPanel();
 
     ["user", "vs", "team", "width", "height", "quality", "frames", "fps", "bg", "frame", "text", "accent", "glow"].forEach(
