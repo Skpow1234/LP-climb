@@ -713,7 +713,9 @@
         t.label +
         '</span><small>Accent ' +
         t.accent +
-        '</small></span><span class="swatch" style="background:' +
+        '</small><span class="chipThumb"><img data-theme-thumb="' +
+        t.id +
+        '" alt="" loading="lazy" decoding="async" /></span></span><span class="swatch" style="background:' +
         t.accent +
         ";color:" +
         t.accent +
@@ -724,6 +726,36 @@
         update();
       });
       host.appendChild(btn);
+    });
+  }
+
+  function syncThemeThumbs(apiBase, user) {
+    var u = String(user || "").trim();
+    if (!u) return;
+    var base = String(apiBase || "").trim();
+    if (!base) return;
+
+    var thumbs = document.querySelectorAll("img[data-theme-thumb]");
+    Array.prototype.forEach.call(thumbs, function (img) {
+      var themeId = img.getAttribute("data-theme-thumb") || "";
+      if (!themeId) return;
+
+      // Avoid re-setting src on every update unless base/user changed.
+      var key = base + "|" + u + "|" + themeId;
+      if (img.getAttribute("data-thumb-key") === key && img.getAttribute("src")) return;
+      img.setAttribute("data-thumb-key", key);
+
+      // Small, fast render intended for a thumbnail preview.
+      var url = new URL("/v1/render.svg", base);
+      url.search = new URLSearchParams({
+        user: u,
+        style: "card",
+        preset: "badge",
+        theme: themeId,
+        width: "520",
+        height: "160"
+      }).toString();
+      img.src = url.toString();
     });
   }
 
@@ -828,7 +860,23 @@
     }
 
     // Theme overrides (optional). Keys mirror OpenAPI: bg/frame/text/accent/glow.
-    ["bg", "frame", "text", "accent", "glow"].forEach(function (key) {
+    [
+      "bg",
+      "frame",
+      "text",
+      "accent",
+      "glow",
+      "tier_iron",
+      "tier_bronze",
+      "tier_silver",
+      "tier_gold",
+      "tier_plat",
+      "tier_emerald",
+      "tier_diamond",
+      "tier_master",
+      "tier_grandmaster",
+      "tier_challenger"
+    ].forEach(function (key) {
       var el = qs(key);
       if (!el) return;
       var v = String(el.value || "").trim();
@@ -958,7 +1006,26 @@
       if (sp.get("team") != null && qs("team")) qs("team").value = sp.get("team");
     }
 
-    ["quality", "frames", "fps", "bg", "frame", "text", "accent", "glow"].forEach(function (key) {
+    [
+      "quality",
+      "frames",
+      "fps",
+      "bg",
+      "frame",
+      "text",
+      "accent",
+      "glow",
+      "tier_iron",
+      "tier_bronze",
+      "tier_silver",
+      "tier_gold",
+      "tier_plat",
+      "tier_emerald",
+      "tier_diamond",
+      "tier_master",
+      "tier_grandmaster",
+      "tier_challenger"
+    ].forEach(function (key) {
       var v = sp.get(key);
       var el = qs(key);
       if (el && v != null) el.value = v;
@@ -1058,7 +1125,23 @@
     }
 
     var themeOverrides = {};
-    ["bg", "frame", "text", "accent", "glow"].forEach(function (k) {
+    [
+      "bg",
+      "frame",
+      "text",
+      "accent",
+      "glow",
+      "tier_iron",
+      "tier_bronze",
+      "tier_silver",
+      "tier_gold",
+      "tier_plat",
+      "tier_emerald",
+      "tier_diamond",
+      "tier_master",
+      "tier_grandmaster",
+      "tier_challenger"
+    ].forEach(function (k) {
       var el = qs(k);
       if (!el) return;
       var v = String(el.value || "").trim();
@@ -1147,6 +1230,7 @@
     qs("embed").textContent = urls.embedUrl;
     if (!getSnippetPanelText()) setSnippetPanel("Image URL", urls.embedUrl);
     setUrlPanels(urls.previewFetchUrl, urls.exportUrl, urls.metaUrl);
+    syncThemeThumbs(form.apiBase, form.user);
 
     syncDemoPageUrl({ immediate: true });
   }
@@ -1635,7 +1719,31 @@
     wireUrlTabCopyButtons();
     wireErrorPanel();
 
-    ["user", "vs", "team", "width", "height", "quality", "frames", "fps", "bg", "frame", "text", "accent", "glow"].forEach(
+    [
+      "user",
+      "vs",
+      "team",
+      "width",
+      "height",
+      "quality",
+      "frames",
+      "fps",
+      "bg",
+      "frame",
+      "text",
+      "accent",
+      "glow",
+      "tier_iron",
+      "tier_bronze",
+      "tier_silver",
+      "tier_gold",
+      "tier_plat",
+      "tier_emerald",
+      "tier_diamond",
+      "tier_master",
+      "tier_grandmaster",
+      "tier_challenger"
+    ].forEach(
       function (id) {
       var el = qs(id);
       if (!el) return;

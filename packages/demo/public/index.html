@@ -411,6 +411,24 @@
         letter-spacing: 0.25px;
         line-height: 1.2;
       }
+      .chipThumb {
+        width: 100%;
+        height: 54px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(0, 0, 0, 0.28);
+        overflow: hidden;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .chipThumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
 
       button.primary {
         width: 100%;
@@ -1328,6 +1346,58 @@
               <input id="glow" placeholder="rgba(42,233,140,0.4)" autocomplete="off" spellcheck="false" />
             </div>
             <div></div>
+          </div>
+
+          <div class="controlLabel" style="margin-top: 14px">Tier colors</div>
+          <div class="row">
+            <div>
+              <label for="tier_iron">Iron</label>
+              <input id="tier_iron" placeholder="#6b7280" autocomplete="off" spellcheck="false" />
+            </div>
+            <div>
+              <label for="tier_bronze">Bronze</label>
+              <input id="tier_bronze" placeholder="#b45309" autocomplete="off" spellcheck="false" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="tier_silver">Silver</label>
+              <input id="tier_silver" placeholder="#94a3b8" autocomplete="off" spellcheck="false" />
+            </div>
+            <div>
+              <label for="tier_gold">Gold</label>
+              <input id="tier_gold" placeholder="#f59e0b" autocomplete="off" spellcheck="false" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="tier_plat">Platinum</label>
+              <input id="tier_plat" placeholder="#34d399" autocomplete="off" spellcheck="false" />
+            </div>
+            <div>
+              <label for="tier_emerald">Emerald</label>
+              <input id="tier_emerald" placeholder="#10b981" autocomplete="off" spellcheck="false" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="tier_diamond">Diamond</label>
+              <input id="tier_diamond" placeholder="#60a5fa" autocomplete="off" spellcheck="false" />
+            </div>
+            <div>
+              <label for="tier_master">Master</label>
+              <input id="tier_master" placeholder="#a78bfa" autocomplete="off" spellcheck="false" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="tier_grandmaster">Grandmaster</label>
+              <input id="tier_grandmaster" placeholder="#fb7185" autocomplete="off" spellcheck="false" />
+            </div>
+            <div>
+              <label for="tier_challenger">Challenger</label>
+              <input id="tier_challenger" placeholder="#fbbf24" autocomplete="off" spellcheck="false" />
+            </div>
           </div>
           </details>
         </section>

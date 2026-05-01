@@ -38,6 +38,15 @@ League-inspired **Ranked Climb** visualizations powered by your **GitHub contrib
 - **Interactive API docs:** <https://lp-climb.onrender.com/docs> — Swagger UI; "Try it out" works against the live API.
 - **OpenAPI spec:** <https://lp-climb.onrender.com/openapi.json> — point your codegen at this.
 
+### Demo UI notes
+
+- The demo URL is **shareable**: the current form state is encoded into the page query string.
+- The preview area includes **tabs**:
+  - **Preview**: live image preview (cache-busted so it won’t “stick” on old errors)
+  - **URL**: the exact preview/export/meta URLs being generated
+  - **Metadata**: response headers like `X-Cache` and `X-Request-Id`
+- Theme cards now include **live thumbnail previews** (small `render.svg` calls per theme) to make picking a visual style faster.
+
 ## Quick start — pick a path
 
 LP Climb is delivered three ways. Pick whichever matches what you're trying to embed.
