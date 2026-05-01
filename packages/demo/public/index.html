@@ -697,8 +697,49 @@
         <label for="vs">Opponent (ladder only)</label>
         <input id="vs" placeholder="torvalds" autocomplete="off" spellcheck="false" />
 
+        <label for="team">Team (ladder only)</label>
+        <input
+          id="team"
+          placeholder="torvalds,gaearon,sindresorhus"
+          autocomplete="off"
+          spellcheck="false"
+        />
+
         <label>Theme</label>
         <div class="chips" id="themeChips"></div>
+
+        <details id="themeOverrides" style="margin-top: 10px">
+          <summary style="cursor: pointer; color: var(--muted); font-size: 12.5px; font-weight: 700">
+            Theme overrides (optional)
+          </summary>
+          <div class="row">
+            <div>
+              <label for="bg">BG</label>
+              <input id="bg" placeholder="#07090f" autocomplete="off" spellcheck="false" />
+            </div>
+            <div>
+              <label for="frame">Frame</label>
+              <input id="frame" placeholder="#ffffff22" autocomplete="off" spellcheck="false" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="text">Text</label>
+              <input id="text" placeholder="#f0f2f8" autocomplete="off" spellcheck="false" />
+            </div>
+            <div>
+              <label for="accent">Accent</label>
+              <input id="accent" placeholder="#2AE98C" autocomplete="off" spellcheck="false" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="glow">Glow</label>
+              <input id="glow" placeholder="rgba(42,233,140,0.4)" autocomplete="off" spellcheck="false" />
+            </div>
+            <div></div>
+          </div>
+        </details>
 
         <label for="format">Format</label>
         <select id="format">
@@ -708,6 +749,25 @@
           <option value="avif">AVIF</option>
           <option value="gif">GIF</option>
         </select>
+
+        <div class="row">
+          <div>
+            <label for="quality">Quality</label>
+            <input id="quality" type="number" value="" min="1" max="100" placeholder="(webp/avif)" />
+          </div>
+          <div>
+            <label for="frames">Frames</label>
+            <input id="frames" type="number" value="" min="6" max="60" placeholder="(gif)" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="fps">FPS</label>
+            <input id="fps" type="number" value="" min="4" max="30" placeholder="(gif)" />
+          </div>
+          <div></div>
+        </div>
 
         <label for="preset">Preset</label>
         <select id="preset">

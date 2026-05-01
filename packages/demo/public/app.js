@@ -213,6 +213,52 @@
     return PRESETS[id] || null;
   }
 
+  function normalizeMaybeNumber(raw) {
+    var s = String(raw == null ? "" : raw).trim();
+    if (!s) return null;
+    var n = Number(s);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function parseTeamList(raw) {
+    var s = String(raw || "").trim();
+    if (!s) return [];
+    return s
+      .split(",")
+      .map(function (x) {
+        return x.trim();
+      })
+      .filter(Boolean);
+  }
+
+  function syncAdvancedControls() {
+    var isLadder = state.style === "ladder";
+    var format = state.format || "svg";
+
+    var vs = qs("vs");
+    var team = qs("team");
+    if (vs) {
+      vs.disabled = !isLadder;
+      vs.placeholder = isLadder ? "torvalds" : "switch to Ladder to use vs";
+    }
+    if (team) {
+      team.disabled = !isLadder;
+      team.placeholder = isLadder ? "torvalds,gaearon,sindresorhus" : "switch to Ladder to use team";
+    }
+
+    var quality = qs("quality");
+    if (quality) {
+      quality.disabled = !(format === "webp" || format === "avif");
+      quality.placeholder = quality.disabled ? "(webp/avif)" : "1–100";
+    }
+
+    var frames = qs("frames");
+    var fps = qs("fps");
+    var gifOn = format === "gif";
+    if (frames) frames.disabled = !gifOn;
+    if (fps) fps.disabled = !gifOn;
+  }
+
   function setStatus(text, isError) {
     var el = qs("status");
     if (!el) return;
@@ -336,12 +382,15 @@
           b.setAttribute("aria-pressed", String(b === btn));
         });
         var vs = qs("vs");
+        var team = qs("team");
         // Card mode is primary-only; drop any previously-entered opponent so
         // the embed URL + status stay in sync with the visible form state.
-        if (state.style !== "ladder") vs.value = "";
-        vs.disabled = state.style !== "ladder";
-        vs.placeholder = state.style === "ladder" ? "torvalds" : "switch to Ladder to use vs";
+        if (state.style !== "ladder") {
+          vs.value = "";
+          if (team) team.value = "";
+        }
         qs("renderBtn").textContent = state.style === "ladder" ? "Render ladder" : "Render card";
+        syncAdvancedControls();
         update();
       });
     });
@@ -352,6 +401,7 @@
     if (!format) return;
     format.addEventListener("change", function () {
       state.format = format.value || "svg";
+      syncAdvancedControls();
       update();
     });
   }
@@ -385,12 +435,46 @@
     if (width && (!selectedPreset || Number(width) !== selectedPreset.width)) sp.set("width", width);
     if (height && (!selectedPreset || Number(height) !== selectedPreset.height)) sp.set("height", height);
 
-    // `vs` only applies to the ladder — silently ignored server-side when in
-    // card mode, but we also skip it here so the embed URL stays clean.
+    // Compare/team only applies to the ladder. The API rejects `vs` + `team`
+    // together, so we enforce mutual exclusion here and keep the embed URL clean.
     if (state.style === "ladder") {
       var vs = qs("vs").value.trim();
+      var teamList = parseTeamList(qs("team").value);
+
+      if (vs && teamList.length) {
+        // Prefer team if the user typed multiple values.
+        if (teamList.length > 1) {
+          qs("vs").value = "";
+          vs = "";
+        } else {
+          qs("team").value = "";
+          teamList = [];
+        }
+      }
+
       if (vs) sp.set("vs", vs);
+      if (teamList.length) sp.set("team", teamList.join(","));
     }
+
+    var format = state.format || "svg";
+    if (format === "webp" || format === "avif") {
+      var q = normalizeMaybeNumber(qs("quality").value);
+      if (q != null) sp.set("quality", String(Math.round(q)));
+    }
+    if (format === "gif") {
+      var frames = normalizeMaybeNumber(qs("frames").value);
+      var fps = normalizeMaybeNumber(qs("fps").value);
+      if (frames != null) sp.set("frames", String(Math.round(frames)));
+      if (fps != null) sp.set("fps", String(Math.round(fps)));
+    }
+
+    // Theme overrides (optional). Keys mirror OpenAPI: bg/frame/text/accent/glow.
+    ["bg", "frame", "text", "accent", "glow"].forEach(function (key) {
+      var el = qs(key);
+      if (!el) return;
+      var v = String(el.value || "").trim();
+      if (v) sp.set(key, v);
+    });
 
     return sp;
   }
@@ -798,8 +882,10 @@
     wireCopy();
     wireErrorPanel();
 
-    ["user", "vs", "width", "height"].forEach(function (id) {
+    ["user", "vs", "team", "width", "height", "quality", "frames", "fps", "bg", "frame", "text", "accent", "glow"].forEach(
+      function (id) {
       var el = qs(id);
+      if (!el) return;
       el.addEventListener("keydown", function (e) {
         if (e.key === "Enter") update();
       });
@@ -807,8 +893,7 @@
     });
 
     qs("renderBtn").addEventListener("click", update);
-    qs("vs").disabled = state.style !== "ladder";
-    qs("vs").placeholder = "switch to Ladder to use vs";
+    syncAdvancedControls();
 
     update();
   }
