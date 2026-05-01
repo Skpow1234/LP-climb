@@ -1029,72 +1029,131 @@
     return { ok: true };
   }
 
-  async function update() {
+  function getFormState() {
     var apiBase = getApiBase();
-    var apiBaseLabel = qs("apiBaseLabel");
-    if (apiBaseLabel) apiBaseLabel.textContent = apiBase;
-    qs("healthLink").href = apiBase + "/v1/healthz";
-    var docsLink = qs("docsLink");
-    if (docsLink) docsLink.href = apiBase + "/docs";
+    var user = qs("user").value.trim();
+    var width = String(qs("width").value || "").trim();
+    var height = String(qs("height").value || "").trim();
+    var vs = String(qs("vs") ? qs("vs").value : "").trim();
+    var teamRaw = String(qs("team") ? qs("team").value : "").trim();
+    var teamList = parseTeamList(teamRaw);
+    var preset = state.preset || "";
 
+    // Enforce mutual exclusion for vs/team (same logic as buildCommonQuery).
+    if (state.style === "ladder") {
+      if (vs && teamList.length) {
+        if (teamList.length > 1) {
+          if (qs("vs")) qs("vs").value = "";
+          vs = "";
+        } else {
+          if (qs("team")) qs("team").value = "";
+          teamList = [];
+          teamRaw = "";
+        }
+      }
+    } else {
+      vs = "";
+      teamList = [];
+      teamRaw = "";
+    }
+
+    var themeOverrides = {};
+    ["bg", "frame", "text", "accent", "glow"].forEach(function (k) {
+      var el = qs(k);
+      if (!el) return;
+      var v = String(el.value || "").trim();
+      if (v) themeOverrides[k] = v;
+    });
+
+    return {
+      apiBase: apiBase,
+      user: user,
+      style: state.style,
+      theme: state.theme,
+      preset: preset,
+      width: width,
+      height: height,
+      vs: vs,
+      team: teamList.length ? teamList.join(",") : "",
+      teamRaw: teamRaw,
+      previewFormat: state.previewFormat || "svg",
+      exportFormat: state.exportFormat || "svg",
+      quality: String(qs("quality") ? qs("quality").value : "").trim(),
+      frames: String(qs("frames") ? qs("frames").value : "").trim(),
+      fps: String(qs("fps") ? qs("fps").value : "").trim(),
+      themeOverrides: themeOverrides
+    };
+  }
+
+  function buildRenderUrls(form) {
     var common = buildCommonQuery();
-    var user = common.get("user");
-    var vs = common.get("vs");
-    var previewFormat = state.previewFormat || "svg";
-    var exportFormat = state.exportFormat || "svg";
+    var previewSp = buildFormatQuery(common, form.previewFormat);
+    var exportSp = buildFormatQuery(common, form.exportFormat);
 
-    var previewSp = buildFormatQuery(common, previewFormat);
-    var exportSp = buildFormatQuery(common, exportFormat);
-
-    var previewUrlObj = new URL(renderPathForFormat(previewFormat), apiBase);
+    var previewUrlObj = new URL(renderPathForFormat(form.previewFormat), form.apiBase);
     previewUrlObj.search = previewSp.toString();
-    var exportUrlObj = new URL(renderPathForFormat(exportFormat), apiBase);
+
+    var exportUrlObj = new URL(renderPathForFormat(form.exportFormat), form.apiBase);
     exportUrlObj.search = exportSp.toString();
-    var meta = new URL("/v1/meta.json", apiBase);
-    var metaParams = new URLSearchParams({ user: user || "" });
-    if (vs) metaParams.set("vs", vs);
-    var team = common.get("team");
-    if (team) metaParams.set("team", team);
+
+    var meta = new URL("/v1/meta.json", form.apiBase);
+    var metaParams = new URLSearchParams({ user: form.user || "" });
+    if (form.vs) metaParams.set("vs", form.vs);
+    if (form.team) metaParams.set("team", form.team);
     meta.search = metaParams.toString();
+
     var embedUrl = exportUrlObj.toString();
 
-    // Cache-bust both requests so the preview never gets stuck on a prior
-    // error response (e.g. a 404 while the user fixes a typo'd username).
+    // Cache-bust preview + meta (preview should never get stuck on cached errors).
     var cacheBust = String(Date.now());
     previewUrlObj.searchParams.set("_t", cacheBust);
     meta.searchParams.set("_t", cacheBust);
 
-    var renderUrl = previewUrlObj.toString();
-    var metaUrl = meta.toString();
-    var exportUrl = exportUrlObj.toString();
+    return {
+      previewFetchUrl: previewUrlObj.toString(),
+      exportUrl: exportUrlObj.toString(),
+      embedUrl: embedUrl,
+      metaUrl: meta.toString()
+    };
+  }
 
-    qs("styleBadge").textContent = state.style.toUpperCase();
-    qs("themeBadge").textContent = state.theme;
-    qs("formatBadge").textContent = previewFormat.toUpperCase();
+  function renderUiState(form, urls) {
+    var apiBaseLabel = qs("apiBaseLabel");
+    if (apiBaseLabel) apiBaseLabel.textContent = form.apiBase;
+    qs("healthLink").href = form.apiBase + "/v1/healthz";
+    var docsLink = qs("docsLink");
+    if (docsLink) docsLink.href = form.apiBase + "/docs";
+
+    qs("styleBadge").textContent = form.style.toUpperCase();
+    qs("themeBadge").textContent = form.theme;
+    qs("formatBadge").textContent = form.previewFormat.toUpperCase();
 
     var img = qs("preview");
-    img.alt =
-      "LP climb " +
-      previewFormat +
-      " " +
-      state.style +
-      " for " +
-      (user || "—") +
-      (vs ? " vs " + vs : "");
+    if (img) {
+      img.alt =
+        "LP climb " +
+        form.previewFormat +
+        " " +
+        form.style +
+        " for " +
+        (form.user || "—") +
+        (form.vs ? " vs " + form.vs : "");
+    }
 
-    qs("openSvg").href = exportUrl;
+    qs("openSvg").href = urls.exportUrl;
     var openPreview = qs("openPreview");
-    if (openPreview) openPreview.href = renderUrl;
-    qs("openMeta").href = metaUrl;
-    qs("embed").textContent = embedUrl;
-    if (!getSnippetPanelText()) setSnippetPanel("Image URL", embedUrl);
-    setUrlPanels(renderUrl, exportUrl, metaUrl);
+    if (openPreview) openPreview.href = urls.previewFetchUrl;
+    qs("openMeta").href = urls.metaUrl;
+    qs("embed").textContent = urls.embedUrl;
+    if (!getSnippetPanelText()) setSnippetPanel("Image URL", urls.embedUrl);
+    setUrlPanels(urls.previewFetchUrl, urls.exportUrl, urls.metaUrl);
 
     syncDemoPageUrl({ immediate: true });
+  }
 
-    // Client-side validation first. Short-circuits the network round-trip
-    // for the common case of a typo in the user / vs field.
-    var v = validateInputs(user, vs);
+  async function fetchPreview(form, urls) {
+    // Client-side validation first.
+    var v = validateInputs(form.user, form.vs);
     if (!v.ok) {
       setStatus("", false);
       previewMetaSetNote("No request sent — fix the highlighted field first.", true);
@@ -1102,10 +1161,9 @@
         code: "bad_request",
         title: "Check your inputs",
         message: v.message,
-        url: renderUrl,
+        url: urls.previewFetchUrl,
         status: 0
       });
-      // Hint which field to focus.
       try {
         qs(v.field).focus();
         qs(v.field).select();
@@ -1113,47 +1171,41 @@
       return;
     }
 
-    // Cancel any previous in-flight render so rapid typing doesn't pile up.
     if (inflight) inflight.abort();
     inflight = new AbortController();
 
-    // Enter loading state. The skeleton shows via .previewFrame[data-state=loading].
     clearErrorPanel();
     setPreviewState("loading");
     setStateBadge("loading", "Loading…");
     previewMetaSetPending("Waiting for response headers…");
-    var dimW = qs("width") ? String(qs("width").value || "").trim() : "";
-    var dimH = qs("height") ? String(qs("height").value || "").trim() : "";
     var loadingDetail =
-      (user || "—") +
+      (form.user || "—") +
       " · " +
-      state.theme +
+      form.theme +
       " · " +
-      state.style +
+      form.style +
       " · preview " +
-      previewFormat.toUpperCase() +
+      form.previewFormat.toUpperCase() +
       " · export " +
-      exportFormat.toUpperCase() +
-      (dimW && dimH ? "\n" + dimW + "×" + dimH + " px" : "");
+      form.exportFormat.toUpperCase() +
+      (form.width && form.height ? "\n" + form.width + "×" + form.height + " px" : "");
     setPreviewLoadingDetail(loadingDetail);
-    setStatus("GET " + renderUrl + "\n\nTip: first request after an API cold start can take ~15–25s.", false);
+    setStatus("GET " + urls.previewFetchUrl + "\n\nTip: first request after an API cold start can take ~15–25s.", false);
 
     toast(
       "info",
       "Rendering",
-      (user || "—") +
-        (vs ? " vs " + vs : "") +
+      (form.user || "—") +
+        (form.vs ? " vs " + form.vs : "") +
         " · " +
-        state.theme +
+        form.theme +
         " · " +
-        state.style +
+        form.style +
         " · " +
-        previewFormat.toUpperCase(),
+        form.previewFormat.toUpperCase(),
       { ms: 1400 }
     );
 
-    // Timeout guard — AbortController also drives the timeout reason so we
-    // can distinguish timeout from user-initiated abort.
     var timedOut = false;
     var timeoutId = setTimeout(function () {
       timedOut = true;
@@ -1163,20 +1215,19 @@
     var previewHdrT0 = performance.now();
     var res;
     try {
-      res = await fetch(renderUrl, {
+      res = await fetch(urls.previewFetchUrl, {
         signal: inflight.signal,
-        headers: { Accept: acceptHeaderForFormat(previewFormat) }
+        headers: { Accept: acceptHeaderForFormat(form.previewFormat) }
       });
     } catch (err) {
       clearTimeout(timeoutId);
-      // Intentional abort from a newer call — just drop silently.
       if (err && err.name === "AbortError" && !timedOut) return;
       if (timedOut) {
         previewMetaSetNote("No response within " + FETCH_TIMEOUT_MS / 1000 + "s — metadata unavailable.", true);
         showErrorPanel({
           code: "TIMEOUT",
           message: "No response within " + FETCH_TIMEOUT_MS / 1000 + " seconds.",
-          url: renderUrl,
+          url: urls.previewFetchUrl,
           status: 0
         });
         toast("error", "Request timed out", "The API didn't respond. Retry — cold starts can take ~20s.", {
@@ -1184,10 +1235,6 @@
         });
         return;
       }
-      // fetch() rejects for network / CORS / DNS errors before any HTTP
-      // response arrives. We can't tell CORS from net-error from the API
-      // surface alone, so surface a generic NETWORK_ERROR and let the user
-      // inspect devtools for the actual cause.
       previewMetaSetNote(
         "No HTTP response — X-Cache / X-Request-Id unavailable. If this is a browser demo on a different origin than the API, check CORS and Access-Control-Expose-Headers in DevTools.",
         true
@@ -1195,7 +1242,7 @@
       showErrorPanel({
         code: "NETWORK_ERROR",
         message: String((err && err.message) || err || "Network request failed."),
-        url: renderUrl,
+        url: urls.previewFetchUrl,
         status: 0
       });
       toast("error", "Network error", "Couldn't reach the API. See the preview panel for details.", {
@@ -1223,7 +1270,7 @@
       showErrorPanel({
         code: code,
         message: apiMessage,
-        url: renderUrl,
+        url: urls.previewFetchUrl,
         status: res.status,
         rawBody: rawBody && rawBody.length < 2000 ? rawBody : undefined
       });
@@ -1236,9 +1283,10 @@
       return;
     }
 
+    var img = qs("preview");
     var contentType = String(res.headers.get("content-type") || "");
 
-    if (previewFormat === "svg") {
+    if (form.previewFormat === "svg") {
       var svgText;
       try {
         svgText = await res.text();
@@ -1246,30 +1294,23 @@
         showErrorPanel({
           code: "NETWORK_ERROR",
           message: "Response body read failed: " + String((err && err.message) || err),
-          url: renderUrl,
+          url: urls.previewFetchUrl,
           status: res.status
         });
         return;
       }
-
-      // Extremely defensive: the API always sets the right content-type, but
-      // if a proxy ever turns a 200 SVG into an HTML error page we'd happily
-      // <img> it and show a broken icon. Sniff the payload.
       if (!/^\s*(?:<\?xml[^>]*\?>\s*)?<svg[\s>]/i.test(svgText)) {
         showErrorPanel({
           code: "UPSTREAM_BAD_RESPONSE",
-          message:
-            "The response was 200 OK but didn't start with <svg>. A proxy may have rewritten the body.",
-          url: renderUrl,
+          message: "The response was 200 OK but didn't start with <svg>. A proxy may have rewritten the body.",
+          url: urls.previewFetchUrl,
           status: res.status,
           rawBody: svgText.slice(0, 2000)
         });
         return;
       }
-
       var svgBlob = new Blob([svgText], { type: "image/svg+xml" });
       var svgObjectUrl = URL.createObjectURL(svgBlob);
-
       img.onload = function () {
         if (lastObjectUrl && lastObjectUrl !== svgObjectUrl) {
           try {
@@ -1281,15 +1322,15 @@
         setStateBadge("ok", "Ready");
         setStatus(
           "Loaded · " +
-            previewFormat.toUpperCase() +
+            form.previewFormat.toUpperCase() +
             " · " +
             (svgText.length / 1024).toFixed(1) +
             " KB · " +
-            renderUrl +
+            urls.previewFetchUrl +
             "\nExport: " +
-            exportFormat.toUpperCase() +
+            form.exportFormat.toUpperCase() +
             " · " +
-            exportUrl,
+            urls.exportUrl,
           false
         );
       };
@@ -1297,7 +1338,7 @@
         showErrorPanel({
           code: "UPSTREAM_BAD_RESPONSE",
           message: "The browser rejected the SVG. The payload may be malformed.",
-          url: renderUrl,
+          url: urls.previewFetchUrl,
           status: res.status,
           rawBody: svgText.slice(0, 2000)
         });
@@ -1313,8 +1354,8 @@
       } catch (_) {}
       showErrorPanel({
         code: "UPSTREAM_BAD_RESPONSE",
-        message: "The API returned 200 OK but not an image payload for " + previewFormat.toUpperCase() + ".",
-        url: renderUrl,
+        message: "The API returned 200 OK but not an image payload for " + form.previewFormat.toUpperCase() + ".",
+        url: urls.previewFetchUrl,
         status: res.status,
         rawBody: unexpectedBody.slice(0, 2000)
       });
@@ -1328,14 +1369,12 @@
       showErrorPanel({
         code: "NETWORK_ERROR",
         message: "Response body read failed: " + String((err && err.message) || err),
-        url: renderUrl,
+        url: urls.previewFetchUrl,
         status: res.status
       });
       return;
     }
-
     var objectUrl = URL.createObjectURL(blob);
-
     img.onload = function () {
       if (lastObjectUrl && lastObjectUrl !== objectUrl) {
         try {
@@ -1347,27 +1386,34 @@
       setStateBadge("ok", "Ready");
       setStatus(
         "Loaded · " +
-          previewFormat.toUpperCase() +
+          form.previewFormat.toUpperCase() +
           " · " +
           (blob.size / 1024).toFixed(1) +
           " KB · " +
-          renderUrl +
+          urls.previewFetchUrl +
           "\nExport: " +
-          exportFormat.toUpperCase() +
+          form.exportFormat.toUpperCase() +
           " · " +
-          exportUrl,
+          urls.exportUrl,
         false
       );
     };
     img.onerror = function () {
       showErrorPanel({
         code: "UPSTREAM_BAD_RESPONSE",
-        message: "The browser rejected the " + previewFormat.toUpperCase() + " image payload.",
-        url: renderUrl,
+        message: "The browser rejected the " + form.previewFormat.toUpperCase() + " image payload.",
+        url: urls.previewFetchUrl,
         status: res.status
       });
     };
     img.src = objectUrl;
+  }
+
+  async function update() {
+    var form = getFormState();
+    var urls = buildRenderUrls(form);
+    renderUiState(form, urls);
+    await fetchPreview(form, urls);
   }
 
   function wireCopy() {
