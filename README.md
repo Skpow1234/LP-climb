@@ -428,6 +428,8 @@ All read by `packages/api/src/env.ts` (see [`.env.example`](.env.example) for a 
 | `CACHE_RASTER_STALE_SECONDS` | `172800` (48 h) | Stale window for PNG / WebP / AVIF renders. |
 | `CACHE_GIF_TTL_SECONDS` | `86400` (24 h) | Fresh window for GIF renders. Longest by default because GIF generation is the most CPU-expensive path. |
 | `CACHE_GIF_STALE_SECONDS` | `259200` (72 h) | Stale window for GIF renders. |
+| `CACHE_REFRESH_JITTER_MS` | `2500` | Best-effort per-key refresh staggering window for stale background revalidation across multiple API instances. Set `0` to disable. |
+| `CACHE_INSTANCE_ID` | `<hostname>:<pid>` | Stable instance identifier used to derive deterministic refresh jitter. Set explicitly in multi-instance deployments if you want predictable replica identities. |
 | `CACHE_MAX_ENTRIES` | `5000` | Per-cache entry cap. Acts as a secondary guardrail alongside the byte budgets below. |
 | `CACHE_CONTRIB_MAX_BYTES` | `16777216` (16 MiB) | Approximate byte budget for cached GitHub contribution payloads + precomputed stats. |
 | `CACHE_TEXT_MAX_BYTES` | `67108864` (64 MiB) | Approximate byte budget for cached SVG / JSON / Prometheus text responses. |

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { hostname } from "node:os";
 
 const EnvSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
@@ -16,6 +17,8 @@ const EnvSchema = z.object({
   CACHE_RASTER_STALE_SECONDS: z.coerce.number().int().min(0).max(604800).optional(),
   CACHE_GIF_TTL_SECONDS: z.coerce.number().int().min(10).max(604800).optional(),
   CACHE_GIF_STALE_SECONDS: z.coerce.number().int().min(0).max(604800).optional(),
+  CACHE_REFRESH_JITTER_MS: z.coerce.number().int().min(0).max(60000).default(2500),
+  CACHE_INSTANCE_ID: z.string().min(1).optional(),
   CACHE_MAX_ENTRIES: z.coerce.number().int().min(100).max(50000).default(5000),
   CACHE_CONTRIB_MAX_BYTES: z.coerce.number().int().min(1024).max(1024 * 1024 * 1024).default(16 * 1024 * 1024),
   CACHE_TEXT_MAX_BYTES: z.coerce.number().int().min(1024).max(1024 * 1024 * 1024).default(64 * 1024 * 1024),
@@ -50,7 +53,8 @@ const EnvSchema = z.object({
   CACHE_RASTER_TTL_SECONDS: env.CACHE_RASTER_TTL_SECONDS ?? 43200,
   CACHE_RASTER_STALE_SECONDS: env.CACHE_RASTER_STALE_SECONDS ?? 172800,
   CACHE_GIF_TTL_SECONDS: env.CACHE_GIF_TTL_SECONDS ?? 86400,
-  CACHE_GIF_STALE_SECONDS: env.CACHE_GIF_STALE_SECONDS ?? 259200
+  CACHE_GIF_STALE_SECONDS: env.CACHE_GIF_STALE_SECONDS ?? 259200,
+  CACHE_INSTANCE_ID: env.CACHE_INSTANCE_ID ?? `${hostname()}:${process.pid}`
 }));
 
 export type Env = z.infer<typeof EnvSchema>;

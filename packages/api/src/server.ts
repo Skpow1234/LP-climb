@@ -11,8 +11,10 @@ import type { ContributionCell, ContributionStats } from "@lp-climb/types";
 import type { LpTimelinePoint } from "@lp-climb/core";
 import { loadEnv } from "./env.js";
 import { createCoalescer, createMemoryCache } from "./cache.js";
+import type { CacheGetResult } from "./cache.js";
 import { buildDeterministicEtag, ifNoneMatchMatches } from "./etag.js";
 import { listPresets, PRESET_IDS, resolveDims } from "./presets.js";
+import { computeDeterministicJitterMs, sleep } from "./refreshJitter.js";
 import { themeFingerprint } from "./themeFingerprint.js";
 import { OPENAPI_INFO, OPENAPI_TAGS, SCHEMAS } from "./openapi.js";
 import {
@@ -510,6 +512,18 @@ async function getContribCellsSWR(
     if (allowStale) {
       void contribCoalesce(key, async () => {
         try {
+          const shouldRun = await maybeStaggerBackgroundRefresh(key, "contrib", contribCache.get);
+          if (!shouldRun) {
+            const raced = contribCache.get(key);
+            if (raced.hit) {
+              return {
+                data: raced.value,
+                stamp: raced.storedAtMs,
+                stale: raced.stale,
+                source: raced.stale ? "stale" : "hit"
+              };
+            }
+          }
           return await refreshContrib(user);
         } catch (e) {
           recordGithubFetch("error");
@@ -627,6 +641,11 @@ function refreshTextCacheInBackground(
 ) {
   void renderTextCoalesce(cacheKey, async () => {
     try {
+      const shouldRun = await maybeStaggerBackgroundRefresh(cacheKey, route, textCache.get);
+      if (!shouldRun) {
+        const raced = textCache.get(cacheKey);
+        if (raced.hit) return raced.value;
+      }
       const out = await run();
       textCache.set(cacheKey, out, policy.ttlSeconds, policy.staleSeconds);
       return out;
@@ -639,6 +658,28 @@ function refreshTextCacheInBackground(
   });
 }
 
+async function maybeStaggerBackgroundRefresh<V>(
+  cacheKey: string,
+  route: string,
+  getCached: (key: string) => CacheGetResult<V>
+): Promise<boolean> {
+  const jitterMs = computeDeterministicJitterMs(
+    cacheKey,
+    env.CACHE_INSTANCE_ID,
+    env.CACHE_REFRESH_JITTER_MS
+  );
+  if (jitterMs <= 0) return true;
+
+  await sleep(jitterMs);
+
+  const raced = getCached(cacheKey);
+  if (raced.hit && !raced.stale) {
+    app.log.debug({ route, jitterMs }, "skipping staggered refresh after local cache update");
+    return false;
+  }
+  return true;
+}
+
 function refreshBinaryCacheInBackground(
   cacheKey: string,
   route: string,
@@ -647,6 +688,11 @@ function refreshBinaryCacheInBackground(
 ) {
   void renderBinaryCoalesce(cacheKey, async () => {
     try {
+      const shouldRun = await maybeStaggerBackgroundRefresh(cacheKey, route, binaryCache.get);
+      if (!shouldRun) {
+        const raced = binaryCache.get(cacheKey);
+        if (raced.hit) return raced.value;
+      }
       const out = await run();
       binaryCache.set(cacheKey, out, policy.ttlSeconds, policy.staleSeconds);
       return out;
