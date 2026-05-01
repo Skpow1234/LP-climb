@@ -11,6 +11,7 @@ import type { ContributionCell, ContributionStats } from "@lp-climb/types";
 import type { LpTimelinePoint } from "@lp-climb/core";
 import { loadEnv } from "./env.js";
 import { createCoalescer, createMemoryCache } from "./cache.js";
+import { buildDeterministicEtag, ifNoneMatchMatches } from "./etag.js";
 import { listPresets, PRESET_IDS, resolveDims } from "./presets.js";
 import { themeFingerprint } from "./themeFingerprint.js";
 import { OPENAPI_INFO, OPENAPI_TAGS, SCHEMAS } from "./openapi.js";
@@ -648,8 +649,21 @@ const handleRenderSvg = async (
     height: dims.height ?? null,
     style: q.style ?? "card"
   });
+  const etag = buildDeterministicEtag(cacheKey);
 
   const cached = textCache.get(cacheKey);
+  reply.header("ETag", etag);
+  reply.header("Cache-Control", cacheControl);
+  if (opts?.deprecated) {
+    reply.header("Deprecation", "true");
+    reply.header("Sunset", "2026-12-31");
+    reply.header("Link", '</v1/render.svg>; rel="successor-version"');
+  }
+  if (ifNoneMatchMatches(req.headers["if-none-match"], etag)) {
+    reply.header("X-Cache", cached.hit ? (cached.stale ? "stale" : "hit") : "miss");
+    reply.code(304);
+    return "";
+  }
   if (cached.hit) {
     recordCacheEvent("render", cached.stale ? "stale" : "hit");
     if (cached.stale) {
@@ -659,13 +673,7 @@ const handleRenderSvg = async (
       });
     }
     reply.header("Content-Type", "image/svg+xml; charset=utf-8");
-    reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
-    if (opts?.deprecated) {
-      reply.header("Deprecation", "true");
-      reply.header("Sunset", "2026-12-31");
-      reply.header("Link", '</v1/render.svg>; rel="successor-version"');
-    }
     return cached.value;
   }
   recordCacheEvent("render", "miss");
@@ -681,13 +689,7 @@ const handleRenderSvg = async (
   });
 
   reply.header("Content-Type", "image/svg+xml; charset=utf-8");
-  reply.header("Cache-Control", cacheControl);
   reply.header("X-Cache", "miss");
-  if (opts?.deprecated) {
-    reply.header("Deprecation", "true");
-    reply.header("Sunset", "2026-12-31");
-    reply.header("Link", '</v1/render.svg>; rel="successor-version"');
-  }
   return svg;
 };
 
@@ -716,8 +718,21 @@ const handleRenderPng = async (
     height: dims.height ?? null,
     style: q.style ?? "card"
   });
+  const etag = buildDeterministicEtag(cacheKey);
 
   const cached = binaryCache.get(cacheKey);
+  reply.header("ETag", etag);
+  reply.header("Cache-Control", cacheControl);
+  if (opts?.deprecated) {
+    reply.header("Deprecation", "true");
+    reply.header("Sunset", "2026-12-31");
+    reply.header("Link", '</v1/render.png>; rel="successor-version"');
+  }
+  if (ifNoneMatchMatches(req.headers["if-none-match"], etag)) {
+    reply.header("X-Cache", cached.hit ? (cached.stale ? "stale" : "hit") : "miss");
+    reply.code(304);
+    return "";
+  }
   if (cached.hit) {
     recordCacheEvent("render", cached.stale ? "stale" : "hit");
     if (cached.stale) {
@@ -727,13 +742,7 @@ const handleRenderPng = async (
       });
     }
     reply.header("Content-Type", "image/png");
-    reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
-    if (opts?.deprecated) {
-      reply.header("Deprecation", "true");
-      reply.header("Sunset", "2026-12-31");
-      reply.header("Link", '</v1/render.png>; rel="successor-version"');
-    }
     return cached.value;
   }
   recordCacheEvent("render", "miss");
@@ -747,13 +756,7 @@ const handleRenderPng = async (
   });
 
   reply.header("Content-Type", "image/png");
-  reply.header("Cache-Control", cacheControl);
   reply.header("X-Cache", "miss");
-  if (opts?.deprecated) {
-    reply.header("Deprecation", "true");
-    reply.header("Sunset", "2026-12-31");
-    reply.header("Link", '</v1/render.png>; rel="successor-version"');
-  }
   return png;
 };
 
@@ -783,8 +786,16 @@ const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) =>
   });
 
   const contentType = format === "webp" ? "image/webp" : "image/avif";
+  const etag = buildDeterministicEtag(cacheKey);
 
   const cached = binaryCache.get(cacheKey);
+  reply.header("ETag", etag);
+  reply.header("Cache-Control", cacheControl);
+  if (ifNoneMatchMatches(req.headers["if-none-match"], etag)) {
+    reply.header("X-Cache", cached.hit ? (cached.stale ? "stale" : "hit") : "miss");
+    reply.code(304);
+    return "";
+  }
   if (cached.hit) {
     recordCacheEvent("render", cached.stale ? "stale" : "hit");
     if (cached.stale) {
@@ -798,7 +809,6 @@ const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) =>
       });
     }
     reply.header("Content-Type", contentType);
-    reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
     return cached.value;
   }
@@ -818,7 +828,6 @@ const handleRenderRaster = async (req: any, reply: any, format: RasterFormat) =>
   });
 
   reply.header("Content-Type", contentType);
-  reply.header("Cache-Control", cacheControl);
   reply.header("X-Cache", "miss");
   return buf;
 };
@@ -846,8 +855,16 @@ const handleRenderGif = async (req: any, reply: any) => {
     fps: q.fps ?? null,
     style: q.style ?? "card"
   });
+  const etag = buildDeterministicEtag(cacheKey);
 
   const cached = binaryCache.get(cacheKey);
+  reply.header("ETag", etag);
+  reply.header("Cache-Control", cacheControl);
+  if (ifNoneMatchMatches(req.headers["if-none-match"], etag)) {
+    reply.header("X-Cache", cached.hit ? (cached.stale ? "stale" : "hit") : "miss");
+    reply.code(304);
+    return "";
+  }
   if (cached.hit) {
     recordCacheEvent("render", cached.stale ? "stale" : "hit");
     if (cached.stale) {
@@ -860,7 +877,6 @@ const handleRenderGif = async (req: any, reply: any) => {
       });
     }
     reply.header("Content-Type", "image/gif");
-    reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
     return cached.value;
   }
@@ -878,7 +894,6 @@ const handleRenderGif = async (req: any, reply: any) => {
   });
 
   reply.header("Content-Type", "image/gif");
-  reply.header("Cache-Control", cacheControl);
   reply.header("X-Cache", "miss");
   return gif;
 };
@@ -906,7 +921,20 @@ const handleMetaJson = async (
     stampB: climbers.vs?.stamp ?? null,
     stampsTeam: climbers.team.map((t) => t.stamp)
   });
+  const etag = buildDeterministicEtag(cacheKey);
   const cached = textCache.get(cacheKey);
+  reply.header("ETag", etag);
+  reply.header("Cache-Control", cacheControl);
+  if (opts?.deprecated) {
+    reply.header("Deprecation", "true");
+    reply.header("Sunset", "2026-12-31");
+    reply.header("Link", '</v1/meta.json>; rel="successor-version"');
+  }
+  if (ifNoneMatchMatches(req.headers["if-none-match"], etag)) {
+    reply.header("X-Cache", cached.hit ? (cached.stale ? "stale" : "hit") : "miss");
+    reply.code(304);
+    return "";
+  }
   if (cached.hit) {
     recordCacheEvent("render", cached.stale ? "stale" : "hit");
     if (cached.stale) {
@@ -923,13 +951,7 @@ const handleMetaJson = async (
       });
     }
     reply.header("Content-Type", "application/json; charset=utf-8");
-    reply.header("Cache-Control", cacheControl);
     reply.header("X-Cache", cached.stale ? "stale" : "hit");
-    if (opts?.deprecated) {
-      reply.header("Deprecation", "true");
-      reply.header("Sunset", "2026-12-31");
-      reply.header("Link", '</v1/meta.json>; rel="successor-version"');
-    }
     return cached.value;
   }
   recordCacheEvent("render", "miss");
@@ -950,13 +972,7 @@ const handleMetaJson = async (
   });
 
   reply.header("Content-Type", "application/json; charset=utf-8");
-  reply.header("Cache-Control", cacheControl);
   reply.header("X-Cache", "miss");
-  if (opts?.deprecated) {
-    reply.header("Deprecation", "true");
-    reply.header("Sunset", "2026-12-31");
-    reply.header("Link", '</v1/meta.json>; rel="successor-version"');
-  }
   return body;
 };
 
@@ -988,10 +1004,24 @@ app.get("/v1/github-contrib/:user", { schema: SCHEMAS.githubContrib }, async (re
     .object({ user: GithubLoginSchema })
     .parse((req as any).params);
   const result = await getContribCellsSWR(params.user);
+  const etag = buildDeterministicEtag(
+    JSON.stringify({
+      v: 1,
+      route: "v1/github-contrib/:user",
+      user: params.user,
+      stamp: result.stamp,
+      stale: result.stale
+    })
+  );
 
+  reply.header("ETag", etag);
   reply.header("Content-Type", "application/json; charset=utf-8");
   reply.header("Cache-Control", cacheControl);
   reply.header("X-Cache", result.source);
+  if (ifNoneMatchMatches(req.headers["if-none-match"], etag)) {
+    reply.code(304);
+    return "";
+  }
 
   return {
     user: params.user,

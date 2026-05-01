@@ -209,6 +209,7 @@ Legacy unversioned aliases (`/render.svg`, `/render.png`, `/meta.json`, `/health
 All render and meta responses share an in-memory **stale-while-revalidate LRU**:
 
 - `Cache-Control: public, max-age=…, stale-while-revalidate=…`
+- `ETag` on render / meta / `github-contrib` responses, with `304 Not Modified` support via `If-None-Match`
 - `X-Cache: miss | hit | stale` — `stale` means cached value returned immediately while a background refresh runs.
 - `X-Request-Id` — generated per request (or echoed from your proxy's `X-Request-Id` header).
 - `Cross-Origin-Resource-Policy: cross-origin` on render + meta routes (configurable; see env vars).
