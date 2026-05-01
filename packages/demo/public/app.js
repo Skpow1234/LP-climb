@@ -439,6 +439,21 @@
     if (kind === "ok" || kind === "error") setPreviewLoadingDetail("");
   }
 
+  function setPreviewBackground(bg) {
+    var frame = qs("previewFrame");
+    if (!frame) return;
+    frame.dataset.bg = String(bg || "grid");
+  }
+
+  function wirePreviewBackground() {
+    var sel = qs("previewBg");
+    if (!sel) return;
+    setPreviewBackground(sel.value || "grid");
+    sel.addEventListener("change", function () {
+      setPreviewBackground(sel.value || "grid");
+    });
+  }
+
   function setPreviewLoadingDetail(text) {
     var el = qs("previewLoadingDetail");
     if (el) el.textContent = String(text || "");
@@ -1381,6 +1396,7 @@
 
     wireStylePills();
     wirePreviewTabs();
+    wirePreviewBackground();
     wireFormatSelects();
     wirePresetSelect();
     wireCopy();
