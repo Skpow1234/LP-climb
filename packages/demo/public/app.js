@@ -211,6 +211,107 @@
     }
   }
 
+  function setStyle(style) {
+    state.style = style === "ladder" ? "ladder" : "card";
+    var pills = document.querySelectorAll(".pill[data-style]");
+    Array.prototype.forEach.call(pills, function (b) {
+      b.setAttribute("aria-pressed", String(b.dataset.style === state.style));
+    });
+    qs("renderBtn").textContent = state.style === "ladder" ? "Render ladder" : "Render card";
+  }
+
+  function setTheme(themeId) {
+    if (!themeId) return;
+    var okTheme = THEMES.some(function (t) {
+      return t.id === themeId;
+    });
+    if (!okTheme) return;
+    state.theme = themeId;
+    syncThemeChips();
+  }
+
+  function setPreset(presetId) {
+    if (!presetId) return;
+    var p = getPreset(presetId);
+    if (!p) return;
+    state.preset = presetId;
+    var el = qs("preset");
+    if (el) el.value = presetId;
+    if (qs("width")) qs("width").value = String(p.width);
+    if (qs("height")) qs("height").value = String(p.height);
+  }
+
+  function setFormats(previewFmt, exportFmt) {
+    state.previewFormat = previewFmt || "svg";
+    state.exportFormat = exportFmt || "svg";
+    var p = qs("previewFormat");
+    var e = qs("exportFormat");
+    if (p) p.value = state.previewFormat;
+    if (e) e.value = state.exportFormat;
+  }
+
+  function clearTeamVs() {
+    if (qs("vs")) qs("vs").value = "";
+    if (qs("team")) qs("team").value = "";
+  }
+
+  function setExample(kind) {
+    // Always start from a clean slate for the ladder compare/team fields.
+    clearTeamVs();
+    // Clear encoding knobs unless example sets them.
+    if (qs("quality")) qs("quality").value = "";
+    if (qs("frames")) qs("frames").value = "";
+    if (qs("fps")) qs("fps").value = "";
+
+    // Reasonable defaults.
+    if (qs("user") && !String(qs("user").value || "").trim()) qs("user").value = "Skpow1234";
+    setTheme("rift");
+
+    switch (kind) {
+      case "profile":
+        setStyle("card");
+        setPreset("profile");
+        setFormats("svg", "svg");
+        break;
+      case "ladder-1v1":
+        setStyle("ladder");
+        setPreset("readme");
+        if (qs("vs")) qs("vs").value = "torvalds";
+        setFormats("svg", "webp");
+        if (qs("quality")) qs("quality").value = "82";
+        break;
+      case "team-banner":
+        setStyle("ladder");
+        setPreset("banner");
+        if (qs("team")) qs("team").value = "torvalds,gaearon,sindresorhus";
+        setFormats("svg", "png");
+        break;
+      case "gif":
+        setStyle("ladder");
+        setPreset("readme-wide");
+        if (qs("vs")) qs("vs").value = "torvalds";
+        setFormats("svg", "gif");
+        if (qs("frames")) qs("frames").value = "24";
+        if (qs("fps")) qs("fps").value = "12";
+        break;
+      default:
+        return;
+    }
+
+    syncAdvancedControls();
+    syncDemoPageUrl({ immediate: true });
+    update();
+  }
+
+  function wireExamples() {
+    var btns = document.querySelectorAll("button.exampleBtn[data-example]");
+    Array.prototype.forEach.call(btns, function (b) {
+      b.addEventListener("click", function () {
+        setExample(b.dataset.example);
+      });
+    });
+  }
+
   function getApiBase() {
     var cfg = (window.LP_CLIMB_DEMO && window.LP_CLIMB_DEMO.apiBase) || "";
     return String(cfg || "http://localhost:3000").replace(/\/+$/, "");
@@ -1463,6 +1564,7 @@
     wirePreviewTabs();
     wirePreviewBackground();
     wirePreviewZoom();
+    wireExamples();
     wireFormatSelects();
     wirePresetSelect();
     wireCopy();

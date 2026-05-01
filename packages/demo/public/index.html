@@ -526,6 +526,41 @@
         max-height: 220px;
         overflow: auto;
       }
+      .exampleGrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .exampleBtn {
+        padding: 10px 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(108, 225, 255, 0.14);
+        background: rgba(0, 0, 0, 0.22);
+        color: rgba(240, 242, 248, 0.9);
+        cursor: pointer;
+        font-weight: 800;
+        font-size: 12.5px;
+        letter-spacing: 0.2px;
+        font-family: inherit;
+        text-align: left;
+        transition: background 120ms ease, border-color 120ms ease, transform 50ms ease;
+      }
+      .exampleBtn:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(108, 225, 255, 0.22);
+      }
+      .exampleBtn:active {
+        transform: translateY(1px);
+      }
+      .exampleBtn small {
+        display: block;
+        margin-top: 4px;
+        color: rgba(240, 242, 248, 0.55);
+        font-weight: 600;
+        font-size: 11.5px;
+        line-height: 1.35;
+      }
 
       /* Preview panel */
       .preview {
@@ -1192,6 +1227,26 @@
               autocomplete="off"
               spellcheck="false"
             />
+          </div>
+
+          <div class="controlLabel" id="examplesLabel">Examples</div>
+          <div class="exampleGrid" role="group" aria-labelledby="examplesLabel">
+            <button type="button" class="exampleBtn" data-example="profile">
+              Profile card
+              <small>Card · compact · export SVG</small>
+            </button>
+            <button type="button" class="exampleBtn" data-example="ladder-1v1">
+              1v1 ladder
+              <small>Ladder · vs torvalds · export WebP</small>
+            </button>
+            <button type="button" class="exampleBtn" data-example="team-banner">
+              Team banner
+              <small>Ladder · team · banner · export PNG</small>
+            </button>
+            <button type="button" class="exampleBtn" data-example="gif">
+              Animated GIF
+              <small>Ladder · GIF export · frames + fps</small>
+            </button>
           </div>
         </section>
 
