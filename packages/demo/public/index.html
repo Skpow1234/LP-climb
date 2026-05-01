@@ -481,6 +481,27 @@
         background: rgba(255, 89, 112, 0.06);
       }
 
+      .previewMeta {
+        font-size: 11.5px;
+        color: var(--muted);
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--panel-border);
+        background: rgba(0, 0, 0, 0.28);
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        line-height: 1.55;
+      }
+      .previewMeta.previewMeta--pending {
+        color: var(--muted-soft);
+        font-style: italic;
+      }
+      .previewMeta.previewMeta--err {
+        border-color: rgba(255, 89, 112, 0.28);
+        background: rgba(255, 89, 112, 0.05);
+      }
+
       /* Preview states: skeleton shimmer while loading, rich error panel on
          failure. Both replace the fallback <img> broken-glyph that browsers
          render on <img> load failures. */
@@ -944,6 +965,15 @@
                 <pre id="errorUrlPre"></pre>
               </details>
             </div>
+          </div>
+
+          <div
+            id="previewMeta"
+            class="previewMeta previewMeta--pending"
+            role="region"
+            aria-label="Preview response metadata"
+          >
+            Awaiting preview response…
           </div>
 
           <div id="status" class="status"></div>

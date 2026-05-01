@@ -313,6 +313,63 @@
     el.classList.toggle("err", !!isError);
   }
 
+  function previewMetaSetPending(message) {
+    var el = qs("previewMeta");
+    if (!el) return;
+    el.classList.add("previewMeta--pending");
+    el.classList.remove("previewMeta--err");
+    el.textContent = String(message || "Awaiting preview response…");
+  }
+
+  function previewMetaSetNote(message, isError) {
+    var el = qs("previewMeta");
+    if (!el) return;
+    el.classList.add("previewMeta--pending");
+    el.classList.toggle("previewMeta--err", !!isError);
+    el.textContent = String(message || "");
+  }
+
+  function staleLabelFromXCache(xc) {
+    var x = String(xc || "").toLowerCase();
+    if (x === "stale") return "yes (stale-while-revalidate)";
+    if (x === "hit") return "no (fresh cache hit)";
+    if (x === "miss") return "no (miss / regenerated)";
+    return "—";
+  }
+
+  function renderPreviewMetaFromResponse(res, durationMs) {
+    var el = qs("previewMeta");
+    if (!el || !res) return;
+    el.classList.remove("previewMeta--pending");
+    el.classList.toggle("previewMeta--err", !res.ok);
+
+    var xCache = (res.headers.get("x-cache") || "").trim() || "—";
+    var reqId = (res.headers.get("x-request-id") || "").trim() || "—";
+    var stale = staleLabelFromXCache(xCache);
+
+    var lines = [
+      "HTTP " + res.status,
+      "Duration (until response headers): " + durationMs + " ms",
+      "X-Cache: " + xCache,
+      "Served stale: " + stale,
+      "X-Request-Id: " + reqId
+    ];
+
+    var rlRem = res.headers.get("ratelimit-remaining");
+    var rlLim = res.headers.get("ratelimit-limit");
+    if (rlRem != null || rlLim != null) {
+      lines.push(
+        "RateLimit: " +
+          (rlLim != null && String(rlLim).trim() !== "" ? String(rlLim).trim() : "?") +
+          " (remaining " +
+          (rlRem != null && String(rlRem).trim() !== "" ? String(rlRem).trim() : "?") +
+          ")"
+      );
+    }
+
+    el.textContent = lines.join("\n");
+  }
+
   function setStateBadge(kind, text) {
     var el = qs("stateBadge");
     if (!el) return;
@@ -780,6 +837,7 @@
     var v = validateInputs(user, vs);
     if (!v.ok) {
       setStatus("", false);
+      previewMetaSetNote("No request sent — fix the highlighted field first.", true);
       showErrorPanel({
         code: "bad_request",
         title: "Check your inputs",
@@ -803,6 +861,7 @@
     clearErrorPanel();
     setPreviewState("loading");
     setStateBadge("loading", "Loading…");
+    previewMetaSetPending("Fetching preview…");
     setStatus("GET " + renderUrl, false);
 
     toast(
@@ -827,6 +886,7 @@
       if (inflight) inflight.abort();
     }, FETCH_TIMEOUT_MS);
 
+    var previewHdrT0 = performance.now();
     var res;
     try {
       res = await fetch(renderUrl, {
@@ -838,6 +898,7 @@
       // Intentional abort from a newer call — just drop silently.
       if (err && err.name === "AbortError" && !timedOut) return;
       if (timedOut) {
+        previewMetaSetNote("No response within " + FETCH_TIMEOUT_MS / 1000 + "s — metadata unavailable.", true);
         showErrorPanel({
           code: "TIMEOUT",
           message: "No response within " + FETCH_TIMEOUT_MS / 1000 + " seconds.",
@@ -853,6 +914,10 @@
       // response arrives. We can't tell CORS from net-error from the API
       // surface alone, so surface a generic NETWORK_ERROR and let the user
       // inspect devtools for the actual cause.
+      previewMetaSetNote(
+        "No HTTP response — X-Cache / X-Request-Id unavailable. If this is a browser demo on a different origin than the API, check CORS and Access-Control-Expose-Headers in DevTools.",
+        true
+      );
       showErrorPanel({
         code: "NETWORK_ERROR",
         message: String((err && err.message) || err || "Network request failed."),
@@ -865,6 +930,9 @@
       return;
     }
     clearTimeout(timeoutId);
+
+    var previewHdrMs = Math.round(performance.now() - previewHdrT0);
+    renderPreviewMetaFromResponse(res, previewHdrMs);
 
     if (!res.ok) {
       var rawBody = "";
