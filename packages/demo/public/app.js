@@ -257,6 +257,32 @@
       else gifTimingRow.setAttribute("hidden", "");
     }
 
+    var hintRasterDims = qs("hintRasterDims");
+    var rasterPreview = previewFormat !== "svg";
+    var rasterExport = exportFormat !== "svg";
+    if (hintRasterDims) {
+      if (rasterPreview || rasterExport) hintRasterDims.removeAttribute("hidden");
+      else hintRasterDims.setAttribute("hidden", "");
+    }
+
+    var hintAvifEncode = qs("hintAvifEncode");
+    if (hintAvifEncode) {
+      if (exportFormat === "avif") hintAvifEncode.removeAttribute("hidden");
+      else hintAvifEncode.setAttribute("hidden", "");
+    }
+
+    var hintWebpQuality = qs("hintWebpQuality");
+    if (hintWebpQuality) {
+      if (exportFormat === "webp") hintWebpQuality.removeAttribute("hidden");
+      else hintWebpQuality.setAttribute("hidden", "");
+    }
+
+    var hintGifCost = qs("hintGifCost");
+    if (hintGifCost) {
+      if (gifOn) hintGifCost.removeAttribute("hidden");
+      else hintGifCost.setAttribute("hidden", "");
+    }
+
     var vs = qs("vs");
     var team = qs("team");
     if (vs) {

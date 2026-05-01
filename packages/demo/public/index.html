@@ -182,6 +182,19 @@
         text-transform: uppercase;
         font-weight: 700;
       }
+      .fieldHint {
+        margin: 8px 0 0;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid var(--panel-border);
+        background: rgba(0, 0, 0, 0.22);
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+      .fieldHint[hidden] {
+        display: none !important;
+      }
 
       /* Style pill group */
       .pills {
@@ -782,6 +795,11 @@
               </select>
             </div>
           </div>
+          <p id="hintRasterDims" class="fieldHint" hidden>
+            Raster formats (PNG, WebP, AVIF, GIF) are generated from the SVG — cost grows with
+            <strong style="color: rgba(240, 242, 248, 0.85)">width × height</strong>. Very wide presets
+            (for example Banner) produce larger files and slower responses.
+          </p>
         </div>
 
         <div id="exportQualityRow" class="row fieldGroup" hidden>
@@ -791,6 +809,14 @@
           </div>
           <div></div>
         </div>
+        <p id="hintAvifEncode" class="fieldHint" hidden>
+          AVIF is the smallest raster option for many images, but it is slower to encode than WebP or PNG.
+          First requests can take noticeably longer; caches make repeats fast. Smaller dimensions help a lot.
+        </p>
+        <p id="hintWebpQuality" class="fieldHint" hidden>
+          WebP defaults around quality 80–85 are usually plenty for README-style embeds — higher values mean
+          larger files with diminishing visual return.
+        </p>
 
         <div id="gifTimingRow" class="row fieldGroup" hidden>
           <div>
@@ -802,6 +828,11 @@
             <input id="fps" type="number" value="" min="4" max="30" placeholder="4–30" />
           </div>
         </div>
+        <p id="hintGifCost" class="fieldHint" hidden>
+          GIF is the slowest and heaviest option: each frame is a full SVG → raster pass. Prefer
+          <strong style="color: rgba(240, 242, 248, 0.85)">smaller width/height</strong>, fewer frames, or
+          lower FPS when you can; use SVG or WebP for static previews when possible.
+        </p>
 
         <label for="preset">Preset</label>
         <select id="preset">
