@@ -700,6 +700,15 @@
         <label>Theme</label>
         <div class="chips" id="themeChips"></div>
 
+        <label for="format">Format</label>
+        <select id="format">
+          <option value="svg" selected>SVG</option>
+          <option value="png">PNG</option>
+          <option value="webp">WebP</option>
+          <option value="avif">AVIF</option>
+          <option value="gif">GIF</option>
+        </select>
+
         <div class="row">
           <div>
             <label for="width">Width</label>
@@ -714,7 +723,7 @@
         <button id="renderBtn" class="primary">Render card</button>
 
         <div class="actions">
-          <a id="openSvg" href="#" target="_blank" rel="noreferrer">Open SVG</a>
+          <a id="openSvg" href="#" target="_blank" rel="noreferrer">Open render</a>
           <a id="openMeta" href="#" target="_blank" rel="noreferrer">Open meta.json</a>
         </div>
 
@@ -732,6 +741,7 @@
             <div class="previewBadges">
               <span id="styleBadge" class="badge">CARD</span>
               <span id="themeBadge" class="badge">rift</span>
+              <span id="formatBadge" class="badge">SVG</span>
               <span id="stateBadge" class="badge loading" role="status" aria-live="polite">Loading…</span>
             </div>
           </div>

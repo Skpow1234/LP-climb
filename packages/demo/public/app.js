@@ -159,7 +159,8 @@
   // selected" decision in exactly one place.
   var state = {
     style: "card",
-    theme: "rift"
+    theme: "rift",
+    format: "svg"
   };
 
   // Request lifecycle:
@@ -178,6 +179,25 @@
   // ~20 s (container cold start). 25 s gives that a bit of headroom before
   // we surface a retryable TIMEOUT.
   var FETCH_TIMEOUT_MS = 25000;
+
+  function renderPathForFormat(format) {
+    return "/v1/render." + String(format || "svg");
+  }
+
+  function acceptHeaderForFormat(format) {
+    switch (format) {
+      case "png":
+        return "image/png";
+      case "webp":
+        return "image/webp";
+      case "avif":
+        return "image/avif";
+      case "gif":
+        return "image/gif";
+      default:
+        return "image/svg+xml";
+    }
+  }
 
   function setStatus(text, isError) {
     var el = qs("status");
@@ -313,6 +333,15 @@
     });
   }
 
+  function wireFormatSelect() {
+    var format = qs("format");
+    if (!format) return;
+    format.addEventListener("change", function () {
+      state.format = format.value || "svg";
+      update();
+    });
+  }
+
   function buildQuery() {
     var sp = new URLSearchParams();
     var user = qs("user").value.trim();
@@ -400,32 +429,40 @@
     var sp = buildQuery();
     var user = sp.get("user");
     var vs = sp.get("vs");
+    var format = state.format || "svg";
 
-    var svg = new URL("/v1/render.svg", apiBase);
-    svg.search = sp.toString();
+    var renderUrlObj = new URL(renderPathForFormat(format), apiBase);
+    renderUrlObj.search = sp.toString();
     var meta = new URL("/v1/meta.json", apiBase);
     var metaParams = new URLSearchParams({ user: user || "" });
     if (vs) metaParams.set("vs", vs);
     meta.search = metaParams.toString();
-    var embedUrl = svg.toString();
+    var embedUrl = renderUrlObj.toString();
 
     // Cache-bust both requests so the preview never gets stuck on a prior
     // error response (e.g. a 404 while the user fixes a typo'd username).
     var cacheBust = String(Date.now());
-    svg.searchParams.set("_t", cacheBust);
+    renderUrlObj.searchParams.set("_t", cacheBust);
     meta.searchParams.set("_t", cacheBust);
 
-    var svgUrl = svg.toString();
+    var renderUrl = renderUrlObj.toString();
     var metaUrl = meta.toString();
 
     qs("styleBadge").textContent = state.style.toUpperCase();
     qs("themeBadge").textContent = state.theme;
+    qs("formatBadge").textContent = format.toUpperCase();
 
     var img = qs("preview");
     img.alt =
-      "LP climb " + state.style + " for " + (user || "—") + (vs ? " vs " + vs : "");
+      "LP climb " +
+      format +
+      " " +
+      state.style +
+      " for " +
+      (user || "—") +
+      (vs ? " vs " + vs : "");
 
-    qs("openSvg").href = svgUrl;
+    qs("openSvg").href = renderUrl;
     qs("openMeta").href = metaUrl;
     qs("embed").textContent = embedUrl;
 
@@ -438,7 +475,7 @@
         code: "bad_request",
         title: "Check your inputs",
         message: v.message,
-        url: svgUrl,
+        url: renderUrl,
         status: 0
       });
       // Hint which field to focus.
@@ -457,12 +494,19 @@
     clearErrorPanel();
     setPreviewState("loading");
     setStateBadge("loading", "Loading…");
-    setStatus("GET " + svgUrl, false);
+    setStatus("GET " + renderUrl, false);
 
     toast(
       "info",
       "Rendering",
-      (user || "—") + (vs ? " vs " + vs : "") + " · " + state.theme + " · " + state.style,
+      (user || "—") +
+        (vs ? " vs " + vs : "") +
+        " · " +
+        state.theme +
+        " · " +
+        state.style +
+        " · " +
+        format.toUpperCase(),
       { ms: 1400 }
     );
 
@@ -476,9 +520,9 @@
 
     var res;
     try {
-      res = await fetch(svgUrl, {
+      res = await fetch(renderUrl, {
         signal: inflight.signal,
-        headers: { Accept: "image/svg+xml" }
+        headers: { Accept: acceptHeaderForFormat(format) }
       });
     } catch (err) {
       clearTimeout(timeoutId);
@@ -488,7 +532,7 @@
         showErrorPanel({
           code: "TIMEOUT",
           message: "No response within " + FETCH_TIMEOUT_MS / 1000 + " seconds.",
-          url: svgUrl,
+          url: renderUrl,
           status: 0
         });
         toast("error", "Request timed out", "The API didn't respond. Retry — cold starts can take ~20s.", {
@@ -503,7 +547,7 @@
       showErrorPanel({
         code: "NETWORK_ERROR",
         message: String((err && err.message) || err || "Network request failed."),
-        url: svgUrl,
+        url: renderUrl,
         status: 0
       });
       toast("error", "Network error", "Couldn't reach the API. See the preview panel for details.", {
@@ -528,7 +572,7 @@
       showErrorPanel({
         code: code,
         message: apiMessage,
-        url: svgUrl,
+        url: renderUrl,
         status: res.status,
         rawBody: rawBody && rawBody.length < 2000 ? rawBody : undefined
       });
@@ -541,43 +585,98 @@
       return;
     }
 
-    // Success: materialize the SVG text as a blob URL so <img> displays it
-    // without a second network round-trip, then swap in.
-    var svgText;
+    var contentType = String(res.headers.get("content-type") || "");
+
+    if (format === "svg") {
+      var svgText;
+      try {
+        svgText = await res.text();
+      } catch (err) {
+        showErrorPanel({
+          code: "NETWORK_ERROR",
+          message: "Response body read failed: " + String((err && err.message) || err),
+          url: renderUrl,
+          status: res.status
+        });
+        return;
+      }
+
+      // Extremely defensive: the API always sets the right content-type, but
+      // if a proxy ever turns a 200 SVG into an HTML error page we'd happily
+      // <img> it and show a broken icon. Sniff the payload.
+      if (!/^\s*(?:<\?xml[^>]*\?>\s*)?<svg[\s>]/i.test(svgText)) {
+        showErrorPanel({
+          code: "UPSTREAM_BAD_RESPONSE",
+          message:
+            "The response was 200 OK but didn't start with <svg>. A proxy may have rewritten the body.",
+          url: renderUrl,
+          status: res.status,
+          rawBody: svgText.slice(0, 2000)
+        });
+        return;
+      }
+
+      var svgBlob = new Blob([svgText], { type: "image/svg+xml" });
+      var svgObjectUrl = URL.createObjectURL(svgBlob);
+
+      img.onload = function () {
+        if (lastObjectUrl && lastObjectUrl !== svgObjectUrl) {
+          try {
+            URL.revokeObjectURL(lastObjectUrl);
+          } catch (_) {}
+        }
+        lastObjectUrl = svgObjectUrl;
+        setPreviewState("ok");
+        setStateBadge("ok", "Ready");
+        setStatus(
+          "Loaded · " + format.toUpperCase() + " · " + (svgText.length / 1024).toFixed(1) + " KB · " + renderUrl,
+          false
+        );
+      };
+      img.onerror = function () {
+        showErrorPanel({
+          code: "UPSTREAM_BAD_RESPONSE",
+          message: "The browser rejected the SVG. The payload may be malformed.",
+          url: renderUrl,
+          status: res.status,
+          rawBody: svgText.slice(0, 2000)
+        });
+      };
+      img.src = svgObjectUrl;
+      return;
+    }
+
+    if (!/^image\//i.test(contentType)) {
+      var unexpectedBody = "";
+      try {
+        unexpectedBody = await res.text();
+      } catch (_) {}
+      showErrorPanel({
+        code: "UPSTREAM_BAD_RESPONSE",
+        message: "The API returned 200 OK but not an image payload for " + format.toUpperCase() + ".",
+        url: renderUrl,
+        status: res.status,
+        rawBody: unexpectedBody.slice(0, 2000)
+      });
+      return;
+    }
+
+    var blob;
     try {
-      svgText = await res.text();
+      blob = await res.blob();
     } catch (err) {
       showErrorPanel({
         code: "NETWORK_ERROR",
         message: "Response body read failed: " + String((err && err.message) || err),
-        url: svgUrl,
+        url: renderUrl,
         status: res.status
       });
       return;
     }
 
-    // Extremely defensive: the API always sets the right content-type, but
-    // if a proxy ever turns a 200 SVG into an HTML error page we'd happily
-    // <img> it and show a broken icon. Sniff the payload.
-    if (!/^\s*(?:<\?xml[^>]*\?>\s*)?<svg[\s>]/i.test(svgText)) {
-      showErrorPanel({
-        code: "UPSTREAM_BAD_RESPONSE",
-        message:
-          "The response was 200 OK but didn't start with <svg>. A proxy may have rewritten the body.",
-        url: svgUrl,
-        status: res.status,
-        rawBody: svgText.slice(0, 2000)
-      });
-      return;
-    }
-
-    var blob = new Blob([svgText], { type: "image/svg+xml" });
     var objectUrl = URL.createObjectURL(blob);
 
     img.onload = function () {
-      // Revoke the *previous* object URL now that the new one has painted.
-      // Doing it in onload (not before img.src=…) avoids a flash of broken
-      // image on slow devices.
       if (lastObjectUrl && lastObjectUrl !== objectUrl) {
         try {
           URL.revokeObjectURL(lastObjectUrl);
@@ -586,17 +685,17 @@
       lastObjectUrl = objectUrl;
       setPreviewState("ok");
       setStateBadge("ok", "Ready");
-      setStatus("Loaded · " + (svgText.length / 1024).toFixed(1) + " KB · " + svgUrl, false);
+      setStatus(
+        "Loaded · " + format.toUpperCase() + " · " + (blob.size / 1024).toFixed(1) + " KB · " + renderUrl,
+        false
+      );
     };
     img.onerror = function () {
-      // We fetched the bytes successfully and content-sniffed them — if the
-      // <img> still refuses to render, the SVG itself is malformed.
       showErrorPanel({
         code: "UPSTREAM_BAD_RESPONSE",
-        message: "The browser rejected the SVG. The payload may be malformed.",
-        url: svgUrl,
-        status: res.status,
-        rawBody: svgText.slice(0, 2000)
+        message: "The browser rejected the " + format.toUpperCase() + " image payload.",
+        url: renderUrl,
+        status: res.status
       });
     };
     img.src = objectUrl;
@@ -663,6 +762,7 @@
   function init() {
     renderThemeChips();
     wireStylePills();
+    wireFormatSelect();
     wireCopy();
     wireErrorPanel();
 
