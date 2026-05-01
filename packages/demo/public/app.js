@@ -235,6 +235,27 @@
   function syncAdvancedControls() {
     var isLadder = state.style === "ladder";
     var exportFormat = state.exportFormat || "svg";
+    var previewFormat = state.previewFormat || "svg";
+
+    var ladderBlock = qs("ladderOnlyBlock");
+    if (ladderBlock) {
+      if (isLadder) ladderBlock.removeAttribute("hidden");
+      else ladderBlock.setAttribute("hidden", "");
+    }
+
+    var exportQualityRow = qs("exportQualityRow");
+    var showQuality = exportFormat === "webp" || exportFormat === "avif";
+    if (exportQualityRow) {
+      if (showQuality) exportQualityRow.removeAttribute("hidden");
+      else exportQualityRow.setAttribute("hidden", "");
+    }
+
+    var gifTimingRow = qs("gifTimingRow");
+    var gifOn = previewFormat === "gif" || exportFormat === "gif";
+    if (gifTimingRow) {
+      if (gifOn) gifTimingRow.removeAttribute("hidden");
+      else gifTimingRow.setAttribute("hidden", "");
+    }
 
     var vs = qs("vs");
     var team = qs("team");
@@ -249,13 +270,12 @@
 
     var quality = qs("quality");
     if (quality) {
-      quality.disabled = !(exportFormat === "webp" || exportFormat === "avif");
-      quality.placeholder = quality.disabled ? "(webp/avif)" : "1–100";
+      quality.disabled = !showQuality;
+      quality.placeholder = quality.disabled ? "(export WebP/AVIF)" : "1–100";
     }
 
     var frames = qs("frames");
     var fps = qs("fps");
-    var gifOn = exportFormat === "gif";
     if (frames) frames.disabled = !gifOn;
     if (fps) fps.disabled = !gifOn;
   }
@@ -403,6 +423,7 @@
     if (preview) {
       preview.addEventListener("change", function () {
         state.previewFormat = preview.value || "svg";
+        syncAdvancedControls();
         update();
       });
     }

@@ -167,6 +167,21 @@
         grid-template-columns: 1fr 1fr;
         gap: 10px;
       }
+      .fieldGroup[hidden] {
+        display: none !important;
+      }
+      .fieldGroup {
+        margin-top: 2px;
+      }
+      .groupLabel {
+        display: block;
+        font-size: 11.5px;
+        color: var(--muted);
+        margin: 16px 0 8px;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
 
       /* Style pill group */
       .pills {
@@ -694,16 +709,18 @@
           <button type="button" class="pill" data-style="ladder" aria-pressed="false">Ladder</button>
         </div>
 
-        <label for="vs">Opponent (ladder only)</label>
-        <input id="vs" placeholder="torvalds" autocomplete="off" spellcheck="false" />
+        <div id="ladderOnlyBlock" class="fieldGroup" hidden>
+          <label for="vs">Opponent</label>
+          <input id="vs" placeholder="torvalds" autocomplete="off" spellcheck="false" />
 
-        <label for="team">Team (ladder only)</label>
-        <input
-          id="team"
-          placeholder="torvalds,gaearon,sindresorhus"
-          autocomplete="off"
-          spellcheck="false"
-        />
+          <label for="team">Team</label>
+          <input
+            id="team"
+            placeholder="torvalds,gaearon,sindresorhus"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
 
         <label>Theme</label>
         <div class="chips" id="themeChips"></div>
@@ -741,46 +758,49 @@
           </div>
         </details>
 
-        <div class="row">
-          <div>
-            <label for="previewFormat">Preview format</label>
-            <select id="previewFormat">
-              <option value="svg" selected>SVG</option>
-              <option value="png">PNG</option>
-              <option value="webp">WebP</option>
-              <option value="avif">AVIF</option>
-              <option value="gif">GIF</option>
-            </select>
-          </div>
-          <div>
-            <label for="exportFormat">Embed / export format</label>
-            <select id="exportFormat">
-              <option value="svg" selected>SVG</option>
-              <option value="png">PNG</option>
-              <option value="webp">WebP</option>
-              <option value="avif">AVIF</option>
-              <option value="gif">GIF</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div>
-            <label for="quality">Quality</label>
-            <input id="quality" type="number" value="" min="1" max="100" placeholder="(webp/avif)" />
-          </div>
-          <div>
-            <label for="frames">Frames</label>
-            <input id="frames" type="number" value="" min="6" max="60" placeholder="(gif)" />
+        <div id="outputFormatsBlock" class="fieldGroup">
+          <div class="groupLabel">Preview &amp; export</div>
+          <div class="row">
+            <div>
+              <label for="previewFormat">Preview format</label>
+              <select id="previewFormat">
+                <option value="svg" selected>SVG</option>
+                <option value="png">PNG</option>
+                <option value="webp">WebP</option>
+                <option value="avif">AVIF</option>
+                <option value="gif">GIF</option>
+              </select>
+            </div>
+            <div>
+              <label for="exportFormat">Embed / export format</label>
+              <select id="exportFormat">
+                <option value="svg" selected>SVG</option>
+                <option value="png">PNG</option>
+                <option value="webp">WebP</option>
+                <option value="avif">AVIF</option>
+                <option value="gif">GIF</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <div class="row">
+        <div id="exportQualityRow" class="row fieldGroup" hidden>
           <div>
-            <label for="fps">FPS</label>
-            <input id="fps" type="number" value="" min="4" max="30" placeholder="(gif)" />
+            <label for="quality">Quality (export WebP / AVIF)</label>
+            <input id="quality" type="number" value="" min="1" max="100" placeholder="1–100" />
           </div>
           <div></div>
+        </div>
+
+        <div id="gifTimingRow" class="row fieldGroup" hidden>
+          <div>
+            <label for="frames">Frames (GIF)</label>
+            <input id="frames" type="number" value="" min="6" max="60" placeholder="6–60" />
+          </div>
+          <div>
+            <label for="fps">FPS (GIF)</label>
+            <input id="fps" type="number" value="" min="4" max="30" placeholder="4–30" />
+          </div>
         </div>
 
         <label for="preset">Preset</label>
