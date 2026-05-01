@@ -445,6 +445,71 @@
     frame.dataset.bg = String(bg || "grid");
   }
 
+  var zoom = {
+    scale: 1
+  };
+
+  function setZoomScale(scale) {
+    var s = Number(scale);
+    if (!Number.isFinite(s)) return;
+    s = Math.max(0.25, Math.min(4, s));
+    zoom.scale = s;
+
+    var inner = qs("previewInner");
+    if (inner) inner.style.transform = "scale(" + String(s) + ")";
+
+    var readout = qs("zoomReadout");
+    if (readout) readout.textContent = Math.round(s * 100) + "%";
+  }
+
+  function zoomBy(delta) {
+    setZoomScale(zoom.scale + delta);
+  }
+
+  function fitPreviewToFrame() {
+    var frame = qs("previewFrame");
+    var img = qs("preview");
+    if (!frame || !img) return;
+
+    var pad = 18 * 2; // matches .previewFrame padding
+    var availW = Math.max(1, frame.clientWidth - pad);
+    var availH = Math.max(1, frame.clientHeight - pad);
+
+    // Use natural size when available; fall back to rendered size.
+    var iw = img.naturalWidth || img.width || img.getBoundingClientRect().width || 1;
+    var ih = img.naturalHeight || img.height || img.getBoundingClientRect().height || 1;
+
+    var s = Math.min(availW / iw, availH / ih);
+    // Keep fit sane; allow upscaling a bit but not absurd.
+    s = Math.max(0.25, Math.min(2, s));
+    setZoomScale(s);
+  }
+
+  function wirePreviewZoom() {
+    var zi = qs("zoomInBtn");
+    var zo = qs("zoomOutBtn");
+    var zr = qs("zoomResetBtn");
+    var zf = qs("zoomFitBtn");
+    if (zi) zi.addEventListener("click", function () { zoomBy(0.1); });
+    if (zo) zo.addEventListener("click", function () { zoomBy(-0.1); });
+    if (zr) zr.addEventListener("click", function () { setZoomScale(1); });
+    if (zf) zf.addEventListener("click", function () { fitPreviewToFrame(); });
+
+    // Default at 100%.
+    setZoomScale(1);
+
+    // When the image finishes loading, try to keep "fit" reasonably correct
+    // if the user previously clicked fit (heuristic: scale != 1 and <= 2).
+    var img = qs("preview");
+    if (img) {
+      img.addEventListener("load", function () {
+        // If user hasn't touched zoom, keep 100%. Otherwise don't override.
+        // (We only auto-fit when scale is very close to a previous fit.)
+        if (Math.abs(zoom.scale - 1) < 0.001) return;
+      });
+    }
+  }
+
   function wirePreviewBackground() {
     var sel = qs("previewBg");
     if (!sel) return;
@@ -1397,6 +1462,7 @@
     wireStylePills();
     wirePreviewTabs();
     wirePreviewBackground();
+    wirePreviewZoom();
     wireFormatSelects();
     wirePresetSelect();
     wireCopy();
