@@ -169,7 +169,8 @@
   var state = {
     style: "card",
     theme: "rift",
-    format: "svg",
+    previewFormat: "svg",
+    exportFormat: "svg",
     preset: "readme"
   };
 
@@ -233,7 +234,7 @@
 
   function syncAdvancedControls() {
     var isLadder = state.style === "ladder";
-    var format = state.format || "svg";
+    var exportFormat = state.exportFormat || "svg";
 
     var vs = qs("vs");
     var team = qs("team");
@@ -248,13 +249,13 @@
 
     var quality = qs("quality");
     if (quality) {
-      quality.disabled = !(format === "webp" || format === "avif");
+      quality.disabled = !(exportFormat === "webp" || exportFormat === "avif");
       quality.placeholder = quality.disabled ? "(webp/avif)" : "1–100";
     }
 
     var frames = qs("frames");
     var fps = qs("fps");
-    var gifOn = format === "gif";
+    var gifOn = exportFormat === "gif";
     if (frames) frames.disabled = !gifOn;
     if (fps) fps.disabled = !gifOn;
   }
@@ -396,14 +397,22 @@
     });
   }
 
-  function wireFormatSelect() {
-    var format = qs("format");
-    if (!format) return;
-    format.addEventListener("change", function () {
-      state.format = format.value || "svg";
-      syncAdvancedControls();
-      update();
-    });
+  function wireFormatSelects() {
+    var preview = qs("previewFormat");
+    var exportEl = qs("exportFormat");
+    if (preview) {
+      preview.addEventListener("change", function () {
+        state.previewFormat = preview.value || "svg";
+        update();
+      });
+    }
+    if (exportEl) {
+      exportEl.addEventListener("change", function () {
+        state.exportFormat = exportEl.value || "svg";
+        syncAdvancedControls();
+        update();
+      });
+    }
   }
 
   function wirePresetSelect() {
@@ -420,7 +429,7 @@
     });
   }
 
-  function buildQuery() {
+  function buildCommonQuery() {
     var sp = new URLSearchParams();
     var user = qs("user").value.trim();
     var width = qs("width").value.trim();
@@ -456,7 +465,20 @@
       if (teamList.length) sp.set("team", teamList.join(","));
     }
 
-    var format = state.format || "svg";
+    // Theme overrides (optional). Keys mirror OpenAPI: bg/frame/text/accent/glow.
+    ["bg", "frame", "text", "accent", "glow"].forEach(function (key) {
+      var el = qs(key);
+      if (!el) return;
+      var v = String(el.value || "").trim();
+      if (v) sp.set(key, v);
+    });
+
+    return sp;
+  }
+
+  function buildFormatQuery(common, format) {
+    var sp = new URLSearchParams(common.toString());
+
     if (format === "webp" || format === "avif") {
       var q = normalizeMaybeNumber(qs("quality").value);
       if (q != null) sp.set("quality", String(Math.round(q)));
@@ -467,14 +489,6 @@
       if (frames != null) sp.set("frames", String(Math.round(frames)));
       if (fps != null) sp.set("fps", String(Math.round(fps)));
     }
-
-    // Theme overrides (optional). Keys mirror OpenAPI: bg/frame/text/accent/glow.
-    ["bg", "frame", "text", "accent", "glow"].forEach(function (key) {
-      var el = qs(key);
-      if (!el) return;
-      var v = String(el.value || "").trim();
-      if (v) sp.set(key, v);
-    });
 
     return sp;
   }
@@ -541,43 +555,52 @@
     var docsLink = qs("docsLink");
     if (docsLink) docsLink.href = apiBase + "/docs";
 
-    var sp = buildQuery();
-    var user = sp.get("user");
-    var vs = sp.get("vs");
-    var format = state.format || "svg";
+    var common = buildCommonQuery();
+    var user = common.get("user");
+    var vs = common.get("vs");
+    var previewFormat = state.previewFormat || "svg";
+    var exportFormat = state.exportFormat || "svg";
 
-    var renderUrlObj = new URL(renderPathForFormat(format), apiBase);
-    renderUrlObj.search = sp.toString();
+    var previewSp = buildFormatQuery(common, previewFormat);
+    var exportSp = buildFormatQuery(common, exportFormat);
+
+    var previewUrlObj = new URL(renderPathForFormat(previewFormat), apiBase);
+    previewUrlObj.search = previewSp.toString();
+    var exportUrlObj = new URL(renderPathForFormat(exportFormat), apiBase);
+    exportUrlObj.search = exportSp.toString();
     var meta = new URL("/v1/meta.json", apiBase);
     var metaParams = new URLSearchParams({ user: user || "" });
     if (vs) metaParams.set("vs", vs);
     meta.search = metaParams.toString();
-    var embedUrl = renderUrlObj.toString();
+    var embedUrl = exportUrlObj.toString();
 
     // Cache-bust both requests so the preview never gets stuck on a prior
     // error response (e.g. a 404 while the user fixes a typo'd username).
     var cacheBust = String(Date.now());
-    renderUrlObj.searchParams.set("_t", cacheBust);
+    previewUrlObj.searchParams.set("_t", cacheBust);
     meta.searchParams.set("_t", cacheBust);
 
-    var renderUrl = renderUrlObj.toString();
+    var renderUrl = previewUrlObj.toString();
     var metaUrl = meta.toString();
+    var exportUrl = exportUrlObj.toString();
 
     qs("styleBadge").textContent = state.style.toUpperCase();
     qs("themeBadge").textContent = state.theme;
-    qs("formatBadge").textContent = format.toUpperCase();
+    qs("formatBadge").textContent = previewFormat.toUpperCase();
 
     var img = qs("preview");
     img.alt =
       "LP climb " +
-      format +
+      previewFormat +
       " " +
       state.style +
       " for " +
       (user || "—") +
       (vs ? " vs " + vs : "");
 
-    qs("openSvg").href = renderUrl;
+    qs("openSvg").href = exportUrl;
+    var openPreview = qs("openPreview");
+    if (openPreview) openPreview.href = renderUrl;
     qs("openMeta").href = metaUrl;
     qs("embed").textContent = embedUrl;
 
@@ -621,7 +644,7 @@
         " · " +
         state.style +
         " · " +
-        format.toUpperCase(),
+        previewFormat.toUpperCase(),
       { ms: 1400 }
     );
 
@@ -637,7 +660,7 @@
     try {
       res = await fetch(renderUrl, {
         signal: inflight.signal,
-        headers: { Accept: acceptHeaderForFormat(format) }
+        headers: { Accept: acceptHeaderForFormat(previewFormat) }
       });
     } catch (err) {
       clearTimeout(timeoutId);
@@ -877,7 +900,7 @@
   function init() {
     renderThemeChips();
     wireStylePills();
-    wireFormatSelect();
+    wireFormatSelects();
     wirePresetSelect();
     wireCopy();
     wireErrorPanel();

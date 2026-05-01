@@ -741,14 +741,28 @@
           </div>
         </details>
 
-        <label for="format">Format</label>
-        <select id="format">
-          <option value="svg" selected>SVG</option>
-          <option value="png">PNG</option>
-          <option value="webp">WebP</option>
-          <option value="avif">AVIF</option>
-          <option value="gif">GIF</option>
-        </select>
+        <div class="row">
+          <div>
+            <label for="previewFormat">Preview format</label>
+            <select id="previewFormat">
+              <option value="svg" selected>SVG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WebP</option>
+              <option value="avif">AVIF</option>
+              <option value="gif">GIF</option>
+            </select>
+          </div>
+          <div>
+            <label for="exportFormat">Embed / export format</label>
+            <select id="exportFormat">
+              <option value="svg" selected>SVG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WebP</option>
+              <option value="avif">AVIF</option>
+              <option value="gif">GIF</option>
+            </select>
+          </div>
+        </div>
 
         <div class="row">
           <div>
@@ -793,7 +807,8 @@
         <button id="renderBtn" class="primary">Render card</button>
 
         <div class="actions">
-          <a id="openSvg" href="#" target="_blank" rel="noreferrer">Open render</a>
+          <a id="openSvg" href="#" target="_blank" rel="noreferrer">Open export</a>
+          <a id="openPreview" href="#" target="_blank" rel="noreferrer">Open preview</a>
           <a id="openMeta" href="#" target="_blank" rel="noreferrer">Open meta.json</a>
         </div>
 
