@@ -12,6 +12,12 @@ export type Cache<V> = {
   set: (key: CacheKey, value: V, ttlSeconds: number, staleSeconds: number) => void;
 };
 
+export type CacheParams<V> = {
+  maxEntries: number;
+  maxSize?: number;
+  sizeCalculation?: (value: V, key: CacheKey) => number;
+};
+
 /**
  * Stale-While-Revalidate LRU.
  *
@@ -26,12 +32,25 @@ export type Cache<V> = {
  * extra base64 round-trip. `lru-cache` accepts any value — we just keep the
  * public type surface honest.
  */
-export function createMemoryCache<V>(params: { maxEntries: number }): Cache<V> {
+export function createMemoryCache<V>(params: CacheParams<V>): Cache<V> {
   const lru = new LRUCache<
     string,
     { value: V; freshUntil: number; staleUntil: number; storedAtMs: number }
   >({
-    max: params.maxEntries
+    max: params.maxEntries,
+    ...(params.maxSize !== undefined ? { maxSize: params.maxSize } : {}),
+    ...(params.sizeCalculation
+      ? {
+          sizeCalculation: (
+            entry: { value: V; freshUntil: number; staleUntil: number; storedAtMs: number },
+            key: string
+          ) => {
+            // Count the caller-provided payload size plus a small fixed
+            // overhead for the SWR metadata stored alongside it.
+            return Math.max(1, params.sizeCalculation!(entry.value, key) + 32);
+          }
+        }
+      : {})
   });
 
   return {

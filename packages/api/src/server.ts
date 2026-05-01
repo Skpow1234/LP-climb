@@ -33,22 +33,51 @@ import {
 
 const env = loadEnv();
 
+type ContribData = {
+  cells: ContributionCell[];
+  stats: ContributionStats;
+};
+
+function estimateTextBytes(value: string, key: string) {
+  return Buffer.byteLength(key, "utf8") + Buffer.byteLength(value, "utf8");
+}
+
+function estimateBinaryBytes(value: Buffer, key: string) {
+  return Buffer.byteLength(key, "utf8") + value.byteLength;
+}
+
+function estimateContribBytes(value: ContribData, key: string) {
+  // Contribution cells are compact fixed-shape records. This estimate is
+  // intentionally conservative so large user sets age out before they push
+  // out a disproportionate amount of binary render data.
+  const cellsBytes = value.cells.length * 40;
+  const statsBytes = 128;
+  return Buffer.byteLength(key, "utf8") + cellsBytes + statsBytes;
+}
+
 // Three LRUs, one per hot value-shape:
 //   - `contribCache` holds typed contribution cells + precomputed stats.
 //   - `textCache` holds SVG / JSON / Prometheus text.
 //   - `binaryCache` holds raw `Buffer`s for PNG / WebP / AVIF / GIF.
 //
-// Keeping contribution payloads as structured objects avoids a JSON
-// stringify/parse round-trip on every hit and lets us reuse `computeStats()`
-// across render + meta handlers.
-const contribCache = createMemoryCache<ContribData>({ maxEntries: env.CACHE_MAX_ENTRIES });
-const textCache = createMemoryCache<string>({ maxEntries: env.CACHE_MAX_ENTRIES });
-const binaryCache = createMemoryCache<Buffer>({ maxEntries: env.CACHE_MAX_ENTRIES });
-
-type ContribData = {
-  cells: ContributionCell[];
-  stats: ContributionStats;
-};
+// Each cache is bounded by both entry count and an approximate byte budget.
+// That keeps a burst of large GIFs / AVIFs from evicting the much smaller,
+// much hotter contribution and SVG entries too aggressively.
+const contribCache = createMemoryCache<ContribData>({
+  maxEntries: env.CACHE_MAX_ENTRIES,
+  maxSize: env.CACHE_CONTRIB_MAX_BYTES,
+  sizeCalculation: estimateContribBytes
+});
+const textCache = createMemoryCache<string>({
+  maxEntries: env.CACHE_MAX_ENTRIES,
+  maxSize: env.CACHE_TEXT_MAX_BYTES,
+  sizeCalculation: estimateTextBytes
+});
+const binaryCache = createMemoryCache<Buffer>({
+  maxEntries: env.CACHE_MAX_ENTRIES,
+  maxSize: env.CACHE_BINARY_MAX_BYTES,
+  sizeCalculation: estimateBinaryBytes
+});
 
 type ContribCacheSource = "hit" | "stale" | "miss";
 type ContribFetchResult = {

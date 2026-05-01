@@ -66,6 +66,20 @@ describe("createMemoryCache", () => {
     vi.advanceTimersByTime(5_001);
     expect(c.get("k")).toEqual({ hit: false });
   });
+
+  it("can evict by estimated byte size, not just entry count", () => {
+    const c = createMemoryCache<string>({
+      maxEntries: 10,
+      maxSize: 10,
+      sizeCalculation: (value) => value.length
+    });
+    c.set("a", "12345", 60, 60);
+    c.set("b", "67890", 60, 60);
+    c.set("c", "abcde", 60, 60);
+    expect(c.get("a")).toEqual({ hit: false });
+    expect(c.get("b").hit).toBe(true);
+    expect(c.get("c").hit).toBe(true);
+  });
 });
 
 describe("createCoalescer", () => {

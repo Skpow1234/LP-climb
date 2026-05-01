@@ -417,7 +417,10 @@ All read by `packages/api/src/env.ts` (see [`.env.example`](.env.example) for a 
 | `GITHUB_TOKEN` | _(required)_ | Token for GitHub GraphQL contribution queries. Needs no scopes (public data). |
 | `CACHE_TTL_SECONDS` | `21600` (6 h) | Fresh window for the SWR LRU. |
 | `CACHE_STALE_SECONDS` | `86400` (24 h) | Extra stale window — entries are served + refreshed in background. |
-| `CACHE_MAX_ENTRIES` | `5000` | LRU capacity — shared across the contribution cache and all render/meta outputs. Heavy GIF/AVIF traffic will evict contribution entries, so size with both in mind. |
+| `CACHE_MAX_ENTRIES` | `5000` | Per-cache entry cap. Acts as a secondary guardrail alongside the byte budgets below. |
+| `CACHE_CONTRIB_MAX_BYTES` | `16777216` (16 MiB) | Approximate byte budget for cached GitHub contribution payloads + precomputed stats. |
+| `CACHE_TEXT_MAX_BYTES` | `67108864` (64 MiB) | Approximate byte budget for cached SVG / JSON / Prometheus text responses. |
+| `CACHE_BINARY_MAX_BYTES` | `134217728` (128 MiB) | Approximate byte budget for cached PNG / WebP / AVIF / GIF responses. |
 | `RATE_LIMIT_MAX` | `120` | Requests per IP per window. |
 | `RATE_LIMIT_TIME_WINDOW_SECONDS` | `60` | Rate-limit window. |
 | `CORS_ALLOW_ORIGINS` | `*` | Comma-separated list, `*` for any, **empty string disables CORS**. |

@@ -7,6 +7,9 @@ const EnvSchema = z.object({
   CACHE_TTL_SECONDS: z.coerce.number().int().min(10).max(86400).default(21600),
   CACHE_STALE_SECONDS: z.coerce.number().int().min(0).max(604800).default(86400),
   CACHE_MAX_ENTRIES: z.coerce.number().int().min(100).max(50000).default(5000),
+  CACHE_CONTRIB_MAX_BYTES: z.coerce.number().int().min(1024).max(1024 * 1024 * 1024).default(16 * 1024 * 1024),
+  CACHE_TEXT_MAX_BYTES: z.coerce.number().int().min(1024).max(1024 * 1024 * 1024).default(64 * 1024 * 1024),
+  CACHE_BINARY_MAX_BYTES: z.coerce.number().int().min(1024).max(1024 * 1024 * 1024).default(128 * 1024 * 1024),
   RATE_LIMIT_MAX: z.coerce.number().int().min(1).max(10000).default(120),
   RATE_LIMIT_TIME_WINDOW_SECONDS: z.coerce.number().int().min(1).max(3600).default(60),
   // CORS: comma-separated allow-list of origins. `*` (the default) reflects
@@ -33,4 +36,3 @@ export type Env = z.infer<typeof EnvSchema>;
 export function loadEnv(env: NodeJS.ProcessEnv = process.env): Env {
   return EnvSchema.parse(env);
 }
-
