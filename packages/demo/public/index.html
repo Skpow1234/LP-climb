@@ -355,38 +355,61 @@
       /* Theme chip grid */
       .chips {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 6px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
       }
       .chip {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        padding: 8px 6px;
-        border-radius: 10px;
-        font-size: 11.5px;
-        font-weight: 700;
-        color: var(--muted);
-        border: 1px solid var(--panel-border);
-        background: rgba(0, 0, 0, 0.28);
+        align-items: stretch;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 10px;
+        border-radius: 14px;
+        font-size: 12.5px;
+        font-weight: 900;
+        color: rgba(240, 242, 248, 0.82);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background:
+          radial-gradient(320px 120px at 10% 0%, rgba(255, 255, 255, 0.06), transparent 70%),
+          rgba(0, 0, 0, 0.22);
         cursor: pointer;
         letter-spacing: 0.2px;
-        transition: border-color 0.15s, color 0.15s, background 0.15s;
+        text-align: left;
+        transition: border-color 0.15s, color 0.15s, background 0.15s, transform 0.05s;
       }
       .chip:hover {
-        color: var(--text);
+        border-color: rgba(255, 255, 255, 0.18);
+        background:
+          radial-gradient(320px 120px at 10% 0%, rgba(255, 255, 255, 0.085), transparent 70%),
+          rgba(0, 0, 0, 0.24);
       }
       .chip[aria-pressed="true"] {
-        color: var(--text);
-        background: rgba(255, 255, 255, 0.04);
-        border-color: rgba(255, 255, 255, 0.22);
+        color: rgba(240, 242, 248, 0.95);
+        border-color: rgba(142, 59, 255, 0.34);
+        background:
+          radial-gradient(320px 120px at 10% 0%, rgba(142, 59, 255, 0.18), transparent 70%),
+          rgba(0, 0, 0, 0.24);
       }
       .swatch {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        box-shadow: 0 0 10px currentColor;
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+        box-shadow:
+          0 10px 22px rgba(0, 0, 0, 0.25),
+          0 0 0 1px rgba(255, 255, 255, 0.16) inset;
+        flex-shrink: 0;
+      }
+      .chipMeta {
+        display: grid;
+        gap: 3px;
+        padding-top: 1px;
+      }
+      .chipMeta small {
+        color: rgba(240, 242, 248, 0.55);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.25px;
+        line-height: 1.2;
       }
 
       button.primary {

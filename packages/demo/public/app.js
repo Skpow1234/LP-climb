@@ -709,13 +709,15 @@
       btn.dataset.theme = t.id;
       btn.setAttribute("aria-pressed", String(t.id === state.theme));
       btn.innerHTML =
-        '<span class="swatch" style="background:' +
+        '<span class="chipMeta"><span>' +
+        t.label +
+        '</span><small>Accent ' +
+        t.accent +
+        '</small></span><span class="swatch" style="background:' +
         t.accent +
         ";color:" +
         t.accent +
-        '"></span><span>' +
-        t.label +
-        "</span>";
+        '"></span>';
       btn.addEventListener("click", function () {
         state.theme = t.id;
         syncThemeChips();
